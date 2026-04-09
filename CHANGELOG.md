@@ -1,6 +1,3 @@
-Voici une version améliorée du fichier `CHANGELOG.md` pour RedForge v2.0 :
-
-```markdown
 # Changelog RedForge
 
 Tous les changements notables du projet RedForge seront documentés dans ce fichier.
@@ -371,7 +368,6 @@ Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 [Téléchargement](https://github.com/Elfried002/RedForge/releases) |
 
 </div>
-```
 
 ## Résumé des changements pour la v2.0.0
 

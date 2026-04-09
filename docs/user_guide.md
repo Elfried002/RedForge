@@ -1,6 +1,3 @@
-Voici une version améliorée du fichier `user_guide.md` pour RedForge v2.0 :
-
-```markdown
 # Guide d'utilisation de RedForge v2.0
 
 ## Table des matières
@@ -1295,9 +1292,7 @@ redforge --plugin list
 
 ### Contact
 
-- **Email support** : support@redforge.io
-- **Email sécurité** : security@redforge.io
-- **Email commercial** : sales@redforge.io
+- **Email** : elfriedyobouet@gmail.com
 
 ---
 
@@ -1313,12 +1308,11 @@ N'oubliez pas : **avec de grands pouvoirs viennent de grandes responsabilités**
 
 *Documentation utilisateur - Version 2.0.0*
 
-**🔴 RedForge - Forgez vos attaques, maîtrisez vos cibles**
+** RedForge - Forgez vos attaques, maîtrisez vos cibles**
 
 *Dernière mise à jour : 9 Avril 2025*
 
 </div>
-```
 
 ## Résumé des mises à jour pour la v2.0.0
 

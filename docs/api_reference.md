@@ -1,6 +1,3 @@
-Voici une version améliorée du fichier `api_reference.md` pour RedForge v2.0 avec les nouvelles fonctionnalités :
-
-```markdown
 # API Reference - RedForge v2.0
 
 ## Table des matières
@@ -1708,10 +1705,10 @@ Voir le fichier [LICENSE](../LICENSE) pour plus de détails.
 
 *Documentation de la Version 2.0.0*
 
-**🔴 RedForge - Forgez vos attaques, maîtrisez vos cibles**
+** RedForge - Forgez vos attaques, maîtrisez vos cibles**
 
 </div>
-```
+
 
 ## Résumé des mises à jour pour la v2.0.0
 

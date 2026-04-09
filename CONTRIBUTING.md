@@ -1,6 +1,3 @@
-Voici une version améliorée du fichier `CONTRIBUTING.md` pour RedForge v2.0 :
-
-```markdown
 # Guide de contribution à RedForge v2.0
 
 Merci de votre intérêt pour contribuer à RedForge ! Ce document fournit les lignes directrices pour contribuer au projet.
@@ -695,7 +692,4 @@ src/web_interface/static/
 
 *"Forgez vos attaques, maîtrisez vos cibles"*
 
-Made with ❤️ by the RedForge Team
-
 </div>
-```

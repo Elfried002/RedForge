@@ -1,4 +1,3 @@
-```markdown
 <div align="center">
 
 # 🔒 Politique de sécurité de RedForge v2.0
@@ -826,6 +825,4 @@ Les informations partagées avec l'équipe sécurité sont :
 *Signalez de manière responsable, protégez de manière proactive*
 
 **Dernière mise à jour : 9 Avril 2026 | Version 2.0.0**
-
 </div>
-```

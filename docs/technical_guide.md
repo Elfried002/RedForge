@@ -1,6 +1,3 @@
-Voici une version améliorée du fichier `technical_guide.md` pour RedForge v2.0 :
-
-```markdown
 # Guide Technique RedForge v2.0
 
 ## Table des matières
@@ -31,14 +28,14 @@ RedForge v2.0 est construit sur une architecture modulaire en couches, conçue p
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           Interface Utilisateur                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  CLI (argparse)  │  GUI (Flask + Socket.IO)  │  API REST  │  WebSocket     │
+│  CLI (argparse)  │  GUI (Flask + Socket.IO)  │  API REST  │  WebSocket      │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                         Orchestrateur Central v2.0                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  Attacks  │  Connectors  │  Phases  │  Utils  │  Stealth  │  Multi  │  APT  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                              Outils Externes                                │
-│  Nmap │ Metasploit │ SQLMap │ Hydra │ XSStrike │ TOR │ Proxychains │ ...   │
+│  Nmap │ Metasploit │ SQLMap │ Hydra │ XSStrike │ TOR │ Proxychains │ ...    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -938,12 +935,11 @@ redforge --plugin disable my_plugin
 
 *Documentation technique - Version 2.0.0*
 
-**🔴 RedForge - Forgez vos attaques, maîtrisez vos cibles**
+** RedForge - Forgez vos attaques, maîtrisez vos cibles**
 
 *Dernière mise à jour : 9 Avril 2025*
 
 </div>
-```
 
 ## Résumé des mises à jour pour la v2.0.0
 
