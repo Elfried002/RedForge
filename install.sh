@@ -180,7 +180,7 @@ install_system_deps() {
         metasploit-framework
         tor proxychains
         gobuster ffuf
-        xsstrike dalfox
+        xsstrike
         wafw00f
         dnsrecon theharvester
         jq vim-tiny htop
@@ -196,6 +196,25 @@ install_system_deps() {
             log "$package déjà installé"
         fi
     done
+    
+    # Installation de dalfox via Go
+    if ! command -v dalfox &> /dev/null; then
+        log_info "Installation de dalfox via Go..."
+        if ! command -v go &> /dev/null; then
+            apt install -y golang-go
+        fi
+        go install github.com/hahwul/dalfox/v2@latest
+        # Copier dans /usr/local/bin
+        if [ -f "$HOME/go/bin/dalfox" ]; then
+            cp "$HOME/go/bin/dalfox" /usr/local/bin/
+        elif [ -f "/root/go/bin/dalfox" ]; then
+            cp /root/go/bin/dalfox /usr/local/bin/
+        fi
+        chmod +x /usr/local/bin/dalfox
+        log "dalfox installé"
+    else
+        log "dalfox déjà installé"
+    fi
     
     log "Dépendances système installées"
 }
@@ -270,28 +289,32 @@ copy_files() {
     log "Fichiers copiés"
 }
 
-# Installation des wordlists
+# Installation des wordlists (utilisation de common_passwords.txt déjà présent)
 install_wordlists() {
     log_info "Installation des wordlists..."
     
-    if [ ! -f "/usr/share/wordlists/rockyou.txt" ]; then
-        if [ -f "/usr/share/wordlists/rockyou.txt.gz" ]; then
-            gunzip /usr/share/wordlists/rockyou.txt.gz
-            log "RockYou décompressé"
-        else
-            curl -L -o /tmp/rockyou.txt.gz https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt.gz
-            gunzip /tmp/rockyou.txt.gz
-            cp /tmp/rockyou.txt /usr/share/wordlists/
-            log "RockYou téléchargé"
-        fi
+    # Vérifier que common_passwords.txt existe déjà dans src/data/wordlists/
+    if [ -f "$SCRIPT_DIR/src/data/wordlists/common_passwords.txt" ]; then
+        log "common_passwords.txt déjà présent (133MB) - utilisé comme wordlist principale"
+    else
+        log_warning "common_passwords.txt non trouvé, téléchargement..."
+        mkdir -p "$SCRIPT_DIR/src/data/wordlists/"
+        curl -L -o "$SCRIPT_DIR/src/data/wordlists/common_passwords.txt" \
+            "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt"
+        log "common_passwords.txt téléchargé"
     fi
     
+    # SecLists (version allégée)
     if [ ! -d "/usr/share/seclists" ]; then
         git clone --depth 1 https://github.com/danielmiessler/SecLists.git /usr/share/seclists
         log "SecLists installé"
     fi
     
+    # Wordlists spécifiques RedForge
     mkdir -p "$REDFORGE_HOME/wordlists"/{passwords,usernames,directories,subdomains}
+    
+    # Copier common_passwords.txt dans le dossier d'installation
+    cp "$SCRIPT_DIR/src/data/wordlists/common_passwords.txt" "$REDFORGE_HOME/wordlists/passwords/common_passwords.txt"
     
     cat > "$REDFORGE_HOME/wordlists/passwords/common.txt" << EOF
 admin
@@ -463,7 +486,7 @@ WRAPPER
     ln -sf /usr/local/bin/redforge /usr/local/bin/RedForge
     
     # Vérifier que les liens fonctionnent
-    if [ -L "/usr/local/bin/redforge" ] || [ -f "/usr/local/bin/redforge" ]; then
+    if [ -f "/usr/local/bin/redforge" ]; then
         log "✅ Lien symbolique créé: /usr/local/bin/redforge"
         log "✅ Lien symbolique créé: /usr/local/bin/RedForge"
     else
@@ -534,7 +557,6 @@ uninstall() {
     read -p "Supprimer les wordlists téléchargées ? (o/N): " del_wordlists
     if [[ "$del_wordlists" =~ ^[oO]$ ]]; then
         rm -rf /usr/share/seclists
-        rm -f /usr/share/wordlists/rockyou.txt
         log "Wordlists supprimées"
     fi
     
@@ -615,7 +637,7 @@ show_completion() {
     echo -e "${CYAN}📖 Pour commencer :${NC}"
     echo -e "  ${GREEN}redforge --help${NC}                    - Afficher l'aide"
     echo -e "  ${GREEN}redforge -t example.com${NC}            - Scan rapide"
-    echo -e "  ${GREEN}sudo redforge -g${NC}                   - Lancer l'interface graphique"
+    echo -e "  ${GREEN}redforge -g${NC}                        - Lancer l'interface graphique"
     echo -e "  ${GREEN}redforge --stealth${NC}                 - Mode furtif"
     echo -e "  ${GREEN}redforge --multi config.json${NC}       - Multi-attaque"
     echo -e "  ${GREEN}redforge --apt recon_to_exfil${NC}      - Opération APT"
