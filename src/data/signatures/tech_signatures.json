@@ -1,0 +1,904 @@
+{
+    "web_servers": {
+        "apache": {
+            "name": "Apache HTTP Server",
+            "description": "Serveur web open source le plus populaire",
+            "patterns": {
+                "headers": [
+                    "Server: Apache",
+                    "Server: Apache/",
+                    "X-Powered-By: Apache"
+                ],
+                "html": [
+                    "Apache",
+                    "Apache/",
+                    "Apache Tomcat",
+                    "mod_",
+                    ".htaccess"
+                ],
+                "files": [
+                    "/server-status",
+                    "/server-info",
+                    "/.htaccess",
+                    "/.htpasswd",
+                    "/cgi-bin/",
+                    "/icons/",
+                    "/manual/"
+                ]
+            }
+        },
+        "nginx": {
+            "name": "Nginx",
+            "description": "Serveur web haute performance",
+            "patterns": {
+                "headers": [
+                    "Server: nginx",
+                    "Server: nginx/",
+                    "X-Powered-By: nginx"
+                ],
+                "html": [
+                    "nginx",
+                    "nginx/",
+                    "nginx-",
+                    "nginx_"
+                ],
+                "files": [
+                    "/nginx_status",
+                    "/status",
+                    "/.well-known/",
+                    "/nginx.conf"
+                ]
+            }
+        },
+        "iis": {
+            "name": "Microsoft IIS",
+            "description": "Serveur web Microsoft",
+            "patterns": {
+                "headers": [
+                    "Server: Microsoft-IIS",
+                    "Server: IIS",
+                    "X-Powered-By: ASP.NET"
+                ],
+                "html": [
+                    "IIS",
+                    "Internet Information Services",
+                    "ASP.NET",
+                    ".aspx",
+                    ".ashx",
+                    ".asmx"
+                ],
+                "files": [
+                    "/iisstart.htm",
+                    "/iisstart.png",
+                    "/web.config",
+                    "/aspnet_client/",
+                    "/Trace.axd",
+                    "/elmah.axd"
+                ]
+            }
+        },
+        "tomcat": {
+            "name": "Apache Tomcat",
+            "description": "Serveur d'applications Java",
+            "patterns": {
+                "headers": [
+                    "Server: Apache-Coyote",
+                    "Server: Tomcat"
+                ],
+                "html": [
+                    "Tomcat",
+                    "Apache Tomcat",
+                    "Catalina",
+                    "JSP",
+                    ".jsp",
+                    ".jspx"
+                ],
+                "files": [
+                    "/manager/html",
+                    "/host-manager/html",
+                    "/examples/",
+                    "/docs/",
+                    "/tomcat.png",
+                    "/favicon.ico"
+                ]
+            }
+        },
+        "nodejs": {
+            "name": "Node.js",
+            "description": "Environnement JavaScript côté serveur",
+            "patterns": {
+                "headers": [
+                    "X-Powered-By: Express",
+                    "Server: Node.js"
+                ],
+                "html": [
+                    "Node.js",
+                    "Express",
+                    "socket.io",
+                    "node_modules"
+                ],
+                "files": [
+                    "/package.json",
+                    "/node_modules/",
+                    "/server.js",
+                    "/app.js",
+                    "/index.js"
+                ]
+            }
+        },
+        "gunicorn": {
+            "name": "Gunicorn",
+            "description": "Serveur WSGI Python",
+            "patterns": {
+                "headers": [
+                    "Server: gunicorn"
+                ],
+                "html": [
+                    "gunicorn"
+                ]
+            }
+        },
+        "caddy": {
+            "name": "Caddy",
+            "description": "Serveur web moderne avec HTTPS auto",
+            "patterns": {
+                "headers": [
+                    "Server: Caddy"
+                ],
+                "html": [
+                    "Caddy"
+                ]
+            }
+        },
+        "lighttpd": {
+            "name": "Lighttpd",
+            "description": "Serveur web léger et rapide",
+            "patterns": {
+                "headers": [
+                    "Server: lighttpd"
+                ],
+                "html": [
+                    "lighttpd"
+                ]
+            }
+        }
+    },
+    "programming_languages": {
+        "php": {
+            "name": "PHP",
+            "description": "Langage de script côté serveur",
+            "patterns": {
+                "headers": [
+                    "X-Powered-By: PHP",
+                    "Set-Cookie: PHPSESSID"
+                ],
+                "html": [
+                    ".php",
+                    ".php5",
+                    ".php4",
+                    ".php3",
+                    ".phtml",
+                    "PHPSESSID",
+                    "<?php",
+                    "<?="
+                ],
+                "files": [
+                    "/phpinfo.php",
+                    "/info.php",
+                    "/test.php",
+                    "/index.php"
+                ]
+            }
+        },
+        "python": {
+            "name": "Python",
+            "description": "Langage polyvalent côté serveur",
+            "patterns": {
+                "headers": [
+                    "X-Powered-By: Python",
+                    "Server: Python"
+                ],
+                "html": [
+                    ".py",
+                    ".pyc",
+                    ".pyo",
+                    "wsgi",
+                    "django",
+                    "flask",
+                    "fastapi"
+                ],
+                "files": [
+                    "/wsgi.py",
+                    "/manage.py",
+                    "/requirements.txt",
+                    "/Pipfile"
+                ]
+            }
+        },
+        "ruby": {
+            "name": "Ruby",
+            "description": "Langage orienté objet",
+            "patterns": {
+                "headers": [
+                    "X-Powered-By: Ruby",
+                    "Server: Ruby",
+                    "Set-Cookie: _session_id"
+                ],
+                "html": [
+                    ".rb",
+                    ".rhtml",
+                    ".erb",
+                    "rails",
+                    "sinatra",
+                    "rack",
+                    "ruby"
+                ],
+                "files": [
+                    "/Gemfile",
+                    "/Gemfile.lock",
+                    "/config.ru",
+                    "/Rakefile"
+                ]
+            }
+        },
+        "java": {
+            "name": "Java",
+            "description": "Langage multiplateforme",
+            "patterns": {
+                "headers": [
+                    "X-Powered-By: Java",
+                    "Set-Cookie: JSESSIONID"
+                ],
+                "html": [
+                    ".jsp",
+                    ".jspx",
+                    ".do",
+                    ".action",
+                    "JSESSIONID",
+                    "Java",
+                    "Servlet"
+                ],
+                "files": [
+                    "/WEB-INF/",
+                    "/META-INF/",
+                    "/pom.xml",
+                    "/build.gradle"
+                ]
+            }
+        },
+        "asp_net": {
+            "name": "ASP.NET",
+            "description": "Framework web Microsoft",
+            "patterns": {
+                "headers": [
+                    "X-AspNet-Version",
+                    "X-AspNetMvc-Version",
+                    "Set-Cookie: ASP.NET_SessionId"
+                ],
+                "html": [
+                    ".aspx",
+                    ".ashx",
+                    ".asmx",
+                    ".axd",
+                    "__VIEWSTATE",
+                    "__EVENTVALIDATION",
+                    "ASP.NET"
+                ],
+                "files": [
+                    "/Web.config",
+                    "/web.config",
+                    "/Global.asax",
+                    "/Default.aspx"
+                ]
+            }
+        },
+        "golang": {
+            "name": "Go",
+            "description": "Langage moderne pour APIs",
+            "patterns": {
+                "headers": [
+                    "Server: Go",
+                    "X-Go-Version"
+                ],
+                "html": [
+                    ".go",
+                    "golang"
+                ],
+                "files": [
+                    "/go.mod",
+                    "/go.sum",
+                    "/main.go"
+                ]
+            }
+        },
+        "perl": {
+            "name": "Perl",
+            "description": "Langage de script",
+            "patterns": {
+                "headers": [
+                    "X-Powered-By: Perl"
+                ],
+                "html": [
+                    ".pl",
+                    ".cgi",
+                    "perl"
+                ],
+                "files": [
+                    "/cgi-bin/",
+                    "/index.pl"
+                ]
+            }
+        }
+    },
+    "javascript_frameworks": {
+        "react": {
+            "name": "React",
+            "description": "Bibliothèque UI JavaScript",
+            "patterns": {
+                "html": [
+                    "react",
+                    "ReactDOM",
+                    "React.createElement",
+                    "react-component",
+                    "_reactRootContainer",
+                    "data-react",
+                    "react-inline",
+                    "react-jsx",
+                    "react-render",
+                    "react-hooks"
+                ],
+                "files": [
+                    "/static/js/main.",
+                    "/static/css/main.",
+                    "/asset-manifest.json",
+                    "/service-worker.js",
+                    "/precache-manifest.",
+                    "/react-",
+                    "/react-dom-",
+                    "/react-router-",
+                    "/redux-",
+                    "/mobx-",
+                    "/next-",
+                    "/gatsby-"
+                ]
+            }
+        },
+        "vuejs": {
+            "name": "Vue.js",
+            "description": "Framework progressif JavaScript",
+            "patterns": {
+                "html": [
+                    "vue",
+                    "Vue.js",
+                    "vue-",
+                    "v-bind",
+                    "v-model",
+                    "v-for",
+                    "v-if",
+                    "v-else",
+                    "v-show",
+                    "v-on",
+                    "v-html",
+                    "v-text",
+                    "v-pre",
+                    "v-cloak",
+                    "v-once",
+                    "vue-router",
+                    "vuex",
+                    "vue-loader",
+                    "vue-template"
+                ],
+                "files": [
+                    "/vue/",
+                    "/vuejs/",
+                    "/vue-router/",
+                    "/vuex/",
+                    "/vite/",
+                    "/vue-cli/",
+                    "/nuxt/",
+                    "/quasar/",
+                    "/vuetify/",
+                    "/element-ui/"
+                ]
+            }
+        },
+        "angular": {
+            "name": "Angular",
+            "description": "Framework d'applications web",
+            "patterns": {
+                "html": [
+                    "angular",
+                    "AngularJS",
+                    "ng-",
+                    "ng-app",
+                    "ng-controller",
+                    "ng-model",
+                    "ng-repeat",
+                    "ng-if",
+                    "ng-show",
+                    "ng-hide",
+                    "ng-class",
+                    "ng-style",
+                    "ng-click",
+                    "ng-change",
+                    "ng-submit",
+                    "ng-include",
+                    "ng-view",
+                    "ng-route",
+                    "ng-resource"
+                ],
+                "files": [
+                    "/angular.js",
+                    "/angular-",
+                    "/angular.min.js",
+                    "/angular-animate",
+                    "/angular-aria",
+                    "/angular-cookies",
+                    "/angular-loader",
+                    "/angular-message-format",
+                    "/angular-messages",
+                    "/angular-mocks",
+                    "/angular-parse-ext",
+                    "/angular-resource",
+                    "/angular-route",
+                    "/angular-sanitize",
+                    "/angular-scenario",
+                    "/angular-touch",
+                    "/zone.js",
+                    "/core.js",
+                    "/common.js",
+                    "/compiler.js",
+                    "/platform-browser.js",
+                    "/platform-browser-dynamic.js",
+                    "/router.js"
+                ]
+            }
+        },
+        "jquery": {
+            "name": "jQuery",
+            "description": "Bibliothèque JavaScript",
+            "patterns": {
+                "html": [
+                    "jquery",
+                    "jQuery",
+                    "$(",
+                    "jQuery(",
+                    "jQuery.fn",
+                    "jQuery.extend",
+                    "$.ajax",
+                    "$.get",
+                    "$.post",
+                    "$.getJSON",
+                    "$.getScript",
+                    "$.load",
+                    "$.param",
+                    "$.serialize",
+                    "$.serializeArray",
+                    "$.each",
+                    "$.map",
+                    "$.grep",
+                    "$.inArray",
+                    "$.isArray",
+                    "$.isEmptyObject",
+                    "$.isFunction",
+                    "$.isNumeric",
+                    "$.isPlainObject",
+                    "$.isWindow",
+                    "$.makeArray",
+                    "$.merge",
+                    "$.noop",
+                    "$.now",
+                    "$.parseHTML",
+                    "$.parseJSON",
+                    "$.parseXML",
+                    "$.proxy",
+                    "$.trim",
+                    "$.type",
+                    "$.unique"
+                ],
+                "files": [
+                    "/jquery/",
+                    "/jquery-",
+                    "/jquery.min.js",
+                    "/jquery-ui/",
+                    "/jquery-migrate/",
+                    "/jquery-validation/",
+                    "/jquery-mobile/",
+                    "/jquery-tools/",
+                    "/jquery-file-upload/",
+                    "/jquery-cookie/",
+                    "/jquery-modal/",
+                    "/jquery-datatable/"
+                ]
+            }
+        },
+        "bootstrap": {
+            "name": "Bootstrap",
+            "description": "Framework CSS/JS",
+            "patterns": {
+                "html": [
+                    "bootstrap",
+                    "Bootstrap",
+                    "data-toggle",
+                    "data-target",
+                    "data-dismiss",
+                    "data-spy",
+                    "data-slide",
+                    "data-slide-to",
+                    "data-ride",
+                    "data-backdrop",
+                    "data-keyboard",
+                    "data-interval",
+                    "data-pause",
+                    "data-wrap",
+                    "data-touch",
+                    "data-container",
+                    "data-delay",
+                    "data-html",
+                    "data-placement",
+                    "data-content",
+                    "data-original-title",
+                    "data-trigger",
+                    "data-offset",
+                    "data-boundary",
+                    "data-reference",
+                    "data-popper-config"
+                ],
+                "files": [
+                    "/bootstrap/",
+                    "/bootstrap-",
+                    "/bootstrap.min.css",
+                    "/bootstrap.min.js",
+                    "/bootstrap-theme/",
+                    "/bootstrap-icons/",
+                    "/bootstrap-datepicker/",
+                    "/bootstrap-select/",
+                    "/bootstrap-table/",
+                    "/bootstrap-tagsinput/",
+                    "/bootstrap-switch/",
+                    "/bootstrap-datetimepicker/",
+                    "/bootstrap-fileinput/",
+                    "/bootstrap-multiselect/",
+                    "/bootstrap-slider/",
+                    "/bootstrap-treeview/",
+                    "/bootstrap-wysiwyg/",
+                    "/bootstrap-colorpicker/",
+                    "/bootstrap-timepicker/",
+                    "/bootstrap-markdown/"
+                ]
+            }
+        },
+        "tailwind": {
+            "name": "Tailwind CSS",
+            "description": "Framework CSS utilitaire",
+            "patterns": {
+                "html": [
+                    "tailwind",
+                    "tw-",
+                    "flex",
+                    "grid",
+                    "container",
+                    "mx-auto",
+                    "px-",
+                    "py-",
+                    "mt-",
+                    "mb-",
+                    "ml-",
+                    "mr-",
+                    "text-",
+                    "font-",
+                    "bg-",
+                    "border-",
+                    "rounded-",
+                    "shadow-",
+                    "hover:",
+                    "focus:",
+                    "active:",
+                    "disabled:",
+                    "sm:",
+                    "md:",
+                    "lg:",
+                    "xl:",
+                    "2xl:"
+                ],
+                "files": [
+                    "/tailwind/",
+                    "/tailwind.css",
+                    "/tailwind.min.css",
+                    "/tailwind.config.js",
+                    "/tailwind-preset.js"
+                ]
+            }
+        }
+    },
+    "cdn_security": {
+        "cloudflare": {
+            "name": "Cloudflare",
+            "description": "CDN et protection DDoS",
+            "patterns": {
+                "headers": [
+                    "CF-Ray",
+                    "CF-Cache-Status",
+                    "Cloudflare",
+                    "__cfduid",
+                    "cf-",
+                    "CF-RAY",
+                    "CF-Cache-Status",
+                    "CF-Cloudflare",
+                    "CF-Worker"
+                ],
+                "html": [
+                    "cloudflare",
+                    "Cloudflare",
+                    "cdn-cgi",
+                    "__cf_chl",
+                    "__cf_bm",
+                    "__cfruid"
+                ],
+                "files": [
+                    "/cdn-cgi/",
+                    "/cdn-cgi/trace",
+                    "/cdn-cgi/challenge-platform",
+                    "/cdn-cgi/scripts/",
+                    "/cdn-cgi/styles/",
+                    "/cdn-cgi/images/"
+                ]
+            }
+        },
+        "akamai": {
+            "name": "Akamai",
+            "description": "CDN et sécurité web",
+            "patterns": {
+                "headers": [
+                    "X-Akamai-",
+                    "X-EdgeConnect",
+                    "Akamai",
+                    "X-Akamai-Transformed",
+                    "X-Akamai-Request-ID",
+                    "X-Akamai-Edge",
+                    "X-Akamai-Session"
+                ]
+            }
+        },
+        "aws_cloudfront": {
+            "name": "AWS CloudFront",
+            "description": "CDN Amazon",
+            "patterns": {
+                "headers": [
+                    "X-Amz-Cf-Id",
+                    "CloudFront",
+                    "X-Cache",
+                    "X-Amz-Cf-Pop",
+                    "X-Amz-Edge",
+                    "X-Amz-Request-ID"
+                ],
+                "html": [
+                    "cloudfront.net",
+                    "cloudfront-"
+                ]
+            }
+        },
+        "fastly": {
+            "name": "Fastly",
+            "description": "CDN et edge cloud",
+            "patterns": {
+                "headers": [
+                    "X-Served-By",
+                    "X-Cache-Hits",
+                    "Fastly",
+                    "X-Squid-Error",
+                    "X-Fastly-Request-ID"
+                ]
+            }
+        },
+        "incapsula": {
+            "name": "Imperva Incapsula",
+            "description": "WAF et CDN",
+            "patterns": {
+                "headers": [
+                    "X-CIS",
+                    "X-Iinfo",
+                    "Incapsula",
+                    "X-Forwarded-For",
+                    "X-Forwarded-Proto"
+                ]
+            }
+        },
+        "sucuri": {
+            "name": "Sucuri",
+            "description": "WAF et sécurité",
+            "patterns": {
+                "headers": [
+                    "X-Sucuri-ID",
+                    "X-Sucuri-Cache",
+                    "Sucuri",
+                    "X-Sucuri-Block"
+                ]
+            }
+        },
+        "modsecurity": {
+            "name": "ModSecurity",
+            "description": "WAF open source",
+            "patterns": {
+                "headers": [
+                    "Mod_Security",
+                    "ModSecurity",
+                    "X-Mod-Security"
+                ],
+                "html": [
+                    "ModSecurity",
+                    "This error was generated by Mod_Security",
+                    "ModSecurity Action"
+                ]
+            }
+        }
+    },
+    "databases": {
+        "mysql": {
+            "name": "MySQL",
+            "description": "Base de données relationnelle",
+            "patterns": {
+                "headers": [
+                    "X-Powered-By: MySQL"
+                ],
+                "html": [
+                    "MySQL",
+                    "mysql",
+                    "SQL syntax",
+                    "MySQLSyntaxError",
+                    "mysql_fetch",
+                    "mysql_connect",
+                    "mysql_query",
+                    "mysql_error",
+                    "mysql_num_rows",
+                    "mysql_affected_rows",
+                    "mysql_insert_id",
+                    "mysql_result",
+                    "mysql_real_escape_string"
+                ]
+            }
+        },
+        "postgresql": {
+            "name": "PostgreSQL",
+            "description": "Base de données avancée",
+            "patterns": {
+                "html": [
+                    "PostgreSQL",
+                    "pg_query",
+                    "pg_connect",
+                    "pg_fetch",
+                    "pg_result",
+                    "pg_num_rows",
+                    "pg_affected_rows",
+                    "pg_insert_id",
+                    "pg_escape_string",
+                    "ERROR: syntax error at or near",
+                    "ERROR: relation",
+                    "ERROR: column"
+                ]
+            }
+        },
+        "mongodb": {
+            "name": "MongoDB",
+            "description": "Base de données NoSQL",
+            "patterns": {
+                "headers": [
+                    "X-MongoDB"
+                ],
+                "html": [
+                    "MongoDB",
+                    "MongoError",
+                    "mongodb",
+                    "MongoClient",
+                    "MongoCursor",
+                    "MongoCollection",
+                    "MongoDatabase"
+                ]
+            }
+        },
+        "redis": {
+            "name": "Redis",
+            "description": "Cache et base de données",
+            "patterns": {
+                "headers": [
+                    "X-Redis"
+                ],
+                "html": [
+                    "Redis",
+                    "redis",
+                    "REDIS"
+                ]
+            }
+        },
+        "elasticsearch": {
+            "name": "Elasticsearch",
+            "description": "Moteur de recherche",
+            "patterns": {
+                "headers": [
+                    "X-Elasticsearch"
+                ],
+                "html": [
+                    "Elasticsearch",
+                    "elasticsearch"
+                ],
+                "files": [
+                    "/_cat/",
+                    "/_cluster/",
+                    "/_nodes/",
+                    "/_search",
+                    "/_count",
+                    "/_mapping"
+                ]
+            }
+        }
+    },
+    "analytics": {
+        "google_analytics": {
+            "name": "Google Analytics",
+            "description": "Analyse d'audience",
+            "patterns": {
+                "html": [
+                    "google-analytics.com",
+                    "ga.js",
+                    "gtag.js",
+                    "analytics.js",
+                    "UA-",
+                    "G-",
+                    "gtag",
+                    "ga('",
+                    "ga('create'",
+                    "ga('send'",
+                    "GoogleAnalytics",
+                    "_gaq",
+                    "pageview"
+                ]
+            }
+        },
+        "facebook_pixel": {
+            "name": "Facebook Pixel",
+            "description": "Suivi de conversion",
+            "patterns": {
+                "html": [
+                    "facebook.com/tr",
+                    "fbq('",
+                    "fbq('init'",
+                    "fbq('track'",
+                    "fbq('trackSingle'",
+                    "fbq('trackCustom'",
+                    "fbevents.js",
+                    "FacebookPixel",
+                    "_fbp",
+                    "_fbc"
+                ]
+            }
+        },
+        "hotjar": {
+            "name": "Hotjar",
+            "description": "Analyse comportementale",
+            "patterns": {
+                "html": [
+                    "hotjar.com",
+                    "hjid",
+                    "hjvs",
+                    "hotjar-",
+                    "hjsv"
+                ]
+            }
+        },
+        "matomo": {
+            "name": "Matomo (Piwik)",
+            "description": "Analytics open source",
+            "patterns": {
+                "html": [
+                    "matomo.js",
+                    "piwik.js",
+                    "matomo.php",
+                    "piwik.php",
+                    "_paq",
+                    "matomo-",
+                    "piwik-"
+                ]
+            }
+        }
+    }
+}

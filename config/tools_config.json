@@ -1,0 +1,517 @@
+{
+    "version": "2.0.0",
+    "last_updated": "2024-04-07",
+    
+    "tools": {
+        "nmap": {
+            "name": "Nmap",
+            "description": "Network Mapper - Découverte de ports et services",
+            "executable": "/usr/bin/nmap",
+            "version_cmd": "nmap --version",
+            "timeout": 600,
+            "default_args": ["-sV", "-sC", "-O"],
+            "quick_args": ["-sV", "-F"],
+            "full_args": ["-sV", "-sC", "-O", "-p-", "-A"],
+            "stealth_args": ["-sS", "-T2", "--max-retries", "2", "--min-rate", "100"],
+            "output_formats": ["normal", "xml", "grepable"],
+            "dependencies": [],
+            "enabled": true,
+            "check_interval": 86400,
+            "min_version": "7.0",
+            "stealth_support": true
+        },
+        
+        "metasploit": {
+            "name": "Metasploit Framework",
+            "description": "Framework d'exploitation",
+            "executable": "/usr/bin/msfconsole",
+            "rpc_host": "127.0.0.1",
+            "rpc_port": 55553,
+            "rpc_password": "RedForge2024",
+            "rpc_ssl": false,
+            "timeout": 900,
+            "default_payload": "windows/meterpreter/reverse_tcp",
+            "stealth_payload": "python/meterpreter/reverse_tcp",
+            "default_listener_port": 4444,
+            "stealth_listener_port": 8080,
+            "database": "postgresql",
+            "workspace": "redforge",
+            "enabled": true,
+            "auto_start": false,
+            "min_version": "6.0",
+            "stealth_support": true,
+            "apt_support": true
+        },
+        
+        "sqlmap": {
+            "name": "SQLMap",
+            "description": "Détection et exploitation d'injections SQL",
+            "executable": "/usr/bin/sqlmap",
+            "version_cmd": "sqlmap --version",
+            "timeout": 900,
+            "default_args": ["--batch", "--random-agent", "--level=2", "--risk=2"],
+            "stealth_args": ["--batch", "--random-agent", "--level=1", "--risk=1", "--delay=2", "--time-sec=3"],
+            "tech_args": ["--technique=BEUSTQ"],
+            "output_dir": "/tmp/sqlmap_output",
+            "enabled": true,
+            "min_version": "1.6",
+            "stealth_support": true
+        },
+        
+        "hydra": {
+            "name": "Hydra",
+            "description": "Force brute de mots de passe",
+            "executable": "/usr/bin/hydra",
+            "version_cmd": "hydra -h",
+            "timeout": 600,
+            "default_threads": 16,
+            "stealth_threads": 4,
+            "default_retries": 3,
+            "enabled": true,
+            "min_version": "9.0",
+            "stealth_support": true
+        },
+        
+        "whatweb": {
+            "name": "WhatWeb",
+            "description": "Détection de technologies web",
+            "executable": "/usr/bin/whatweb",
+            "version_cmd": "whatweb --version",
+            "timeout": 60,
+            "default_args": ["--quiet"],
+            "aggressive_args": ["-a", "3"],
+            "stealth_args": ["-s", "--quiet"],
+            "enabled": true,
+            "min_version": "0.5",
+            "stealth_support": true
+        },
+        
+        "dirb": {
+            "name": "Dirb",
+            "description": "Force brute de répertoires web",
+            "executable": "/usr/bin/dirb",
+            "version_cmd": "dirb -v",
+            "timeout": 600,
+            "default_wordlist": "/usr/share/wordlists/dirb/common.txt",
+            "stealth_wordlist": "/usr/share/wordlists/dirb/small.txt",
+            "default_extensions": ["php", "html", "txt", "js", "css", "asp", "jsp"],
+            "stealth_extensions": ["html", "txt"],
+            "enabled": true,
+            "min_version": "2.22",
+            "stealth_support": true
+        },
+        
+        "gobuster": {
+            "name": "GoBuster",
+            "description": "Force brute de répertoires et DNS",
+            "executable": "/usr/bin/gobuster",
+            "version_cmd": "gobuster version",
+            "timeout": 600,
+            "default_threads": 10,
+            "stealth_threads": 3,
+            "default_extensions": ["php", "html", "txt", "js", "asp", "jsp", "xml", "json"],
+            "stealth_extensions": ["html", "txt"],
+            "enabled": true,
+            "min_version": "3.0",
+            "stealth_support": true
+        },
+        
+        "ffuf": {
+            "name": "ffuf",
+            "description": "Fuzzing web rapide",
+            "executable": "/usr/bin/ffuf",
+            "version_cmd": "ffuf -V",
+            "timeout": 600,
+            "default_threads": 40,
+            "stealth_threads": 10,
+            "default_wordlist": "/usr/share/wordlists/dirb/common.txt",
+            "stealth_wordlist": "/usr/share/wordlists/dirb/small.txt",
+            "enabled": true,
+            "min_version": "1.5",
+            "stealth_support": true
+        },
+        
+        "wafw00f": {
+            "name": "wafw00f",
+            "description": "Détection de WAF",
+            "executable": "/usr/bin/wafw00f",
+            "version_cmd": "wafw00f --version",
+            "timeout": 60,
+            "enabled": true,
+            "min_version": "2.1",
+            "stealth_support": false
+        },
+        
+        "xsstrike": {
+            "name": "XSStrike",
+            "description": "Détection avancée de XSS",
+            "executable": "/usr/local/bin/xsstrike",
+            "version_cmd": "xsstrike --version",
+            "timeout": 300,
+            "default_args": ["--skip-dom"],
+            "stealth_args": ["--skip-dom", "--blind"],
+            "enabled": true,
+            "min_version": "3.1",
+            "stealth_support": true
+        },
+        
+        "dalfox": {
+            "name": "Dalfox",
+            "description": "Scan XSS rapide",
+            "executable": "/usr/local/bin/dalfox",
+            "version_cmd": "dalfox --version",
+            "timeout": 300,
+            "default_threads": 20,
+            "stealth_threads": 5,
+            "enabled": true,
+            "min_version": "2.8",
+            "stealth_support": true
+        },
+        
+        "jwt_tool": {
+            "name": "JWT Tool",
+            "description": "Analyse et attaque de tokens JWT",
+            "executable": "/usr/local/bin/jwt_tool",
+            "version_cmd": "jwt_tool --help",
+            "timeout": 60,
+            "enabled": true,
+            "min_version": "2.0",
+            "stealth_support": false
+        },
+        
+        "zap": {
+            "name": "OWASP ZAP",
+            "description": "Scanner de vulnérabilités web",
+            "executable": "/usr/bin/zap-cli",
+            "api_host": "localhost",
+            "api_port": 8080,
+            "api_key": "",
+            "timeout": 1800,
+            "default_scan_time": 600,
+            "stealth_scan_time": 1200,
+            "enabled": false,
+            "min_version": "2.11",
+            "stealth_support": true
+        },
+        
+        "nikto": {
+            "name": "Nikto",
+            "description": "Scanner de vulnérabilités web",
+            "executable": "/usr/bin/nikto",
+            "version_cmd": "nikto -Version",
+            "timeout": 600,
+            "default_args": ["-Format", "html", "-output"],
+            "stealth_args": ["-Format", "html", "-output", "-Tuning", "123", "-maxtime", "300"],
+            "enabled": true,
+            "min_version": "2.5",
+            "stealth_support": true
+        },
+        
+        "wpscan": {
+            "name": "WPScan",
+            "description": "Scanner de vulnérabilités WordPress",
+            "executable": "/usr/bin/wpscan",
+            "version_cmd": "wpscan --version",
+            "timeout": 900,
+            "default_args": ["--api-token", "--enumerate", "vp,vt,tt,cb,dbe"],
+            "stealth_args": ["--api-token", "--enumerate", "vp", "--random-user-agent", "--throttle", "2"],
+            "enabled": true,
+            "min_version": "3.8",
+            "stealth_support": true
+        },
+        
+        "nuclei": {
+            "name": "Nuclei",
+            "description": "Scanner de vulnérabilités basé sur templates",
+            "executable": "/usr/local/bin/nuclei",
+            "version_cmd": "nuclei -version",
+            "timeout": 1200,
+            "templates_dir": "/root/nuclei-templates",
+            "default_args": ["-severity", "critical,high,medium"],
+            "stealth_args": ["-severity", "critical,high", "-rate-limit", "50", "-bulk-size", "25"],
+            "enabled": true,
+            "min_version": "3.0",
+            "update_templates": true,
+            "stealth_support": true
+        },
+        
+        "subfinder": {
+            "name": "Subfinder",
+            "description": "Découverte de sous-domaines",
+            "executable": "/usr/local/bin/subfinder",
+            "version_cmd": "subfinder -version",
+            "timeout": 300,
+            "default_args": ["-silent"],
+            "stealth_args": ["-silent", "-t", "50", "-timeout", "10"],
+            "enabled": true,
+            "min_version": "2.5",
+            "stealth_support": true
+        },
+        
+        "httpx": {
+            "name": "HTTPX",
+            "description": "Probing HTTP rapide",
+            "executable": "/usr/local/bin/httpx",
+            "version_cmd": "httpx -version",
+            "timeout": 300,
+            "default_threads": 100,
+            "stealth_threads": 20,
+            "default_args": ["-silent", "-status-code", "-title", "-content-length", "-tech-detect"],
+            "stealth_args": ["-silent", "-status-code", "-title", "-retries", "1", "-timeout", "10"],
+            "enabled": true,
+            "min_version": "1.2",
+            "stealth_support": true
+        },
+        
+        "katana": {
+            "name": "Katana",
+            "description": "Crawler web nouvelle génération",
+            "executable": "/usr/local/bin/katana",
+            "version_cmd": "katana -version",
+            "timeout": 600,
+            "default_threads": 10,
+            "stealth_threads": 3,
+            "default_args": ["-silent", "-jc", "-fx"],
+            "stealth_args": ["-silent", "-delay", "2", "-concurrency", "3", "-depth", "2"],
+            "enabled": false,
+            "min_version": "1.0",
+            "stealth_support": true
+        },
+        
+        "naabu": {
+            "name": "Naabu",
+            "description": "Scan de ports rapide",
+            "executable": "/usr/local/bin/naabu",
+            "version_cmd": "naabu -version",
+            "timeout": 300,
+            "default_threads": 100,
+            "stealth_threads": 50,
+            "default_args": ["-silent", "-rate", "1000"],
+            "stealth_args": ["-silent", "-rate", "100", "-timeout", "3", "-retries", "1"],
+            "enabled": false,
+            "min_version": "2.1",
+            "stealth_support": true
+        },
+        
+        "apt_tools": {
+            "persistence": {
+                "enabled": true,
+                "tools": ["cron", "ssh", "systemd", "schtasks"],
+                "stealth_support": true
+            },
+            "lateral_movement": {
+                "enabled": true,
+                "tools": ["ssh", "smbclient", "wmic", "psexec"],
+                "stealth_support": true
+            },
+            "exfiltration": {
+                "enabled": true,
+                "tools": ["curl", "wget", "scp", "rsync"],
+                "stealth_support": true
+            }
+        }
+    },
+    
+    "wordlists": {
+        "common_usernames": {
+            "path": "/usr/share/wordlists/seclists/Usernames/top-usernames-shortlist.txt",
+            "fallback": "data/wordlists/common_usernames.txt",
+            "size": 1000,
+            "format": "txt",
+            "stealth_path": "data/wordlists/small_usernames.txt"
+        },
+        "common_passwords": {
+            "path": "/usr/share/wordlists/rockyou.txt",
+            "fallback": "data/wordlists/common_passwords.txt",
+            "size": 14344391,
+            "format": "txt",
+            "compressed": true,
+            "stealth_path": "data/wordlists/top_100_passwords.txt"
+        },
+        "common_directories": {
+            "path": "/usr/share/wordlists/seclists/Discovery/Web-Content/common.txt",
+            "fallback": "data/wordlists/common_directories.txt",
+            "size": 5000,
+            "format": "txt",
+            "stealth_path": "data/wordlists/top_500_directories.txt"
+        },
+        "common_subdomains": {
+            "path": "/usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt",
+            "fallback": "data/wordlists/common_subdomains.txt",
+            "size": 5000,
+            "format": "txt",
+            "stealth_path": "data/wordlists/top_1000_subdomains.txt"
+        },
+        "common_parameters": {
+            "path": "/usr/share/wordlists/seclists/Discovery/Web-Content/burp-parameter-names.txt",
+            "fallback": "data/wordlists/common_parameters.txt",
+            "size": 2000,
+            "format": "txt",
+            "stealth_path": "data/wordlists/top_500_parameters.txt"
+        },
+        "xss_payloads": {
+            "path": "data/wordlists/xss_payloads.txt",
+            "fallback": "data/wordlists/xss_payloads.txt",
+            "size": 500,
+            "format": "txt",
+            "stealth_path": "data/wordlists/stealth_xss_payloads.txt"
+        },
+        "sql_payloads": {
+            "path": "data/wordlists/sql_payloads.txt",
+            "fallback": "data/wordlists/sql_payloads.txt",
+            "size": 300,
+            "format": "txt",
+            "stealth_path": "data/wordlists/stealth_sql_payloads.txt"
+        },
+        "lfi_payloads": {
+            "path": "data/wordlists/lfi_payloads.txt",
+            "fallback": "data/wordlists/lfi_payloads.txt",
+            "size": 200,
+            "format": "txt"
+        },
+        "ssrf_payloads": {
+            "path": "data/wordlists/ssrf_payloads.txt",
+            "fallback": "data/wordlists/ssrf_payloads.txt",
+            "size": 100,
+            "format": "txt"
+        }
+    },
+    
+    "plugins": {
+        "directory": "/opt/RedForge/plugins",
+        "enabled": true,
+        "auto_load": true,
+        "blacklist": [],
+        "whitelist": [],
+        "timeout": 30,
+        "max_memory": 512,
+        "allowed_types": ["attack", "scanner", "connector", "report", "hook"],
+        "stealth_plugins": ["stealth_evasion", "waf_bypass", "signature_modifier"]
+    },
+    
+    "api": {
+        "rate_limit": 100,
+        "rate_limit_period": 60,
+        "max_request_size": 10485760,
+        "allowed_methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        "cors_enabled": true,
+        "cors_origins": ["*"],
+        "cors_credentials": true,
+        "cors_max_age": 3600,
+        "stealth_rate_limit": 10
+    },
+    
+    "proxy": {
+        "enabled": false,
+        "http": "",
+        "https": "",
+        "no_proxy": ["localhost", "127.0.0.1", "*.local"],
+        "auth_enabled": false,
+        "username": "",
+        "password": "",
+        "socks": "",
+        "stealth_proxy": "",
+        "rotate_interval": 60
+    },
+    
+    "update": {
+        "auto_check": true,
+        "check_interval": 86400,
+        "auto_install": false,
+        "notify_on_update": true,
+        "update_url": "https://api.github.com/repos/Elfried002/RedForge/releases/latest",
+        "download_dir": "/tmp/redforge_updates",
+        "backup_before_update": true,
+        "stealth_update": false
+    },
+    
+    "logging": {
+        "level": "INFO",
+        "format": "json",
+        "max_file_size": 10485760,
+        "backup_count": 5,
+        "log_requests": false,
+        "log_responses": false,
+        "log_tool_output": true,
+        "max_tool_output_size": 10000,
+        "stealth_logging": {
+            "log_tool_output": false,
+            "anonymize": true,
+            "max_tool_output_size": 1000
+        }
+    },
+    
+    "database": {
+        "type": "sqlite",
+        "path": "~/.RedForge/redforge.db",
+        "backup_enabled": true,
+        "backup_interval": 86400,
+        "pool_size": 5,
+        "timeout": 30,
+        "stealth_encryption": false
+    },
+    
+    "cache": {
+        "enabled": true,
+        "type": "memory",
+        "ttl": 300,
+        "max_size": 1000,
+        "redis_host": "localhost",
+        "redis_port": 6379,
+        "redis_db": 0,
+        "redis_password": "",
+        "stealth_ttl": 60
+    },
+    
+    "performance": {
+        "max_concurrent_tools": 5,
+        "tool_queue_size": 100,
+        "tool_timeout": 3600,
+        "memory_limit": 2048,
+        "cpu_limit": 80,
+        "stealth_max_concurrent_tools": 2
+    },
+    
+    "notifications": {
+        "tool_completion": true,
+        "tool_error": true,
+        "tool_start": false,
+        "email_on_error": false,
+        "webhook_on_completion": false,
+        "stealth_notifications": false
+    },
+    
+    "attack_multi": {
+        "enabled": true,
+        "max_concurrent_attacks": 5,
+        "queue_size": 50,
+        "timeout_per_attack": 300,
+        "stealth_max_concurrent": 2,
+        "group_by_category": true,
+        "group_by_target": true,
+        "retry_on_failure": true,
+        "max_retries": 3
+    },
+    
+    "stealth": {
+        "enabled": false,
+        "random_delays": true,
+        "random_user_agents": true,
+        "ip_rotation": false,
+        "request_jitter": 30,
+        "signature_evasion": true,
+        "waf_bypass": true,
+        "honey_pot_detection": true,
+        "sandbox_detection": true
+    },
+    
+    "apt": {
+        "enabled": false,
+        "persistence_methods": ["cron", "ssh", "systemd", "schtasks"],
+        "lateral_movement_techniques": ["ssh", "smb", "wmi", "psremoting"],
+        "c2_channels": ["https", "dns", "icmp", "websocket"],
+        "exfiltration_methods": ["chunked", "encrypted", "steganography"],
+        "anti_forensics": true,
+        "living_off_the_land": true
+    }
+}

@@ -1,0 +1,358 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "incremental": false,
+    
+    "formatters": {
+        "detailed": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s() - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        },
+        "simple": {
+            "format": "%(asctime)s - %(levelname)s - %(message)s",
+            "datefmt": "%H:%M:%S"
+        },
+        "json": {
+            "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": "%(asctime)s %(name)s %(levelname)s %(filename)s %(lineno)d %(funcName)s %(message)s",
+            "rename_fields": {
+                "asctime": "timestamp",
+                "levelname": "level",
+                "name": "logger"
+            }
+        },
+        "color": {
+            "format": "\u001b[36m%(asctime)s\u001b[0m - \u001b[33m%(name)s\u001b[0m - \u001b[35m%(levelname)s\u001b[0m - %(message)s",
+            "datefmt": "%H:%M:%S"
+        },
+        "access": {
+            "format": "%(asctime)s - %(remote_addr)s - \"%(request)s\" %(status)s %(size)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        },
+        "stealth": {
+            "format": "%(asctime)s - %(levelname)s - %(message)s",
+            "datefmt": "%H:%M:%S"
+        },
+        "attack_multi": {
+            "format": "%(asctime)s - %(attack_count)s - %(success_count)s - %(failed_count)s - %(duration)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        }
+    },
+    
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "color",
+            "stream": "ext://sys.stdout",
+            "filters": ["sensitive_filter"]
+        },
+        "console_error": {
+            "class": "logging.StreamHandler",
+            "level": "ERROR",
+            "formatter": "color",
+            "stream": "ext://sys.stderr",
+            "filters": ["sensitive_filter"]
+        },
+        
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "DEBUG",
+            "formatter": "detailed",
+            "filename": "~/.RedForge/logs/redforge.log",
+            "maxBytes": 10485760,
+            "backupCount": 10,
+            "encoding": "utf-8",
+            "delay": true,
+            "filters": ["sensitive_filter"]
+        },
+        
+        "json_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "json",
+            "filename": "~/.RedForge/logs/redforge.json",
+            "maxBytes": 10485760,
+            "backupCount": 10,
+            "encoding": "utf-8",
+            "delay": true
+        },
+        
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "ERROR",
+            "formatter": "detailed",
+            "filename": "~/.RedForge/logs/errors.log",
+            "maxBytes": 5242880,
+            "backupCount": 5,
+            "encoding": "utf-8",
+            "delay": true,
+            "filters": ["sensitive_filter"]
+        },
+        
+        "attack_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "json",
+            "filename": "~/.RedForge/logs/attacks.json",
+            "maxBytes": 10485760,
+            "backupCount": 10,
+            "encoding": "utf-8",
+            "delay": true
+        },
+        
+        "attack_multi_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "attack_multi",
+            "filename": "~/.RedForge/logs/attacks_multi.json",
+            "maxBytes": 10485760,
+            "backupCount": 10,
+            "encoding": "utf-8",
+            "delay": true
+        },
+        
+        "vulnerability_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "WARNING",
+            "formatter": "json",
+            "filename": "~/.RedForge/logs/vulnerabilities.json",
+            "maxBytes": 10485760,
+            "backupCount": 20,
+            "encoding": "utf-8",
+            "delay": true
+        },
+        
+        "session_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "json",
+            "filename": "~/.RedForge/logs/sessions.json",
+            "maxBytes": 10485760,
+            "backupCount": 10,
+            "encoding": "utf-8",
+            "delay": true
+        },
+        
+        "access_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "access",
+            "filename": "~/.RedForge/logs/access.log",
+            "maxBytes": 10485760,
+            "backupCount": 5,
+            "encoding": "utf-8",
+            "delay": true,
+            "filters": ["sensitive_filter"]
+        },
+        
+        "stealth_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "stealth",
+            "filename": "~/.RedForge/logs/stealth.log",
+            "maxBytes": 5242880,
+            "backupCount": 5,
+            "encoding": "utf-8",
+            "delay": true
+        },
+        
+        "apt_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "json",
+            "filename": "~/.RedForge/logs/apt_operations.json",
+            "maxBytes": 10485760,
+            "backupCount": 10,
+            "encoding": "utf-8",
+            "delay": true
+        },
+        
+        "syslog": {
+            "class": "logging.handlers.SysLogHandler",
+            "level": "WARNING",
+            "address": "/dev/log",
+            "facility": "local7",
+            "formatter": "detailed",
+            "filters": ["sensitive_filter"]
+        },
+        
+        "null": {
+            "class": "logging.NullHandler"
+        }
+    },
+    
+    "loggers": {
+        "redforge": {
+            "level": "DEBUG",
+            "handlers": ["console", "file", "json_file", "error_file"],
+            "propagate": false
+        },
+        
+        "redforge.attacks": {
+            "level": "INFO",
+            "handlers": ["console", "attack_file", "file"],
+            "propagate": false
+        },
+        
+        "redforge.attacks.multi": {
+            "level": "INFO",
+            "handlers": ["attack_multi_file", "console"],
+            "propagate": false
+        },
+        
+        "redforge.stealth": {
+            "level": "INFO",
+            "handlers": ["stealth_file"],
+            "propagate": false
+        },
+        
+        "redforge.apt": {
+            "level": "INFO",
+            "handlers": ["apt_file"],
+            "propagate": false
+        },
+        
+        "redforge.vulnerabilities": {
+            "level": "WARNING",
+            "handlers": ["vulnerability_file", "console"],
+            "propagate": false
+        },
+        
+        "redforge.sessions": {
+            "level": "INFO",
+            "handlers": ["session_file", "console"],
+            "propagate": false
+        },
+        
+        "redforge.network": {
+            "level": "INFO",
+            "handlers": ["file", "error_file"],
+            "propagate": false
+        },
+        
+        "redforge.api": {
+            "level": "INFO",
+            "handlers": ["console", "file", "access_file"],
+            "propagate": false
+        },
+        
+        "redforge.database": {
+            "level": "WARNING",
+            "handlers": ["error_file", "file"],
+            "propagate": false
+        },
+        
+        "redforge.plugins": {
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": false
+        },
+        
+        "redforge.orchestrator": {
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": false
+        },
+        
+        "redforge.reports": {
+            "level": "INFO",
+            "handlers": ["file"],
+            "propagate": false
+        },
+        
+        "redforge.selection": {
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": false
+        },
+        
+        "requests": {
+            "level": "WARNING",
+            "handlers": ["file"],
+            "propagate": false
+        },
+        
+        "urllib3": {
+            "level": "WARNING",
+            "handlers": ["file"],
+            "propagate": false
+        },
+        
+        "flask": {
+            "level": "INFO",
+            "handlers": ["console", "file", "access_file"],
+            "propagate": false
+        },
+        
+        "socketio": {
+            "level": "INFO",
+            "handlers": ["file"],
+            "propagate": false
+        },
+        
+        "werkzeug": {
+            "level": "WARNING",
+            "handlers": ["file", "access_file"],
+            "propagate": false
+        },
+        
+        "sqlalchemy": {
+            "level": "WARNING",
+            "handlers": ["file"],
+            "propagate": false
+        },
+        
+        "asyncio": {
+            "level": "WARNING",
+            "handlers": ["file"],
+            "propagate": false
+        }
+    },
+    
+    "root": {
+        "level": "WARNING",
+        "handlers": ["console_error", "error_file"]
+    },
+    
+    "filters": {
+        "sensitive_filter": {
+            "()": "redforge.utils.logging.SensitiveDataFilter",
+            "patterns": [
+                "password", "token", "secret", "key", "authorization",
+                "api_key", "access_token", "refresh_token", "cookie",
+                "session", "jwt", "bearer", "credential", "passphrase",
+                "private_key", "secret_key", "auth_token",
+                "c2_server", "callback_url", "webhook_url"
+            ],
+            "replace_with": "***REDACTED***"
+        },
+        
+        "level_filter": {
+            "()": "logging.Filter",
+            "level": "INFO"
+        },
+        
+        "rate_limit_filter": {
+            "()": "redforge.utils.logging.RateLimitFilter",
+            "max_messages_per_second": 10
+        },
+        
+        "context_filter": {
+            "()": "redforge.utils.logging.ContextFilter",
+            "include_context": true
+        },
+        
+        "stealth_filter": {
+            "()": "redforge.utils.logging.StealthFilter",
+            "omit_payloads": true,
+            "anonymize_ips": true,
+            "anonymize_urls": true
+        },
+        
+        "attack_summary_filter": {
+            "()": "redforge.utils.logging.AttackSummaryFilter",
+            "group_by": ["category", "type", "target"]
+        }
+    }
+}

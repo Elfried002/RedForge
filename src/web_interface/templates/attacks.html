@@ -1,0 +1,1034 @@
+{% extends "base.html" %}
+
+{% block title %}RedForge - Attaques & Opérations{% endblock %}
+
+{% block header_title %}🎯 Gestion des atttaques et opérations{% endblock %}
+
+{% block content %}
+<div class="attacks-container">
+    <!-- En-tête -->
+    <div class="attacks-header">
+        <h1>🎯 Attaques & Opérations</h1>
+        <p>Lancez des attaques simples, multiples ou des opérations APT avancées</p>
+    </div>
+    
+    <!-- Onglets -->
+    <div class="tabs attacks-tabs">
+        <button class="tab active" data-tab="simple">🔄 Attaques Simples</button>
+        <button class="tab" data-tab="multi">📚 Attaques Multiples</button>
+        <button class="tab" data-tab="apt">🎭 Opérations APT</button>
+        <button class="tab" data-tab="stealth">🕵️ Configuration Furtive</button>
+    </div>
+    
+    <!-- ==================== TAB ATTAQUES SIMPLES ==================== -->
+    <div class="tab-content active" id="tab-simple">
+        <!-- Contrôles -->
+        <div class="attacks-controls card">
+            <div class="card-body">
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Cible</label>
+                        <select id="attack-target" class="form-select">
+                            <option value="">Sélectionner une cible</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Niveau d'agressivité</label>
+                        <select id="attack-level" class="form-select">
+                            <option value="1">Bas (1) - Rapide, peu intrusif</option>
+                            <option value="2" selected>Moyen (2) - Équilibré</option>
+                            <option value="3">Élevé (3) - Approfondi</option>
+                            <option value="4">Maximum (4) - Très intrusif</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Timeout (secondes)</label>
+                        <input type="number" id="attack-timeout" class="form-input" value="300" min="30" max="3600">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Threads</label>
+                        <input type="number" id="attack-threads" class="form-input" value="10" min="1" max="50">
+                    </div>
+                </div>
+                
+                <div class="attacks-actions">
+                    <button id="run-selected-attacks" class="btn btn-primary" disabled>
+                        🚀 Lancer les attaques sélectionnées
+                    </button>
+                    <button id="clear-selection" class="btn btn-secondary">
+                        🗑️ Effacer la sélection
+                    </button>
+                    <button id="select-all" class="btn btn-secondary">
+                        ☑️ Tout sélectionner
+                    </button>
+                    <button id="advanced-config-btn" class="btn btn-secondary">
+                        ⚙️ Configuration avancée
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Grille des catégories d'attaques -->
+        <div id="attacks-grid" class="attacks-grid">
+            <div class="loading">Chargement des catégories d'attaques...</div>
+        </div>
+    </div>
+    
+    <!-- ==================== TAB ATTAQUES MULTIPLES ==================== -->
+    <div class="tab-content" id="tab-multi">
+        <div class="multi-attack-panel card">
+            <div class="card-header">
+                <h3>📚 Configuration Multi-Attaque</h3>
+                <p>Sélectionnez plusieurs attaques à exécuter en séquence ou en parallèle</p>
+            </div>
+            <div class="card-body">
+                <div class="multi-controls-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Cible</label>
+                        <select id="multi-target" class="form-select">
+                            <option value="">Sélectionner une cible</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mode d'exécution</label>
+                        <select id="execution-mode" class="form-select">
+                            <option value="sequential">🔄 Séquentiel (un par un)</option>
+                            <option value="parallel">⚡ Parallèle (simultané)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Niveau furtif</label>
+                        <select id="multi-stealth-level" class="form-select">
+                            <option value="low">🟢 Bas - Rapide</option>
+                            <option value="medium" selected>🟡 Moyen - Équilibré</option>
+                            <option value="high">🔴 Élevé - Discret</option>
+                            <option value="paranoid">🟣 Paranoïaque - Très lent</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Délai entre attaques (s)</label>
+                        <input type="number" id="multi-delay" class="form-input" value="1" min="0" max="60" step="0.5">
+                    </div>
+                </div>
+                
+                <div class="multi-attack-actions">
+                    <button id="run-multi-attacks" class="btn btn-primary" disabled>
+                        🚀 Lancer la Multi-Attaque
+                    </button>
+                    <button id="multi-select-all" class="btn btn-secondary">
+                        ☑️ Tout sélectionner
+                    </button>
+                    <button id="multi-clear-all" class="btn btn-secondary">
+                        🗑️ Tout désélectionner
+                    </button>
+                </div>
+                
+                <div class="multi-attacks-selection">
+                    <h4>Sélection des attaques</h4>
+                    <div id="multi-attacks-grid" class="attacks-grid"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Multi-attaques en cours -->
+        <div class="active-multi-attacks-section card">
+            <div class="card-header">
+                <h3>⚡ Multi-attaques en cours</h3>
+            </div>
+            <div class="card-body">
+                <div id="active-multi-attacks-list" class="active-multi-attacks-list">
+                    <div class="no-data">Aucune multi-attaque en cours</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== TAB OPÉRATIONS APT ==================== -->
+    <div class="tab-content" id="tab-apt">
+        <div class="apt-panel card">
+            <div class="card-header">
+                <h3>🎭 Opérations APT</h3>
+                <p>Opérations avancées persistantes avec mouvements latéraux et exfiltration</p>
+            </div>
+            <div class="card-body">
+                <div class="apt-controls-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Cible</label>
+                        <select id="apt-target" class="form-select">
+                            <option value="">Sélectionner une cible</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Opération APT</label>
+                        <select id="apt-operation" class="form-select">
+                            <option value="">Sélectionner une opération</option>
+                            <optgroup label="Prédéfinies">
+                                <option value="recon_to_exfil">Reconnaissance → Exfiltration</option>
+                                <option value="web_app_compromise">Compromission d'Application Web</option>
+                                <option value="lateral_movement">Mouvement Latéral</option>
+                                <option value="persistence">Mise en place de persistance</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Niveau furtif</label>
+                        <select id="apt-stealth-level" class="form-select">
+                            <option value="medium">🟡 Moyen</option>
+                            <option value="high" selected>🔴 Élevé</option>
+                            <option value="paranoid">🟣 Paranoïaque</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="apt-cleanup" checked> Nettoyage post-opération
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="apt-actions">
+                    <button id="run-apt-operation" class="btn btn-danger" disabled>
+                        🎯 Lancer l'opération APT
+                    </button>
+                    <button id="create-custom-apt" class="btn btn-secondary">
+                        ✨ Créer une opération personnalisée
+                    </button>
+                </div>
+                
+                <div class="apt-operations-list" id="apt-operations-list">
+                    <h4>Opérations disponibles</h4>
+                    <div class="loading">Chargement des opérations APT...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timeline APT -->
+        <div class="apt-timeline-section card" id="apt-timeline-section" style="display: none;">
+            <div class="card-header">
+                <h3>📅 Timeline de l'opération</h3>
+                <button id="close-timeline" class="btn btn-sm btn-secondary">Fermer</button>
+            </div>
+            <div class="card-body">
+                <div id="apt-timeline-container" class="apt-timeline-container"></div>
+            </div>
+        </div>
+        
+        <!-- Opérations APT en cours -->
+        <div class="active-apt-section card">
+            <div class="card-header">
+                <h3>⚡ Opérations APT en cours</h3>
+            </div>
+            <div class="card-body">
+                <div id="active-apt-list" class="active-apt-list">
+                    <div class="no-data">Aucune opération APT en cours</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== TAB CONFIGURATION FURTIVE ==================== -->
+    <div class="tab-content" id="tab-stealth">
+        <div class="stealth-config-panel card">
+            <div class="card-header">
+                <h3>🕵️ Configuration du mode furtif</h3>
+                <p>Paramétrez le comportement furtif pour éviter la détection</p>
+            </div>
+            <div class="card-body">
+                <div class="stealth-level-selector">
+                    <div class="stealth-level-card" data-level="low">
+                        <div class="level-icon">🟢</div>
+                        <div class="level-name">Low</div>
+                        <div class="level-desc">Détection facile, rapide</div>
+                        <div class="level-risk">Risque: Élevé</div>
+                    </div>
+                    <div class="stealth-level-card" data-level="medium">
+                        <div class="level-icon">🟡</div>
+                        <div class="level-name">Medium</div>
+                        <div class="level-desc">Équilibre performance/discrétion</div>
+                        <div class="level-risk">Risque: Moyen</div>
+                    </div>
+                    <div class="stealth-level-card active" data-level="high">
+                        <div class="level-icon">🔴</div>
+                        <div class="level-name">High</div>
+                        <div class="level-desc">Difficile à détecter</div>
+                        <div class="level-risk">Risque: Faible</div>
+                    </div>
+                    <div class="stealth-level-card" data-level="paranoid">
+                        <div class="level-icon">🟣</div>
+                        <div class="level-name">Paranoid</div>
+                        <div class="level-desc">Maximum de discrétion</div>
+                        <div class="level-risk">Risque: Très faible</div>
+                    </div>
+                </div>
+                
+                <div class="stealth-options-grid">
+                    <div class="form-group">
+                        <label class="form-label">Délai entre les requêtes (secondes)</label>
+                        <input type="range" id="stealth-delay-range" min="0.1" max="10" step="0.1" value="1.5">
+                        <span id="stealth-delay-value" class="delay-value">1.5s</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Jitter (variation aléatoire)</label>
+                        <input type="range" id="stealth-jitter-range" min="0" max="1" step="0.05" value="0.3">
+                        <span id="stealth-jitter-value" class="jitter-value">30%</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="stealth-random-ua" checked>
+                            User-Agents aléatoires
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="stealth-tor">
+                            Utiliser TOR (nécessite TOR installé)
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="stealth-proxy-rotate">
+                            Rotation de proxies
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="stealth-mimic-human" checked>
+                            Mimétisme humain (pauses, patterns)
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="stealth-slow-loris">
+                            Mode Slow Loris (requêtes lentes)
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="stealth-actions">
+                    <button id="apply-stealth-config" class="btn btn-primary">
+                        ✅ Appliquer la configuration
+                    </button>
+                    <button id="test-stealth-config" class="btn btn-secondary">
+                        🧪 Tester la configuration
+                    </button>
+                    <button id="reset-stealth-config" class="btn btn-secondary">
+                        🔄 Réinitialiser
+                    </button>
+                </div>
+                
+                <div id="stealth-test-results" class="stealth-test-results" style="display: none;">
+                    <h4>Résultats du test</h4>
+                    <div class="test-results-content"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alertes furtives -->
+        <div class="stealth-alerts-section card">
+            <div class="card-header">
+                <h3>⚠️ Alertes de détection</h3>
+                <button id="clear-stealth-alerts" class="btn btn-sm btn-secondary">Effacer</button>
+            </div>
+            <div class="card-body">
+                <div id="stealth-alerts-container" class="stealth-alerts-container">
+                    <div class="no-data">Aucune alerte</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== RÉSULTATS COMMUNS ==================== -->
+    <!-- Attaques en cours -->
+    <div class="active-attacks-section card">
+        <div class="card-header">
+            <h3>⚡ Attaques en cours</h3>
+            <button id="stop-all-attacks" class="btn btn-sm btn-danger">⏹️ Arrêter tout</button>
+        </div>
+        <div class="card-body">
+            <div id="active-attacks-list" class="active-attacks-list">
+                <div class="no-data">Aucune attaque en cours</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Résultats -->
+    <div class="results-section card">
+        <div class="card-header">
+            <h3>📊 Résultats des attaques</h3>
+            <div class="results-actions">
+                <button id="export-results" class="btn btn-sm btn-secondary">📥 Exporter</button>
+                <button id="clear-results" class="btn btn-sm btn-secondary">🗑️ Effacer</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="attack-results" class="attack-results">
+                <div class="no-data">Aucun résultat à afficher</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal configuration avancée -->
+<div id="advanced-config-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>⚙️ Configuration avancée</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Headers personnalisés</label>
+                <textarea id="custom-headers" class="form-textarea" rows="3" placeholder='{"User-Agent": "RedForge", "X-Custom": "value"}'></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cookies</label>
+                <input type="text" id="custom-cookies" class="form-input" placeholder="session=abc123; user=admin">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Proxy</label>
+                <input type="text" id="custom-proxy" class="form-input" placeholder="http://127.0.0.1:8080">
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="verify-ssl" checked> Vérifier SSL
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="follow-redirects" checked> Suivre les redirections
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Annuler</button>
+            <button class="btn btn-primary" id="save-advanced-config">Sauvegarder</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal création opération APT personnalisée -->
+<div id="custom-apt-modal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3>✨ Créer une opération APT personnalisée</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label required">Nom de l'opération</label>
+                <input type="text" id="custom-apt-name" class="form-input" placeholder="Mon opération APT">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea id="custom-apt-description" class="form-textarea" rows="2" placeholder="Description de l'opération..."></textarea>
+            </div>
+            
+            <h4>Phases de l'opération</h4>
+            <div id="apt-phases-container" class="apt-phases-container">
+                <div class="apt-phase-template">
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 1</span>
+                        <button class="remove-phase-btn btn-sm">🗑️</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom de la phase</label>
+                        <input type="text" class="phase-name-input form-input" placeholder="Reconnaissance">
+                    </div>
+                    <div class="form-group">
+                        <label>Attaques</label>
+                        <select multiple class="phase-attacks-select form-select" size="5">
+                            <option value="port_scan">Port Scan</option>
+                            <option value="service_enum">Service Enumeration</option>
+                            <option value="sql_injection">SQL Injection</option>
+                            <option value="xss">XSS</option>
+                            <option value="file_upload">File Upload</option>
+                            <option value="lfi">LFI/RFI</option>
+                            <option value="command_injection">Command Injection</option>
+                            <option value="bruteforce">Bruteforce</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button id="add-apt-phase" class="btn btn-secondary">+ Ajouter une phase</button>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="custom-apt-cleanup" checked> Nettoyage post-opération
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Annuler</button>
+            <button class="btn btn-primary" id="save-custom-apt">Créer l'opération</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.multi-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.apt-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.attacks-actions, .multi-attack-actions, .apt-actions, .stealth-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    margin-top: var(--spacing-md);
+}
+
+.stealth-level-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stealth-level-card {
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.stealth-level-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.stealth-level-card.active {
+    border-color: var(--primary-red);
+    background: rgba(211, 47, 47, 0.1);
+}
+
+.level-icon {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-sm);
+}
+
+.level-name {
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-xs);
+}
+
+.level-desc {
+    font-size: var(--font-size-xs);
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-xs);
+}
+
+.level-risk {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.stealth-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+}
+
+.stealth-test-results {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+}
+
+.modal-large {
+    max-width: 800px;
+    width: 90%;
+}
+
+.apt-phases-container {
+    margin: var(--spacing-md) 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.apt-phase-template {
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    position: relative;
+}
+
+.phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.remove-phase-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-md);
+}
+
+.results-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.active-multi-attacks-list,
+.active-apt-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .controls-grid,
+    .multi-controls-grid,
+    .apt-controls-grid,
+    .stealth-options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .attacks-actions,
+    .multi-attack-actions,
+    .apt-actions,
+    .stealth-actions {
+        flex-direction: column;
+    }
+    
+    .attacks-actions button,
+    .multi-attack-actions button,
+    .apt-actions button,
+    .stealth-actions button {
+        width: 100%;
+    }
+    
+    .stealth-level-selector {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/attacks.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des onglets
+        const tabs = document.querySelectorAll('.attacks-tabs .tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                
+                // Charger les données spécifiques à l'onglet
+                if (tabId === 'multi') {
+                    if (typeof loadMultiAttacksGrid === 'function') loadMultiAttacksGrid();
+                    if (typeof loadTargetsForSelect === 'function') loadTargetsForSelect('multi-target');
+                } else if (tabId === 'apt') {
+                    if (typeof loadAPTOperationsList === 'function') loadAPTOperationsList();
+                    if (typeof loadTargetsForSelect === 'function') loadTargetsForSelect('apt-target');
+                } else if (tabId === 'simple') {
+                    if (typeof loadTargets === 'function') loadTargets();
+                }
+            });
+        });
+        
+        // Configuration avancée
+        const advancedBtn = document.getElementById('advanced-config-btn');
+        const advancedModal = document.getElementById('advanced-config-modal');
+        if (advancedBtn && advancedModal) {
+            advancedBtn.addEventListener('click', () => openModal(advancedModal));
+        }
+        
+        // Création opération APT personnalisée
+        const createCustomBtn = document.getElementById('create-custom-apt');
+        const customAptModal = document.getElementById('custom-apt-modal');
+        if (createCustomBtn && customAptModal) {
+            createCustomBtn.addEventListener('click', () => openModal(customAptModal));
+        }
+        
+        // Ajout de phase APT
+        const addPhaseBtn = document.getElementById('add-apt-phase');
+        let phaseCount = 1;
+        if (addPhaseBtn) {
+            addPhaseBtn.addEventListener('click', () => {
+                phaseCount++;
+                const container = document.getElementById('apt-phases-container');
+                const template = document.querySelector('.apt-phase-template').cloneNode(true);
+                template.classList.remove('apt-phase-template');
+                template.querySelector('.phase-number').textContent = `Phase ${phaseCount}`;
+                template.querySelector('.phase-name-input').value = '';
+                template.querySelectorAll('option').forEach(opt => opt.selected = false);
+                template.querySelector('.remove-phase-btn').addEventListener('click', () => template.remove());
+                container.appendChild(template);
+            });
+        }
+        
+        // Sauvegarde opération APT personnalisée
+        const saveCustomApt = document.getElementById('save-custom-apt');
+        if (saveCustomApt) {
+            saveCustomApt.addEventListener('click', async () => {
+                const name = document.getElementById('custom-apt-name').value;
+                const description = document.getElementById('custom-apt-description').value;
+                const cleanup = document.getElementById('custom-apt-cleanup').checked;
+                
+                const phases = [];
+                document.querySelectorAll('#apt-phases-container .phase-header').forEach((header, idx) => {
+                    const phaseDiv = header.closest('.phase-header').parentElement;
+                    const phaseName = phaseDiv.querySelector('.phase-name-input').value;
+                    const attacks = Array.from(phaseDiv.querySelector('.phase-attacks-select').selectedOptions).map(opt => opt.value);
+                    if (phaseName && attacks.length) {
+                        phases.push({ name: phaseName, attacks: attacks });
+                    }
+                });
+                
+                if (!name || phases.length === 0) {
+                    showNotification('Veuillez remplir le nom et au moins une phase avec des attaques', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/apt/custom', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, description, phases, cleanup })
+                    });
+                    
+                    if (response.ok) {
+                        showNotification(`Opération APT "${name}" créée avec succès`, 'success');
+                        closeModal(customAptModal);
+                        if (typeof loadAPTOperationsList === 'function') loadAPTOperationsList();
+                        // Ajouter à la liste déroulante
+                        const aptSelect = document.getElementById('apt-operation');
+                        if (aptSelect) {
+                            const optgroup = aptSelect.querySelector('optgroup[label="Personnalisées"]') || 
+                                (() => { const og = document.createElement('optgroup'); og.label = 'Personnalisées'; aptSelect.appendChild(og); return og; })();
+                            const option = document.createElement('option');
+                            option.value = name;
+                            option.textContent = name;
+                            optgroup.appendChild(option);
+                        }
+                    } else {
+                        showNotification('Erreur lors de la création', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showNotification('Erreur réseau', 'error');
+                }
+            });
+        }
+        
+        // Effacer la sélection
+        const clearSelection = document.getElementById('clear-selection');
+        if (clearSelection) {
+            clearSelection.addEventListener('click', () => {
+                document.querySelectorAll('.attack-checkbox').forEach(cb => cb.checked = false);
+                if (typeof updateRunButton === 'function') updateRunButton();
+                document.querySelectorAll('.select-all-category').forEach(cb => cb.checked = false);
+            });
+        }
+        
+        // Tout sélectionner
+        const selectAll = document.getElementById('select-all');
+        if (selectAll) {
+            selectAll.addEventListener('click', () => {
+                document.querySelectorAll('.attack-checkbox').forEach(cb => cb.checked = true);
+                if (typeof updateRunButton === 'function') updateRunButton();
+                document.querySelectorAll('.select-all-category').forEach(cb => cb.checked = true);
+            });
+        }
+        
+        // Multi-attaque tout sélectionner
+        const multiSelectAll = document.getElementById('multi-select-all');
+        if (multiSelectAll) {
+            multiSelectAll.addEventListener('click', () => {
+                document.querySelectorAll('.multi-attack-checkbox').forEach(cb => cb.checked = true);
+                if (typeof updateMultiRunButton === 'function') updateMultiRunButton();
+            });
+        }
+        
+        // Multi-attaque tout désélectionner
+        const multiClearAll = document.getElementById('multi-clear-all');
+        if (multiClearAll) {
+            multiClearAll.addEventListener('click', () => {
+                document.querySelectorAll('.multi-attack-checkbox').forEach(cb => cb.checked = false);
+                if (typeof updateMultiRunButton === 'function') updateMultiRunButton();
+            });
+        }
+        
+        // Effacer les résultats
+        const clearResults = document.getElementById('clear-results');
+        if (clearResults) {
+            clearResults.addEventListener('click', () => {
+                const resultsContainer = document.getElementById('attack-results');
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = '<div class="no-data">Aucun résultat à afficher</div>';
+                }
+            });
+        }
+        
+        // Exporter les résultats
+        const exportResults = document.getElementById('export-results');
+        if (exportResults) {
+            exportResults.addEventListener('click', () => {
+                const results = document.getElementById('attack-results').innerHTML;
+                const blob = new Blob([results], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `redforge_results_${new Date().toISOString().slice(0, 19)}.html`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('Résultats exportés', 'success');
+            });
+        }
+        
+        // Arrêter toutes les attaques
+        const stopAllBtn = document.getElementById('stop-all-attacks');
+        if (stopAllBtn) {
+            stopAllBtn.addEventListener('click', () => {
+                if (confirm('Voulez-vous arrêter toutes les attaques en cours ?')) {
+                    if (typeof stopAllAttacks === 'function') {
+                        stopAllAttacks();
+                    } else {
+                        fetch('/api/attacks/stop-all', { method: 'POST' })
+                            .then(() => showNotification('Toutes les attaques ont été arrêtées', 'success'))
+                            .catch(() => showNotification('Erreur lors de l\'arrêt', 'error'));
+                    }
+                }
+            });
+        }
+        
+        // Configuration furtive
+        const stealthDelayRange = document.getElementById('stealth-delay-range');
+        const stealthDelayValue = document.getElementById('stealth-delay-value');
+        if (stealthDelayRange && stealthDelayValue) {
+            stealthDelayRange.addEventListener('input', () => {
+                stealthDelayValue.textContent = `${stealthDelayRange.value}s`;
+            });
+        }
+        
+        const stealthJitterRange = document.getElementById('stealth-jitter-range');
+        const stealthJitterValue = document.getElementById('stealth-jitter-value');
+        if (stealthJitterRange && stealthJitterValue) {
+            stealthJitterRange.addEventListener('input', () => {
+                stealthJitterValue.textContent = `${Math.round(stealthJitterRange.value * 100)}%`;
+            });
+        }
+        
+        // Sélection niveau furtif
+        document.querySelectorAll('.stealth-level-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.stealth-level-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                
+                const level = card.dataset.level;
+                const configs = {
+                    low: { delay: 0.5, jitter: 0.1, tor: false, proxy: false, mimic: true },
+                    medium: { delay: 1.5, jitter: 0.3, tor: false, proxy: false, mimic: true },
+                    high: { delay: 3.0, jitter: 0.5, tor: true, proxy: false, mimic: true },
+                    paranoid: { delay: 5.0, jitter: 0.7, tor: true, proxy: true, mimic: true }
+                };
+                
+                const config = configs[level];
+                if (config) {
+                    if (stealthDelayRange) stealthDelayRange.value = config.delay;
+                    if (stealthDelayValue) stealthDelayValue.textContent = `${config.delay}s`;
+                    if (stealthJitterRange) stealthJitterRange.value = config.jitter;
+                    if (stealthJitterValue) stealthJitterValue.textContent = `${Math.round(config.jitter * 100)}%`;
+                    
+                    const torCheck = document.getElementById('stealth-tor');
+                    if (torCheck) torCheck.checked = config.tor;
+                    
+                    const proxyCheck = document.getElementById('stealth-proxy-rotate');
+                    if (proxyCheck) proxyCheck.checked = config.proxy;
+                }
+            });
+        });
+        
+        // Appliquer configuration furtive
+        const applyStealth = document.getElementById('apply-stealth-config');
+        if (applyStealth) {
+            applyStealth.addEventListener('click', async () => {
+                const config = {
+                    delay_between_requests: parseFloat(document.getElementById('stealth-delay-range')?.value || 1.5),
+                    jitter: parseFloat(document.getElementById('stealth-jitter-range')?.value || 0.3),
+                    random_user_agents: document.getElementById('stealth-random-ua')?.checked || false,
+                    use_tor: document.getElementById('stealth-tor')?.checked || false,
+                    rotate_proxies: document.getElementById('stealth-proxy-rotate')?.checked || false,
+                    mimic_human_behavior: document.getElementById('stealth-mimic-human')?.checked || false,
+                    slow_loris_mode: document.getElementById('stealth-slow-loris')?.checked || false
+                };
+                
+                try {
+                    const response = await fetch('/api/stealth/config', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(config)
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Configuration furtive appliquée', 'success');
+                    } else {
+                        showNotification('Erreur lors de l\'application', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showNotification('Erreur réseau', 'error');
+                }
+            });
+        }
+        
+        // Tester configuration furtive
+        const testStealth = document.getElementById('test-stealth-config');
+        if (testStealth && typeof testStealthConfig === 'function') {
+            testStealth.addEventListener('click', testStealthConfig);
+        }
+        
+        // Réinitialiser configuration furtive
+        const resetStealth = document.getElementById('reset-stealth-config');
+        if (resetStealth) {
+            resetStealth.addEventListener('click', () => {
+                const defaultCard = document.querySelector('.stealth-level-card[data-level="medium"]');
+                if (defaultCard) defaultCard.click();
+                showNotification('Configuration réinitialisée', 'info');
+            });
+        }
+        
+        // Fermer la timeline
+        const closeTimeline = document.getElementById('close-timeline');
+        const timelineSection = document.getElementById('apt-timeline-section');
+        if (closeTimeline && timelineSection) {
+            closeTimeline.addEventListener('click', () => {
+                timelineSection.style.display = 'none';
+            });
+        }
+        
+        // Effacer les alertes furtives
+        const clearAlerts = document.getElementById('clear-stealth-alerts');
+        if (clearAlerts) {
+            clearAlerts.addEventListener('click', () => {
+                const container = document.getElementById('stealth-alerts-container');
+                if (container) {
+                    container.innerHTML = '<div class="no-data">Aucune alerte</div>';
+                }
+            });
+        }
+        
+        // Écouter les événements WebSocket
+        if (typeof window.redforgeWebSocket !== 'undefined') {
+            window.redforgeWebSocket.on('multi_attack_completed', (data) => {
+                showNotification(`Multi-attaque terminée: ${data.successful}/${data.total_attacks} réussies`, 
+                                data.successful === data.total_attacks ? 'success' : 'warning');
+            });
+            
+            window.redforgeWebSocket.on('apt_completed', (data) => {
+                showNotification(`Opération APT complétée! Succès global: ${data.overall_success}%`, 
+                                data.overall_success > 70 ? 'success' : 'warning');
+            });
+            
+            window.redforgeWebSocket.on('stealth_alert', (data) => {
+                const container = document.getElementById('stealth-alerts-container');
+                if (container) {
+                    if (container.querySelector('.no-data')) {
+                        container.innerHTML = '';
+                    }
+                    const alert = document.createElement('div');
+                    alert.className = `stealth-alert severity-${data.severity}`;
+                    alert.innerHTML = `
+                        <div class="alert-icon">${data.severity === 'high' ? '🔴' : data.severity === 'medium' ? '🟡' : '🔵'}</div>
+                        <div class="alert-content">
+                            <div class="alert-message">${escapeHtml(data.message)}</div>
+                            <div class="alert-time">${new Date(data.timestamp).toLocaleTimeString()}</div>
+                        </div>
+                    `;
+                    container.insertBefore(alert, container.firstChild);
+                    
+                    // Limiter à 20 alertes
+                    while (container.children.length > 20) {
+                        container.removeChild(container.lastChild);
+                    }
+                }
+            });
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function openModal(modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal) closeModal(modal);
+            });
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target);
+            }
+        });
+    });
+</script>
+{% endblock %}

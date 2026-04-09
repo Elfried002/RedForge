@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+venv/
+.venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Wordlists volumineuses (seront téléchargées séparément)
+src/data/wordlists/*.txt
+src/data/wordlists/*.txt.gz
+src/data/wordlists/*.zip
+src/data/wordlists/*.tar.gz
+!src/data/wordlists/*.md
+!src/data/wordlists/*.json
+
+# Logs
+*.log
+logs/
+*.pid
+
+# Configuration locale
+config/local.json
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Backups
+*.backup
+*.bak
+backup_*

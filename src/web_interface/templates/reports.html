@@ -1,0 +1,1344 @@
+{% extends "base.html" %}
+
+{% block title %}RedForge - Rapports & Analyses{% endblock %}
+
+{% block header_title %}📄 Rapports & Analyses Avancées{% endblock %}
+
+{% block content %}
+<div class="reports-container">
+    <!-- En-tête -->
+    <div class="reports-header">
+        <h1>📄 Rapports et Analyses</h1>
+        <p>Générez, visualisez et exportez des rapports détaillés incluant multi-attaques, mode furtif et opérations APT</p>
+    </div>
+    
+    <!-- Onglets des types de rapports -->
+    <div class="tabs reports-tabs">
+        <div class="tab active" data-tab="generate">📝 Générer</div>
+        <div class="tab" data-tab="multi">📚 Multi-Attaques</div>
+        <div class="tab" data-tab="apt">🎭 Opérations APT</div>
+        <div class="tab" data-tab="stealth">🕵️ Métriques Furtives</div>
+        <div class="tab" data-tab="history">📜 Historique</div>
+        <div class="tab" data-tab="templates">📋 Templates</div>
+    </div>
+    
+    <!-- ==================== TAB GÉNÉRATION ==================== -->
+    <div id="tab-generate" class="tab-content active">
+        <div class="card">
+            <div class="card-header">
+                <h3>📝 Générer un rapport complet</h3>
+                <span class="badge badge-info">v2.0</span>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Cible</label>
+                        <select id="report-target" class="form-select">
+                            <option value="">Sélectionner une cible</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Format</label>
+                        <select id="report-format" class="form-select">
+                            <option value="html">HTML (Web) 🌐</option>
+                            <option value="pdf">PDF (Document) 📄</option>
+                            <option value="json">JSON (Données) 📊</option>
+                            <option value="csv">CSV (Tableur) 📈</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Template</label>
+                        <select id="report-template" class="form-select">
+                            <option value="standard">Standard - Complet</option>
+                            <option value="detailed">Détaillé - Technique</option>
+                            <option value="executive">Direction - Résumé</option>
+                            <option value="technical">Technique - Expert</option>
+                            <option value="apt">APT - Avancé</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Niveau de détail</label>
+                        <select id="report-detail" class="form-select">
+                            <option value="basic">Basique</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="detailed">Détaillé</option>
+                            <option value="exhaustive">Exhaustif</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="report-options">
+                    <h4>Options d'inclusion</h4>
+                    <div class="options-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-charts" checked> 📊 Graphiques
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-recommendations" checked> 💡 Recommandations
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-evidence" checked> 🔍 Preuves
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-multi-attack" checked> 📚 Multi-attaques
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-apt" checked> 🎭 Opérations APT
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-stealth" checked> 🕵️ Métriques furtives
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-timeline" checked> 📅 Timeline
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-iocs" checked> 🎯 IoCs
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Commentaires additionnels</label>
+                    <textarea id="report-comments" class="form-textarea" rows="3" placeholder="Ajoutez des commentaires pour le rapport..."></textarea>
+                </div>
+                
+                <div class="report-actions">
+                    <button id="generate-report" class="btn btn-primary">📄 Générer le rapport</button>
+                    <button id="schedule-report" class="btn btn-secondary">⏰ Programmer</button>
+                    <button id="compare-reports" class="btn btn-secondary">📊 Comparer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== TAB MULTI-ATTAQUES ==================== -->
+    <div id="tab-multi" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>📚 Rapport Multi-Attaques</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Multi-Attaque</label>
+                        <select id="multi-report-select" class="form-select">
+                            <option value="">Sélectionner une multi-attaque</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Format</label>
+                        <select id="multi-report-format" class="form-select">
+                            <option value="html">HTML</option>
+                            <option value="pdf">PDF</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="report-stats" id="multi-stats" style="display: none;">
+                    <div class="stats-grid-mini">
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Total attaques</div>
+                            <div class="stat-value" id="multi-total-attacks">0</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Succès</div>
+                            <div class="stat-value" id="multi-success">0</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Échecs</div>
+                            <div class="stat-value" id="multi-failed">0</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Taux succès</div>
+                            <div class="stat-value" id="multi-rate">0%</div>
+                        </div>
+                    </div>
+                    <div id="multi-attacks-details" class="multi-attacks-details"></div>
+                </div>
+                
+                <div class="report-actions">
+                    <button id="generate-multi-report" class="btn btn-primary">📄 Générer rapport multi-attaque</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== TAB OPÉRATIONS APT ==================== -->
+    <div id="tab-apt" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🎭 Rapport Opération APT</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Opération APT</label>
+                        <select id="apt-report-select" class="form-select">
+                            <option value="">Sélectionner une opération APT</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Format</label>
+                        <select id="apt-report-format" class="form-select">
+                            <option value="html">HTML</option>
+                            <option value="pdf">PDF</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="report-stats" id="apt-stats" style="display: none;">
+                    <div class="stats-grid-mini">
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Phases totales</div>
+                            <div class="stat-value" id="apt-total-phases">0</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Phases réussies</div>
+                            <div class="stat-value" id="apt-success-phases">0</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Taux succès</div>
+                            <div class="stat-value" id="apt-rate">0%</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Durée totale</div>
+                            <div class="stat-value" id="apt-duration">0s</div>
+                        </div>
+                    </div>
+                    <div id="apt-phases-details" class="apt-phases-details"></div>
+                    <div id="apt-timeline-chart-container" style="height: 300px; margin-top: 20px;">
+                        <canvas id="apt-report-timeline"></canvas>
+                    </div>
+                </div>
+                
+                <div class="report-actions">
+                    <button id="generate-apt-report" class="btn btn-primary">📄 Générer rapport APT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== TAB MÉTRIQUES FURTIVES ==================== -->
+    <div id="tab-stealth" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🕵️ Rapport Métriques Furtives</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Période</label>
+                        <select id="stealth-period" class="form-select">
+                            <option value="day">Dernières 24h</option>
+                            <option value="week" selected>Dernière semaine</option>
+                            <option value="month">Dernier mois</option>
+                            <option value="all">Toute l'histoire</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Format</label>
+                        <select id="stealth-report-format" class="form-select">
+                            <option value="html">HTML</option>
+                            <option value="pdf">PDF</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="stealth-metrics-preview" style="display: none;">
+                    <div class="stats-grid-mini">
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Score furtif moyen</div>
+                            <div class="stat-value" id="stealth-avg-score">0%</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Alertes détection</div>
+                            <div class="stat-value" id="stealth-alerts-count">0</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Temps moyen requête</div>
+                            <div class="stat-value" id="stealth-avg-time">0s</div>
+                        </div>
+                        <div class="stat-card-mini">
+                            <div class="stat-label">Efficacité</div>
+                            <div class="stat-value" id="stealth-effectiveness">0%</div>
+                        </div>
+                    </div>
+                    <div id="stealth-chart-container" style="height: 300px; margin-top: 20px;">
+                        <canvas id="stealth-effectiveness-chart-report"></canvas>
+                    </div>
+                </div>
+                
+                <div class="report-actions">
+                    <button id="generate-stealth-report" class="btn btn-primary">📄 Générer rapport furtif</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== TAB HISTORIQUE ==================== -->
+    <div id="tab-history" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>📜 Historique des rapports</h3>
+                <div class="card-actions">
+                    <button id="refresh-reports" class="btn btn-sm btn-secondary">⟳ Rafraîchir</button>
+                    <button id="export-all-reports" class="btn btn-sm btn-secondary">📦 Exporter tout</button>
+                    <button id="delete-old-reports" class="btn btn-sm btn-danger">🗑️ Nettoyer</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="filters-bar">
+                    <input type="text" id="report-search" class="form-input" placeholder="🔍 Rechercher...">
+                    <select id="report-type-filter" class="form-select">
+                        <option value="all">Tous les types</option>
+                        <option value="standard">Standard</option>
+                        <option value="multi">Multi-Attaque</option>
+                        <option value="apt">APT</option>
+                        <option value="stealth">Furtif</option>
+                    </select>
+                </div>
+                <div id="reports-list" class="reports-list">
+                    <div class="loading">Chargement des rapports...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== TAB TEMPLATES ==================== -->
+    <div id="tab-templates" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>📋 Templates de rapports</h3>
+                <button id="new-template" class="btn btn-sm btn-primary">+ Nouveau template</button>
+            </div>
+            <div class="card-body">
+                <div id="templates-list" class="templates-grid">
+                    <div class="template-card">
+                        <div class="template-icon">📄</div>
+                        <div class="template-name">Standard</div>
+                        <div class="template-desc">Rapport complet standard</div>
+                        <div class="template-tags">
+                            <span class="tag">Multi</span>
+                            <span class="tag">APT</span>
+                        </div>
+                        <button class="btn btn-sm btn-secondary use-template" data-template="standard">Utiliser</button>
+                    </div>
+                    <div class="template-card">
+                        <div class="template-icon">📊</div>
+                        <div class="template-name">Direction</div>
+                        <div class="template-desc">Résumé pour la direction</div>
+                        <div class="template-tags">
+                            <span class="tag">Executive</span>
+                            <span class="tag">KPI</span>
+                        </div>
+                        <button class="btn btn-sm btn-secondary use-template" data-template="executive">Utiliser</button>
+                    </div>
+                    <div class="template-card">
+                        <div class="template-icon">🔧</div>
+                        <div class="template-name">Technique</div>
+                        <div class="template-desc">Détails techniques complets</div>
+                        <div class="template-tags">
+                            <span class="tag">Expert</span>
+                            <span class="tag">IoCs</span>
+                        </div>
+                        <button class="btn btn-sm btn-secondary use-template" data-template="technical">Utiliser</button>
+                    </div>
+                    <div class="template-card">
+                        <div class="template-icon">🎭</div>
+                        <div class="template-name">APT Avancé</div>
+                        <div class="template-desc">Rapport détaillé opérations APT</div>
+                        <div class="template-tags">
+                            <span class="tag">APT</span>
+                            <span class="tag">Timeline</span>
+                        </div>
+                        <button class="btn btn-sm btn-secondary use-template" data-template="apt">Utiliser</button>
+                    </div>
+                    <div class="template-card">
+                        <div class="template-icon">🕵️</div>
+                        <div class="template-name">Furtif</div>
+                        <div class="template-desc">Métriques de discrétion</div>
+                        <div class="template-tags">
+                            <span class="tag">Stealth</span>
+                            <span class="tag">Détection</span>
+                        </div>
+                        <button class="btn btn-sm btn-secondary use-template" data-template="stealth">Utiliser</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal aperçu rapport -->
+    <div id="report-preview-modal" class="modal modal-large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👁️ Aperçu du rapport</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <iframe id="report-preview" style="width:100%; height:550px; border:none;"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Fermer</button>
+                <button id="download-report" class="btn btn-primary">📥 Télécharger</button>
+                <button id="print-report" class="btn btn-secondary">🖨️ Imprimer</button>
+                <button id="share-report" class="btn btn-secondary">📤 Partager</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal programmation -->
+    <div id="schedule-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⏰ Programmer un rapport</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Fréquence</label>
+                    <select id="schedule-frequency" class="form-select">
+                        <option value="once">Une fois</option>
+                        <option value="daily">Quotidien</option>
+                        <option value="weekly">Hebdomadaire</option>
+                        <option value="monthly">Mensuel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date/heure</label>
+                    <input type="datetime-local" id="schedule-datetime" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email de destination</label>
+                    <input type="email" id="schedule-email" class="form-input" placeholder="rapports@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Format</label>
+                    <select id="schedule-format" class="form-select">
+                        <option value="pdf">PDF</option>
+                        <option value="html">HTML</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Annuler</button>
+                <button id="confirm-schedule" class="btn btn-primary">Programmer</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal comparaison -->
+    <div id="compare-modal" class="modal modal-large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Comparaison de rapports</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="compare-selectors">
+                    <select id="compare-report1" class="form-select">
+                        <option value="">Sélectionner rapport 1</option>
+                    </select>
+                    <select id="compare-report2" class="form-select">
+                        <option value="">Sélectionner rapport 2</option>
+                    </select>
+                </div>
+                <div id="compare-results" style="margin-top: 20px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Fermer</button>
+                <button id="do-compare" class="btn btn-primary">Comparer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.reports-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.reports-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+}
+
+.report-options {
+    background: var(--gray-100);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.report-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.stats-grid-mini {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-card-mini {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+}
+
+.stat-card-mini .stat-value {
+    font-size: var(--font-size-2xl);
+    font-weight: bold;
+    color: var(--primary-red);
+}
+
+.filters-bar {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.filters-bar .form-input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filters-bar .form-select {
+    width: 150px;
+}
+
+.reports-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.report-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-200);
+    transition: background var(--transition-fast);
+}
+
+.report-item:hover {
+    background: var(--gray-100);
+}
+
+.report-info {
+    flex: 1;
+}
+
+.report-name {
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-xs);
+}
+
+.report-meta {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+.report-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.template-card {
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: transform var(--transition-fast);
+}
+
+.template-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.template-icon {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-sm);
+}
+
+.template-name {
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-xs);
+}
+
+.template-desc {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-sm);
+}
+
+.template-tags {
+    display: flex;
+    gap: var(--spacing-xs);
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.tag {
+    font-size: var(--font-size-xs);
+    background: var(--primary-red);
+    color: white;
+    padding: 2px 6px;
+    border-radius: var(--border-radius-full);
+}
+
+.multi-attacks-details,
+.apt-phases-details {
+    margin-top: var(--spacing-md);
+}
+
+.phase-detail {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-sm);
+    border-left: 3px solid;
+}
+
+.phase-detail.success {
+    border-left-color: #4caf50;
+}
+
+.phase-detail.failed {
+    border-left-color: #f44336;
+}
+
+.compare-selectors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: bold;
+}
+
+.badge-info {
+    background: #2196f3;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-grid,
+    .options-grid,
+    .stats-grid-mini,
+    .templates-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .report-item {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        text-align: center;
+    }
+    
+    .report-actions {
+        justify-content: center;
+    }
+    
+    .filters-bar {
+        flex-direction: column;
+    }
+    
+    .filters-bar .form-select {
+        width: 100%;
+    }
+    
+    .compare-selectors {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+let aptTimelineChart = null;
+let stealthChart = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des onglets
+    const tabs = document.querySelectorAll('.reports-tabs .tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            // Charger les données spécifiques à l'onglet
+            if (tabId === 'multi') loadMultiAttacksList();
+            if (tabId === 'apt') loadAPTOperationsList();
+            if (tabId === 'history') loadReportsList();
+        });
+    });
+    
+    // Charger les cibles
+    fetch('/api/targets')
+        .then(res => res.json())
+        .then(data => {
+            const targetSelect = document.getElementById('report-target');
+            if (targetSelect && data.targets) {
+                targetSelect.innerHTML = '<option value="">Sélectionner une cible</option>' +
+                    data.targets.map(t => `<option value="${t}">${escapeHtml(t)}</option>`).join('');
+            }
+        });
+    
+    // Générer le rapport standard
+    const generateBtn = document.getElementById('generate-report');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', generateStandardReport);
+    }
+    
+    // Générer rapport multi-attaque
+    const generateMultiBtn = document.getElementById('generate-multi-report');
+    if (generateMultiBtn) {
+        generateMultiBtn.addEventListener('click', generateMultiReport);
+    }
+    
+    // Générer rapport APT
+    const generateAptBtn = document.getElementById('generate-apt-report');
+    if (generateAptBtn) {
+        generateAptBtn.addEventListener('click', generateAPTReport);
+    }
+    
+    // Générer rapport furtif
+    const generateStealthBtn = document.getElementById('generate-stealth-report');
+    if (generateStealthBtn) {
+        generateStealthBtn.addEventListener('click', generateStealthReport);
+    }
+    
+    // Programmer un rapport
+    const scheduleBtn = document.getElementById('schedule-report');
+    if (scheduleBtn) {
+        scheduleBtn.addEventListener('click', () => openModal('schedule-modal'));
+    }
+    
+    const confirmSchedule = document.getElementById('confirm-schedule');
+    if (confirmSchedule) {
+        confirmSchedule.addEventListener('click', scheduleReport);
+    }
+    
+    // Comparer les rapports
+    const compareBtn = document.getElementById('compare-reports');
+    if (compareBtn) {
+        compareBtn.addEventListener('click', () => {
+            loadCompareSelectors();
+            openModal('compare-modal');
+        });
+    }
+    
+    const doCompareBtn = document.getElementById('do-compare');
+    if (doCompareBtn) {
+        doCompareBtn.addEventListener('click', compareReports);
+    }
+    
+    // Télécharger le rapport
+    const downloadBtn = document.getElementById('download-report');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadCurrentReport);
+    }
+    
+    // Imprimer le rapport
+    const printBtn = document.getElementById('print-report');
+    if (printBtn) {
+        printBtn.addEventListener('click', printCurrentReport);
+    }
+    
+    // Partager le rapport
+    const shareBtn = document.getElementById('share-report');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', shareCurrentReport);
+    }
+    
+    // Templates
+    document.querySelectorAll('.use-template').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const template = this.dataset.template;
+            document.getElementById('report-template').value = template;
+            showNotification(`Template "${template}" chargé`, 'success');
+            document.querySelector('.tab[data-tab="generate"]').click();
+        });
+    });
+    
+    // Rafraîchir les rapports
+    const refreshBtn = document.getElementById('refresh-reports');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', loadReportsList);
+    }
+    
+    // Exporter tous les rapports
+    const exportAllBtn = document.getElementById('export-all-reports');
+    if (exportAllBtn) {
+        exportAllBtn.addEventListener('click', exportAllReports);
+    }
+    
+    // Supprimer les anciens rapports
+    const deleteOldBtn = document.getElementById('delete-old-reports');
+    if (deleteOldBtn) {
+        deleteOldBtn.addEventListener('click', deleteOldReports);
+    }
+    
+    // Recherche dans les rapports
+    const searchInput = document.getElementById('report-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterReports);
+    }
+    
+    const typeFilter = document.getElementById('report-type-filter');
+    if (typeFilter) {
+        typeFilter.addEventListener('change', filterReports);
+    }
+    
+    // Nouveau template
+    const newTemplateBtn = document.getElementById('new-template');
+    if (newTemplateBtn) {
+        newTemplateBtn.addEventListener('click', () => {
+            showNotification('Fonctionnalité à venir', 'info');
+        });
+    }
+    
+    // Chargement initial
+    loadReportsList();
+});
+
+async function generateStandardReport() {
+    const target = document.getElementById('report-target').value;
+    if (!target) {
+        showNotification('Veuillez sélectionner une cible', 'warning');
+        return;
+    }
+    
+    const format = document.getElementById('report-format').value;
+    const template = document.getElementById('report-template').value;
+    const detail = document.getElementById('report-detail').value;
+    const comments = document.getElementById('report-comments').value;
+    
+    const options = {
+        include_charts: document.getElementById('include-charts').checked,
+        include_recommendations: document.getElementById('include-recommendations').checked,
+        include_evidence: document.getElementById('include-evidence').checked,
+        include_multi_attack: document.getElementById('include-multi-attack').checked,
+        include_apt: document.getElementById('include-apt').checked,
+        include_stealth: document.getElementById('include-stealth').checked,
+        include_timeline: document.getElementById('include-timeline').checked,
+        include_iocs: document.getElementById('include-iocs').checked,
+        comments: comments,
+        detail_level: detail
+    };
+    
+    showNotification('Génération du rapport en cours...', 'info');
+    
+    try {
+        const response = await fetch('/api/report/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                target: target,
+                format: format,
+                template: template,
+                options: options
+            })
+        });
+        
+        if (!response.ok) throw new Error('Erreur génération');
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        
+        if (format === 'html') {
+            const previewFrame = document.getElementById('report-preview');
+            if (previewFrame) {
+                previewFrame.src = url;
+                openModal('report-preview-modal');
+                window.currentReportUrl = url;
+                window.currentReportFormat = format;
+            }
+        } else {
+            downloadBlob(blob, `redforge_report_${target}_${Date.now()}.${format}`);
+            showNotification('Rapport généré avec succès', 'success');
+        }
+        
+        loadReportsList();
+        
+    } catch (error) {
+        showNotification('Erreur lors de la génération', 'error');
+    }
+}
+
+async function generateMultiReport() {
+    const multiId = document.getElementById('multi-report-select').value;
+    if (!multiId) {
+        showNotification('Veuillez sélectionner une multi-attaque', 'warning');
+        return;
+    }
+    
+    const format = document.getElementById('multi-report-format').value;
+    
+    showNotification('Génération du rapport multi-attaque...', 'info');
+    
+    try {
+        const response = await fetch(`/api/report/multi/${multiId}?format=${format}`);
+        if (!response.ok) throw new Error('Erreur génération');
+        
+        const blob = await response.blob();
+        downloadBlob(blob, `redforge_multi_report_${multiId}_${Date.now()}.${format}`);
+        showNotification('Rapport multi-attaque généré', 'success');
+        
+    } catch (error) {
+        showNotification('Erreur lors de la génération', 'error');
+    }
+}
+
+async function generateAPTReport() {
+    const aptId = document.getElementById('apt-report-select').value;
+    if (!aptId) {
+        showNotification('Veuillez sélectionner une opération APT', 'warning');
+        return;
+    }
+    
+    const format = document.getElementById('apt-report-format').value;
+    
+    showNotification('Génération du rapport APT...', 'info');
+    
+    try {
+        const response = await fetch(`/api/report/apt/${aptId}?format=${format}`);
+        if (!response.ok) throw new Error('Erreur génération');
+        
+        const blob = await response.blob();
+        downloadBlob(blob, `redforge_apt_report_${aptId}_${Date.now()}.${format}`);
+        showNotification('Rapport APT généré', 'success');
+        
+    } catch (error) {
+        showNotification('Erreur lors de la génération', 'error');
+    }
+}
+
+async function generateStealthReport() {
+    const period = document.getElementById('stealth-period').value;
+    const format = document.getElementById('stealth-report-format').value;
+    
+    showNotification('Génération du rapport furtif...', 'info');
+    
+    try {
+        const response = await fetch(`/api/report/stealth?period=${period}&format=${format}`);
+        if (!response.ok) throw new Error('Erreur génération');
+        
+        const blob = await response.blob();
+        downloadBlob(blob, `redforge_stealth_report_${period}_${Date.now()}.${format}`);
+        showNotification('Rapport furtif généré', 'success');
+        
+    } catch (error) {
+        showNotification('Erreur lors de la génération', 'error');
+    }
+}
+
+async function loadMultiAttacksList() {
+    try {
+        const response = await fetch('/api/multi-attack/list');
+        const data = await response.json();
+        const select = document.getElementById('multi-report-select');
+        const statsDiv = document.getElementById('multi-stats');
+        
+        if (select && data.multiAttacks) {
+            select.innerHTML = '<option value="">Sélectionner une multi-attaque</option>' +
+                data.multiAttacks.map(ma => `<option value="${ma.id}">${escapeHtml(ma.name)} - ${ma.target}</option>`).join('');
+            
+            select.addEventListener('change', async () => {
+                if (select.value) {
+                    const stats = await fetch(`/api/multi-attack/${select.value}/stats`).then(r => r.json());
+                    document.getElementById('multi-total-attacks').textContent = stats.totalAttacks || 0;
+                    document.getElementById('multi-success').textContent = stats.successful || 0;
+                    document.getElementById('multi-failed').textContent = stats.failed || 0;
+                    document.getElementById('multi-rate').textContent = stats.successRate || '0%';
+                    statsDiv.style.display = 'block';
+                } else {
+                    statsDiv.style.display = 'none';
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Erreur chargement multi-attaques:', error);
+    }
+}
+
+async function loadAPTOperationsList() {
+    try {
+        const response = await fetch('/api/apt/operations');
+        const data = await response.json();
+        const select = document.getElementById('apt-report-select');
+        const statsDiv = document.getElementById('apt-stats');
+        
+        if (select) {
+            const allOps = [...(data.predefined || []), ...(data.custom || [])];
+            select.innerHTML = '<option value="">Sélectionner une opération APT</option>' +
+                allOps.map(op => `<option value="${op}">${escapeHtml(op)}</option>`).join('');
+            
+            select.addEventListener('change', async () => {
+                if (select.value) {
+                    const stats = await fetch(`/api/apt/${select.value}/stats`).then(r => r.json());
+                    document.getElementById('apt-total-phases').textContent = stats.totalPhases || 0;
+                    document.getElementById('apt-success-phases').textContent = stats.successPhases || 0;
+                    document.getElementById('apt-rate').textContent = stats.successRate || '0%';
+                    document.getElementById('apt-duration').textContent = stats.duration || '0s';
+                    statsDiv.style.display = 'block';
+                    
+                    // Créer le graphique de timeline
+                    if (aptTimelineChart) aptTimelineChart.destroy();
+                    const ctx = document.getElementById('apt-report-timeline').getContext('2d');
+                    aptTimelineChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: stats.phases?.map(p => p.name) || [],
+                            datasets: [{
+                                label: 'Durée (secondes)',
+                                data: stats.phases?.map(p => p.duration) || [],
+                                backgroundColor: stats.phases?.map(p => p.success ? '#4caf50' : '#f44336') || []
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: true }
+                    });
+                } else {
+                    statsDiv.style.display = 'none';
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Erreur chargement APT:', error);
+    }
+}
+
+async function loadReportsList() {
+    try {
+        const response = await fetch('/api/reports/list');
+        const data = await response.json();
+        const container = document.getElementById('reports-list');
+        
+        if (container) {
+            if (!data.reports || data.reports.length === 0) {
+                container.innerHTML = '<div class="no-data">Aucun rapport généré</div>';
+            } else {
+                container.innerHTML = data.reports.map(report => `
+                    <div class="report-item" data-type="${report.type}" data-name="${escapeHtml(report.name).toLowerCase()}">
+                        <div class="report-info">
+                            <div class="report-name">${escapeHtml(report.name)}</div>
+                            <div class="report-meta">
+                                Type: ${getReportTypeIcon(report.type)} ${report.type} | 
+                                Cible: ${escapeHtml(report.target)} | 
+                                Date: ${new Date(report.date).toLocaleString('fr-FR')} | 
+                                Taille: ${formatBytes(report.size)}
+                            </div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="viewReport('${report.id}')">👁️ Voir</button>
+                            <button class="btn btn-sm btn-primary" onclick="downloadReport('${report.id}')">📥 Télécharger</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteReport('${report.id}')">🗑️ Supprimer</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Erreur chargement rapports:', error);
+    }
+}
+
+function getReportTypeIcon(type) {
+    const icons = {
+        'standard': '📄',
+        'multi': '📚',
+        'apt': '🎭',
+        'stealth': '🕵️'
+    };
+    return icons[type] || '📄';
+}
+
+async function scheduleReport() {
+    const target = document.getElementById('report-target').value;
+    const frequency = document.getElementById('schedule-frequency').value;
+    const datetime = document.getElementById('schedule-datetime').value;
+    const email = document.getElementById('schedule-email').value;
+    const format = document.getElementById('schedule-format').value;
+    
+    if (!target || !datetime) {
+        showNotification('Veuillez remplir tous les champs', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/report/schedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                target: target,
+                frequency: frequency,
+                datetime: datetime,
+                email: email,
+                format: format,
+                template: document.getElementById('report-template').value
+            })
+        });
+        
+        if (response.ok) {
+            showNotification('Rapport programmé avec succès', 'success');
+            closeModal(document.getElementById('schedule-modal'));
+        } else {
+            throw new Error('Erreur programmation');
+        }
+    } catch (error) {
+        showNotification('Erreur lors de la programmation', 'error');
+    }
+}
+
+async function loadCompareSelectors() {
+    try {
+        const response = await fetch('/api/reports/list');
+        const data = await response.json();
+        const select1 = document.getElementById('compare-report1');
+        const select2 = document.getElementById('compare-report2');
+        
+        if (select1 && select2 && data.reports) {
+            const options = data.reports.map(r => `<option value="${r.id}">${escapeHtml(r.name)} (${new Date(r.date).toLocaleDateString()})</option>`);
+            select1.innerHTML = '<option value="">Sélectionner rapport 1</option>' + options.join('');
+            select2.innerHTML = '<option value="">Sélectionner rapport 2</option>' + options.join('');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function compareReports() {
+    const id1 = document.getElementById('compare-report1').value;
+    const id2 = document.getElementById('compare-report2').value;
+    
+    if (!id1 || !id2) {
+        showNotification('Veuillez sélectionner deux rapports', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/reports/compare?id1=${id1}&id2=${id2}`);
+        const comparison = await response.json();
+        
+        const container = document.getElementById('compare-results');
+        container.innerHTML = `
+            <div class="comparison-results">
+                <h4>Résultats de la comparaison</h4>
+                <div class="stats-grid-mini">
+                    <div class="stat-card-mini">
+                        <div class="stat-label">Différence vulnérabilités</div>
+                        <div class="stat-value ${comparison.vulnDiff > 0 ? 'positive' : 'negative'}">${comparison.vulnDiff > 0 ? '+' : ''}${comparison.vulnDiff}</div>
+                    </div>
+                    <div class="stat-card-mini">
+                        <div class="stat-label">Score sécurité</div>
+                        <div class="stat-value">${comparison.securityScore}</div>
+                    </div>
+                </div>
+                <div class="comparison-details">
+                    <h5>Évolution des vulnérabilités</h5>
+                    <pre>${JSON.stringify(comparison.vulnerabilities, null, 2)}</pre>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        showNotification('Erreur lors de la comparaison', 'error');
+    }
+}
+
+function filterReports() {
+    const searchTerm = document.getElementById('report-search').value.toLowerCase();
+    const typeFilter = document.getElementById('report-type-filter').value;
+    const items = document.querySelectorAll('.report-item');
+    
+    items.forEach(item => {
+        const name = item.dataset.name || '';
+        const type = item.dataset.type || '';
+        const matchesSearch = name.includes(searchTerm);
+        const matchesType = typeFilter === 'all' || type === typeFilter;
+        item.style.display = matchesSearch && matchesType ? 'flex' : 'none';
+    });
+}
+
+async function exportAllReports() {
+    showNotification('Préparation de l\'export...', 'info');
+    try {
+        const response = await fetch('/api/reports/export-all');
+        const blob = await response.blob();
+        downloadBlob(blob, `redforge_all_reports_${Date.now()}.zip`);
+        showNotification('Export terminé', 'success');
+    } catch (error) {
+        showNotification('Erreur lors de l\'export', 'error');
+    }
+}
+
+async function deleteOldReports() {
+    if (confirm('Voulez-vous supprimer tous les rapports de plus de 30 jours ?')) {
+        try {
+            await fetch('/api/reports/delete-old', { method: 'DELETE' });
+            loadReportsList();
+            showNotification('Anciens rapports supprimés', 'success');
+        } catch (error) {
+            showNotification('Erreur lors de la suppression', 'error');
+        }
+    }
+}
+
+function downloadCurrentReport() {
+    if (window.currentReportUrl) {
+        const a = document.createElement('a');
+        a.href = window.currentReportUrl;
+        a.download = `redforge_report_${Date.now()}.${window.currentReportFormat || 'html'}`;
+        a.click();
+    }
+}
+
+function printCurrentReport() {
+    const previewFrame = document.getElementById('report-preview');
+    if (previewFrame && previewFrame.contentWindow) {
+        previewFrame.contentWindow.print();
+    }
+}
+
+async function shareCurrentReport() {
+    if (window.currentReportUrl) {
+        try {
+            await navigator.share({
+                title: 'Rapport RedForge',
+                text: 'Rapport de pentest généré par RedForge',
+                url: window.currentReportUrl
+            });
+        } catch (error) {
+            navigator.clipboard.writeText(window.currentReportUrl);
+            showNotification('Lien copié dans le presse-papier', 'success');
+        }
+    }
+}
+
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function showNotification(message, type) {
+    if (typeof window.showNotification === 'function') {
+        window.showNotification(message, type);
+    } else {
+        console.log(`[${type}] ${message}`);
+    }
+}
+
+// Fonctions globales pour les rapports
+window.viewReport = function(reportId) {
+    window.open(`/api/reports/${reportId}/view`, '_blank');
+};
+
+window.downloadReport = function(reportId) {
+    window.location.href = `/api/reports/${reportId}/download`;
+};
+
+window.deleteReport = async function(reportId) {
+    if (confirm('Voulez-vous vraiment supprimer ce rapport ?')) {
+        await fetch(`/api/reports/${reportId}`, { method: 'DELETE' });
+        loadReportsList();
+        showNotification('Rapport supprimé', 'success');
+    }
+};
+
+document.querySelectorAll('.modal-close').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const modal = this.closest('.modal');
+        if (modal) closeModal(modal);
+    });
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+        closeModal(e.target);
+    }
+});
+</script>
+{% endblock %}

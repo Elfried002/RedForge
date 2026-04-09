@@ -1,0 +1,201 @@
+{
+    "general": {
+        "unknown": "Erreur inconnue",
+        "timeout": "Délai d'attente dépassé",
+        "permission_denied": "Permission refusée",
+        "not_found": "Ressource non trouvée",
+        "invalid_input": "Entrée invalide",
+        "connection_refused": "Connexion refusée",
+        "network_error": "Erreur réseau",
+        "internal_error": "Erreur interne du système",
+        "not_implemented": "Fonctionnalité non implémentée",
+        "deprecated": "Cette fonctionnalité est dépréciée",
+        "maintenance": "Service en maintenance. Réessayez plus tard"
+    },
+    
+    "cli": {
+        "no_target": "❌ Erreur : Aucune cible spécifiée",
+        "no_sudo": "❌ RedForge nécessite les droits sudo pour cette opération",
+        "invalid_phase": "❌ Phase invalide : {phase}",
+        "invalid_option": "❌ Option invalide : {option}",
+        "missing_argument": "❌ Argument manquant pour l'option {option}",
+        "file_not_found": "❌ Fichier non trouvé : {file}",
+        "invalid_target": "❌ Cible invalide : {target}",
+        "tool_not_found": "❌ Outil non trouvé : {tool}",
+        "command_failed": "❌ Commande échouée : {command}",
+        "invalid_format": "❌ Format de sortie invalide : {format}",
+        "invalid_level": "❌ Niveau invalide : {level}. Niveaux disponibles : 1-5",
+        "invalid_stealth": "❌ Niveau de furtivité invalide : {level}",
+        "invalid_schedule": "❌ Format cron invalide : {schedule}",
+        "invalid_duration": "❌ Durée invalide : {duration}",
+        "output_dir_not_writable": "❌ Répertoire de sortie non accessible en écriture : {dir}",
+        "workspace_full": "❌ Espace de travail plein. Nettoyez avec RedForge --cleanup"
+    },
+    
+    "attack": {
+        "sql_injection": "❌ Erreur lors du test d'injection SQL : {error}",
+        "xss": "❌ Erreur lors du scan XSS : {error}",
+        "lfi": "❌ Erreur lors du scan LFI : {error}",
+        "command_injection": "❌ Erreur lors du test d'injection de commandes : {error}",
+        "csrf": "❌ Erreur lors du test CSRF : {error}",
+        "upload": "❌ Erreur lors du test d'upload : {error}",
+        "bruteforce": "❌ Erreur lors de la force brute : {error}",
+        "session": "❌ Erreur lors du test de session : {error}",
+        "nosql": "❌ Erreur lors du test d'injection NoSQL : {error}",
+        "ldap": "❌ Erreur lors du test d'injection LDAP : {error}",
+        "xpath": "❌ Erreur lors du test d'injection XPath : {error}",
+        "template": "❌ Erreur lors du test d'injection de templates : {error}",
+        "clickjacking": "❌ Erreur lors du test clickjacking : {error}",
+        "cors": "❌ Erreur lors du test CORS : {error}",
+        "postmessage": "❌ Erreur lors du test PostMessage : {error}",
+        "jwt": "❌ Erreur lors du test JWT : {error}",
+        "oauth": "❌ Erreur lors du test OAuth : {error}",
+        "ssrf": "❌ Erreur lors du test SSRF : {error}",
+        "xxe": "❌ Erreur lors du test XXE : {error}",
+        "rce": "❌ Erreur lors du test RCE : {error}"
+    },
+    
+    "tool": {
+        "nmap_not_found": "❌ Nmap non installé. Installez-le avec : sudo apt install nmap",
+        "metasploit_not_found": "❌ Metasploit non installé. Installez-le avec : sudo apt install metasploit-framework",
+        "sqlmap_not_found": "❌ SQLMap non installé. Installez-le avec : sudo apt install sqlmap",
+        "hydra_not_found": "❌ Hydra non installé. Installez-le avec : sudo apt install hydra",
+        "xsstrike_not_found": "❌ XSStrike non installé. Installez-le avec : pip3 install xsstrike",
+        "whatweb_not_found": "❌ WhatWeb non installé. Installez-le avec : sudo apt install whatweb",
+        "dirb_not_found": "❌ Dirb non installé. Installez-le avec : sudo apt install dirb",
+        "wafw00f_not_found": "❌ Wafw00f non installé. Installez-le avec : pip3 install wafw00f",
+        "ffuf_not_found": "❌ Ffuf non installé. Installez-le avec : sudo apt install ffuf",
+        "gobuster_not_found": "❌ Gobuster non installé. Installez-le avec : sudo apt install gobuster",
+        "nikto_not_found": "❌ Nikto non installé. Installez-le avec : sudo apt install nikto",
+        "dalfox_not_found": "❌ Dalfox non installé. Installez-le avec : go install github.com/hahwul/dalfox/v2@latest",
+        "jwt_tool_not_found": "❌ JWT Tool non installé. Installez-le avec : git clone https://github.com/ticarpi/jwt_tool",
+        "tool_execution_failed": "❌ Échec d'exécution de {tool} : {error}",
+        "tool_version_incompatible": "⚠️ Version incompatible de {tool}. Requis : {required}, trouvé : {found}",
+        "tool_permission_denied": "🔒 Permission refusée pour exécuter {tool}",
+        "tool_timeout": "⏱️ {tool} a dépassé le délai d'attente"
+    },
+    
+    "network": {
+        "connection_timeout": "⏱️ Connexion timeout vers {target}",
+        "connection_refused": "🔌 Connexion refusée vers {target}",
+        "dns_resolution_failed": "🌐 Résolution DNS échouée pour {domain}",
+        "ssl_error": "🔒 Erreur SSL vers {target} : {error}",
+        "invalid_url": "🔗 URL invalide : {url}",
+        "host_unreachable": "📡 Hôte inaccessible : {host}",
+        "tls_handshake_failed": "🔒 Échec de handshake TLS : {error}",
+        "proxy_connection_failed": "🔄 Connexion au proxy échouée : {proxy}",
+        "rate_limited": "🐌 Limite de taux atteinte. Réessayez dans {seconds}s",
+        "blocked_by_waf": "🛡️ Requête bloquée par WAF",
+        "captcha_required": "🤖 CAPTCHA requis. Mode automatique impossible"
+    },
+    
+    "file": {
+        "not_found": "📁 Fichier non trouvé : {file}",
+        "permission_denied": "🔒 Permission refusée pour le fichier : {file}",
+        "invalid_format": "📄 Format de fichier invalide : {format}",
+        "write_error": "✍️ Erreur d'écriture dans le fichier : {file}",
+        "read_error": "📖 Erreur de lecture du fichier : {file}",
+        "corrupted": "💔 Fichier corrompu : {file}",
+        "empty": "📭 Fichier vide : {file}",
+        "too_large": "📦 Fichier trop volumineux : {size} MB (max {max} MB)",
+        "invalid_extension": "📄 Extension de fichier non autorisée : {ext}",
+        "path_traversal": "⚠️ Tentative de path traversal détectée : {path}"
+    },
+    
+    "report": {
+        "generation_failed": "❌ Échec de génération du rapport : {error}",
+        "invalid_format": "📄 Format de rapport invalide : {format}",
+        "no_data": "📊 Aucune donnée à exporter",
+        "template_not_found": "📋 Template de rapport non trouvé : {template}",
+        "export_failed": "💾 Échec de l'export du rapport : {error}",
+        "pdf_generation_failed": "📑 Échec de génération PDF : {error}",
+        "html_generation_failed": "🌐 Échec de génération HTML : {error}",
+        "json_invalid": "🔧 JSON invalide pour l'export"
+    },
+    
+    "session": {
+        "not_found": "🔌 Session non trouvée : {session_id}",
+        "already_exists": "🔌 Session déjà existante : {session_id}",
+        "closed": "🔌 Session fermée : {session_id}",
+        "invalid_command": "💻 Commande invalide : {command}",
+        "execution_failed": "💻 Échec d'exécution de la commande : {error}",
+        "not_active": "💤 Session inactive : {session_id}",
+        "no_response": "📡 Aucune réponse de la session",
+        "interactive_not_supported": "🎮 Mode interactif non supporté pour ce type de session",
+        "metasploit_not_connected": "🔌 Metasploit RPC non connecté",
+        "msf_session_not_found": "🎯 Session Metasploit non trouvée"
+    },
+    
+    "config": {
+        "load_failed": "⚙️ Échec de chargement de la configuration : {error}",
+        "save_failed": "⚙️ Échec de sauvegarde de la configuration : {error}",
+        "invalid_key": "⚙️ Clé de configuration invalide : {key}",
+        "missing_key": "⚙️ Clé de configuration manquante : {key}",
+        "invalid_value": "⚙️ Valeur invalide pour {key} : {value}",
+        "corrupted": "⚙️ Fichier de configuration corrompu",
+        "migration_failed": "🔄 Échec de migration de la configuration : {error}"
+    },
+    
+    "database": {
+        "connection_failed": "🗄️ Échec de connexion à la base de données : {error}",
+        "query_failed": "🗄️ Échec de la requête : {error}",
+        "not_initialized": "🗄️ Base de données non initialisée",
+        "migration_failed": "🔄 Échec de migration de la base de données : {error}",
+        "duplicate_entry": "📝 Entrée en doublon dans la base de données",
+        "integrity_error": "🔒 Erreur d'intégrité de la base de données",
+        "connection_pool_exhausted": "🏊 Pool de connexions DB épuisé"
+    },
+    
+    "plugin": {
+        "load_failed": "🔌 Échec de chargement du plugin {plugin} : {error}",
+        "not_found": "🔌 Plugin non trouvé : {plugin}",
+        "incompatible": "🔌 Plugin incompatible : {plugin} (version {version})",
+        "missing_dependency": "🔌 Dépendance manquante pour le plugin {plugin} : {dep}",
+        "conflict": "⚠️ Conflit entre plugins : {plugin1} et {plugin2}",
+        "disabled": "⛔ Plugin désactivé : {plugin}",
+        "timeout": "⏱️ Plugin {plugin} a dépassé le délai d'attente"
+    },
+    
+    "auth": {
+        "invalid_credentials": "🔐 Identifiants invalides",
+        "token_expired": "🔐 Token expiré",
+        "token_invalid": "🔐 Token invalide",
+        "unauthorized": "🔐 Non autorisé",
+        "forbidden": "🔐 Accès interdit",
+        "mfa_required": "🔐 Authentification multi-facteurs requise",
+        "account_locked": "🔒 Compte verrouillé. Réessayez plus tard",
+        "password_expired": "🔑 Mot de passe expiré. Veuillez le changer",
+        "session_expired": "⏰ Session expirée. Veuillez vous reconnecter",
+        "csrf_token_invalid": "🎫 Token CSRF invalide"
+    },
+    
+    "api": {
+        "invalid_request": "📡 Requête API invalide",
+        "rate_limit": "📡 Limite de taux dépassée. Réessayez dans {seconds} secondes",
+        "endpoint_not_found": "📡 Endpoint API non trouvé : {endpoint}",
+        "method_not_allowed": "📡 Méthode HTTP non autorisée : {method}",
+        "invalid_json": "🔧 JSON invalide dans la requête",
+        "missing_header": "📋 Header requis manquant : {header}",
+        "api_key_invalid": "🔑 Clé API invalide",
+        "api_key_missing": "🔑 Clé API manquante",
+        "version_not_supported": "📦 Version API non supportée : {version}"
+    },
+    
+    "stealth": {
+        "proxy_failed": "🔄 Échec de connexion au proxy : {proxy}",
+        "tor_not_running": "🧅 Tor n'est pas en cours d'exécution. Démarrez-le avec : sudo systemctl start tor",
+        "ip_rotation_failed": "🔄 Échec de rotation d'IP",
+        "delay_too_low": "⚠️ Délai trop bas ({delay}s) pour le mode furtif",
+        "apt_mode_timeout": "⏱️ Opération APT interrompue : durée dépassée",
+        "inactivity_pause": "💤 Pause d'inactivité : {duration}s"
+    },
+    
+    "apt": {
+        "operation_not_found": "🎯 Opération APT non trouvée : {operation_id}",
+        "already_running": "🎯 Une opération APT est déjà en cours",
+        "phase_failed": "📊 Échec de la phase {phase} : {error}",
+        "persistence_failed": "💾 Échec de l'installation de persistance : {error}",
+        "exfiltration_failed": "📤 Échec de l'exfiltration : {error}",
+        "cleanup_failed": "🧹 Échec du nettoyage des traces : {error}"
+    }
+}

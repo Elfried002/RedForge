@@ -1,0 +1,788 @@
+{
+    "profile": {
+        "name": "Custom Profile",
+        "description": "Profil personnalisé avec modes Stealth et APT",
+        "version": "2.0.0",
+        "author": "Utilisateur",
+        "type": "custom",
+        "based_on": "red_team",
+        "created": "2024-01-01",
+        "last_modified": "2024-04-07",
+        "stealth_ready": true,
+        "apt_ready": true
+    },
+    
+    "interface": {
+        "theme": "auto",
+        "language": "fr_FR",
+        "notifications_enabled": true,
+        "auto_refresh_interval": 30,
+        "items_per_page": 50,
+        "show_sensitive_data": false,
+        "confirm_dangerous_actions": true,
+        "dashboard_layout": "compact",
+        "chart_type": "bar",
+        "terminal_history_size": 1000,
+        "results_cache_size": 100,
+        "attack_selection_mode": "multi_select"
+    },
+    
+    "scanning": {
+        "default_timeout": 300,
+        "default_threads": 10,
+        "default_level": 2,
+        "max_timeout": 1800,
+        "max_threads": 30,
+        "concurrent_scans": 3,
+        "stealth_mode": true,
+        "aggressive_mode": false,
+        "retry_attempts": 2,
+        "retry_delay": 5,
+        "rate_limit": 10,
+        "rate_limit_period": 60,
+        "max_payloads_per_request": 100,
+        "follow_redirects": true,
+        "adaptive_delay": true,
+        "jitter_percentage": 30
+    },
+    
+    "network": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "user_agent_rotation": true,
+        "user_agent_pool_size": 100,
+        "verify_ssl": false,
+        "follow_redirects": true,
+        "max_redirects": 5,
+        "timeout": 30,
+        "retries": 3,
+        "proxy": {
+            "enabled": false,
+            "http": "",
+            "https": "",
+            "no_proxy": ["localhost", "127.0.0.1"],
+            "auth_enabled": false,
+            "username": "",
+            "password": "",
+            "pool": []
+        },
+        "tor": {
+            "enabled": false,
+            "socks_port": 9050,
+            "control_port": 9051,
+            "password": "",
+            "new_circuit_per_request": false,
+            "new_circuit_per_target": false
+        },
+        "dns": {
+            "servers": ["8.8.8.8", "1.1.1.1", "9.9.9.9"],
+            "timeout": 5,
+            "retries": 2,
+            "over_tor": false,
+            "over_https": true
+        },
+        "http2": {
+            "enabled": true,
+            "priority": true
+        },
+        "tls": {
+            "fingerprint_randomization": true,
+            "ja3_bypass": true
+        }
+    },
+    
+    "stealth": {
+        "enabled": true,
+        "level": 3,
+        "random_delays": {
+            "enabled": true,
+            "min_ms": 500,
+            "max_ms": 5000,
+            "adaptive": true
+        },
+        "random_user_agents": {
+            "enabled": true,
+            "pool": [
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15"
+            ],
+            "rotation_interval": 5
+        },
+        "ip_rotation": {
+            "enabled": false,
+            "type": "proxy_pool",
+            "proxy_list": [],
+            "rotation_interval": 10
+        },
+        "request_jitter": {
+            "enabled": true,
+            "percentage": 30
+        },
+        "traffic_shaping": {
+            "enabled": true,
+            "human_behavior": true,
+            "mouse_movements": false
+        },
+        "dns_over_https": {
+            "enabled": true,
+            "provider": "cloudflare",
+            "url": "https://cloudflare-dns.com/dns-query"
+        },
+        "split_payloads": {
+            "enabled": true,
+            "chunk_size": 50,
+            "delay_between_chunks": 100
+        },
+        "signature_evasion": {
+            "enabled": true,
+            "techniques": ["case_manipulation", "encoding", "comment_insertion"],
+            "level": "medium"
+        },
+        "waf_bypass": {
+            "enabled": true,
+            "techniques": ["parameter_pollution", "header_splitting", "unicode_escaping"],
+            "auto_detect": true
+        },
+        "honey_pot_detection": {
+            "enabled": true,
+            "timeout": 5,
+            "auto_stop": true
+        },
+        "sandbox_detection": {
+            "enabled": true,
+            "avoid_vm": true,
+            "avoid_debug": true
+        }
+    },
+    
+    "apt": {
+        "enabled": false,
+        "persistence": {
+            "enabled": false,
+            "methods": ["cron_jobs", "ssh_keys", "systemd_services", "startup_items"],
+            "clean_traces": true,
+            "backdoor_type": "reverse_shell",
+            "callback_interval": 3600
+        },
+        "lateral_movement": {
+            "enabled": false,
+            "techniques": ["ssh_jumping", "smb_exec", "wmi_exec", "psremoting"],
+            "max_hops": 3,
+            "discovery_enabled": true
+        },
+        "c2_channels": {
+            "enabled": false,
+            "type": "https",
+            "server_url": "",
+            "beacon_interval": 60,
+            "jitter": 30,
+            "encryption": true,
+            "fallback_channels": ["dns", "icmp"]
+        },
+        "exfiltration": {
+            "enabled": false,
+            "method": "chunked_upload",
+            "encryption": true,
+            "compression": true,
+            "chunk_size": 1024,
+            "delay_between_chunks": 5,
+            "destination": "",
+            "stealth": true
+        },
+        "anti_forensics": {
+            "enabled": true,
+            "clear_logs": true,
+            "wipe_tools": true,
+            "memory_cleanup": true,
+            "timestamp_spoofing": true
+        },
+        "living_off_the_land": {
+            "enabled": true,
+            "use_system_tools": true,
+            "avoid_custom_binaries": true
+        },
+        "stage_capabilities": {
+            "initial_access": true,
+            "execution": true,
+            "persistence": true,
+            "privilege_escalation": true,
+            "defense_evasion": true,
+            "credential_access": true,
+            "discovery": true,
+            "lateral_movement": true,
+            "collection": true,
+            "command_and_control": true,
+            "exfiltration": true,
+            "impact": true
+        }
+    },
+    
+    "attack_selection": {
+        "mode": "multi_select",
+        "categories": {
+            "injection": {
+                "selectable": true,
+                "attacks": ["sql", "nosql", "command", "ldap", "xpath", "html", "template"],
+                "default_selected": ["sql", "command"]
+            },
+            "session": {
+                "selectable": true,
+                "attacks": ["hijacking", "fixation", "cookie", "jwt", "oauth"],
+                "default_selected": ["hijacking", "jwt"]
+            },
+            "cross_site": {
+                "selectable": true,
+                "attacks": ["xss", "csrf", "clickjacking", "cors", "postmessage"],
+                "default_selected": ["xss", "csrf"]
+            },
+            "authentication": {
+                "selectable": true,
+                "attacks": ["bruteforce", "credential_stuffing", "password_spraying", "mfa_bypass", "priv_esc", "race_condition"],
+                "default_selected": ["bruteforce", "mfa_bypass"]
+            },
+            "file_system": {
+                "selectable": true,
+                "attacks": ["lfi_rfi", "file_upload", "dir_traversal", "buffer_overflow", "path_normalization", "zip_slip"],
+                "default_selected": ["lfi_rfi", "file_upload"]
+            },
+            "infrastructure": {
+                "selectable": true,
+                "attacks": ["waf_bypass", "misconfig", "load_balancer", "host_header", "cache_poisoning"],
+                "default_selected": ["waf_bypass", "misconfig"]
+            },
+            "integrity": {
+                "selectable": true,
+                "attacks": ["data_tampering", "info_leakage", "mitm", "param_pollution", "business_logic"],
+                "default_selected": ["data_tampering", "info_leakage"]
+            },
+            "advanced": {
+                "selectable": true,
+                "attacks": ["api", "graphql", "websocket", "deserialization", "browser", "microservices", "chaining"],
+                "default_selected": ["api", "deserialization"]
+            }
+        },
+        "severity_filter": {
+            "enabled": true,
+            "levels": ["critical", "high", "medium", "low"],
+            "default": ["critical", "high"]
+        },
+        "profiles": {
+            "default": {
+                "name": "Défaut",
+                "selected": ["injection.sql", "cross_site.xss", "authentication.bruteforce"]
+            },
+            "aggressive": {
+                "name": "Agressif",
+                "selected": ["injection.sql", "injection.command", "cross_site.xss", "authentication.bruteforce", "file_system.lfi_rfi"]
+            },
+            "stealth": {
+                "name": "Furtif",
+                "selected": ["injection.nosql", "session.hijacking", "integrity.info_leakage"]
+            },
+            "apt": {
+                "name": "APT",
+                "selected": ["advanced.api", "advanced.deserialization", "authentication.privilege_escalation", "file_system.lfi_rfi"]
+            }
+        }
+    },
+    
+    "attacks": {
+        "injection": {
+            "sql": {
+                "enabled": true,
+                "level": 2,
+                "risk": 1,
+                "techniques": "BEU",
+                "timeout": 300,
+                "threads": 5,
+                "tamper": ["space2comment", "between"],
+                "exclude_sysdbs": true,
+                "dbms": "MySQL",
+                "stealth": {
+                    "delay_between_queries": 500,
+                    "randomize_payloads": true
+                }
+            },
+            "nosql": {
+                "enabled": true,
+                "level": 2,
+                "timeout": 180,
+                "techniques": ["boolean", "union"],
+                "stealth": {
+                    "delay_between_queries": 800
+                }
+            },
+            "command": {
+                "enabled": true,
+                "level": 2,
+                "timeout": 180,
+                "separators": [";", "|", "&"],
+                "blind_detection": false,
+                "time_based": true,
+                "stealth": {
+                    "use_sleep_payloads": true,
+                    "sleep_duration": 3
+                }
+            },
+            "ldap": {
+                "enabled": false,
+                "level": 1,
+                "timeout": 60
+            },
+            "xpath": {
+                "enabled": false,
+                "level": 1,
+                "timeout": 60
+            },
+            "html": {
+                "enabled": true,
+                "level": 2,
+                "timeout": 120
+            },
+            "template": {
+                "enabled": true,
+                "level": 2,
+                "timeout": 180,
+                "engines": ["jinja2", "twig"],
+                "rce_payloads": true
+            }
+        },
+        
+        "session": {
+            "hijacking": {
+                "enabled": true,
+                "intercept": false,
+                "callback_port": 8080,
+                "callback_host": "0.0.0.0",
+                "stealth": {
+                    "use_encrypted_callbacks": true
+                }
+            },
+            "fixation": {
+                "enabled": true,
+                "test_methods": ["url", "cookie"]
+            },
+            "cookie": {
+                "enabled": true,
+                "analysis": true,
+                "forging": false,
+                "httponly_check": true,
+                "secure_check": true
+            },
+            "jwt": {
+                "enabled": true,
+                "crack_secret": false,
+                "algorithms": ["none", "HS256"],
+                "wordlist": "/usr/share/wordlists/rockyou.txt"
+            },
+            "oauth": {
+                "enabled": true,
+                "test_redirects": true,
+                "test_csrf": true
+            }
+        },
+        
+        "cross_site": {
+            "xss": {
+                "enabled": true,
+                "level": 2,
+                "scanners": ["dalfox"],
+                "blind_xss": false,
+                "dom_based": false,
+                "custom_payloads": [],
+                "max_payloads": 500,
+                "stealth": {
+                    "encode_payloads": true,
+                    "use_delayed_execution": true
+                }
+            },
+            "csrf": {
+                "enabled": true,
+                "test_methods": ["post"],
+                "token_analysis": true
+            },
+            "clickjacking": {
+                "enabled": true,
+                "test_xframe": true,
+                "test_csp": true
+            },
+            "cors": {
+                "enabled": true,
+                "test_origins": ["*", "null", "https://evil.com"],
+                "test_credentials": true
+            },
+            "postmessage": {
+                "enabled": false,
+                "analyze_js": true
+            }
+        },
+        
+        "authentication": {
+            "bruteforce": {
+                "enabled": true,
+                "threads": 5,
+                "delay": 1,
+                "userlist": "config/wordlists/custom_users.txt",
+                "passlist": "config/wordlists/custom_passwords.txt",
+                "stop_on_find": true,
+                "max_attempts": 100,
+                "lockout_detection": true,
+                "stealth": {
+                    "random_delays": true,
+                    "intelligent_breaks": true
+                }
+            },
+            "credential_stuffing": {
+                "enabled": true,
+                "threads": 3,
+                "delay": 2,
+                "breach_files": ["config/breaches/breach1.txt", "config/breaches/breach2.txt"],
+                "stop_on_find": true
+            },
+            "password_spraying": {
+                "enabled": true,
+                "threads": 2,
+                "delay": 5,
+                "passwords": ["Password2024", "Welcome2024", "Company2024"],
+                "usernames": []
+            },
+            "mfa_bypass": {
+                "enabled": true,
+                "techniques": ["parameter_injection", "rate_limiting_bypass"],
+                "rate_limiting_test": true,
+                "otp_bruteforce": false
+            },
+            "privilege_escalation": {
+                "enabled": true,
+                "test_idor": true,
+                "test_parameter_injection": false,
+                "test_admin_endpoints": true
+            },
+            "race_condition": {
+                "enabled": false,
+                "threads": 10,
+                "request_count": 50
+            }
+        },
+        
+        "file_system": {
+            "lfi_rfi": {
+                "enabled": true,
+                "depth": 5,
+                "wrappers": ["php://filter", "expect://"],
+                "payloads": ["../../../etc/passwd", "../../../windows/win.ini"],
+                "stealth": {
+                    "null_byte_injection": true,
+                    "double_encoding": true
+                }
+            },
+            "file_upload": {
+                "enabled": true,
+                "test_types": ["php", "html"],
+                "bypass_techniques": ["double_extension", "mime_spoofing"],
+                "max_file_size": 1048576
+            },
+            "directory_traversal": {
+                "enabled": true,
+                "depth": 5,
+                "encoding": ["url", "double_url"],
+                "sensitive_files": ["/etc/passwd", "/etc/hosts"]
+            },
+            "buffer_overflow": {
+                "enabled": false,
+                "test_sizes": [100, 500, 1000, 2000]
+            },
+            "path_normalization": {
+                "enabled": true,
+                "test_encodings": ["url", "unicode"]
+            },
+            "zip_slip": {
+                "enabled": false,
+                "test_paths": ["../../../var/www/html/shell.php"]
+            }
+        },
+        
+        "infrastructure": {
+            "waf_bypass": {
+                "enabled": true,
+                "detection": true,
+                "bypass_techniques": ["case_manipulation", "encoding"],
+                "test_payloads": ["<script>alert(1)</script>", "' OR '1'='1"],
+                "auto_adapt": true
+            },
+            "misconfig_detector": {
+                "enabled": true,
+                "check_headers": true,
+                "check_paths": true,
+                "check_methods": false,
+                "check_ssl": true
+            },
+            "load_balancer": {
+                "enabled": false,
+                "detection": true,
+                "test_stickiness": false
+            },
+            "host_header": {
+                "enabled": true,
+                "test_hosts": ["evil.com", "localhost", "127.0.0.1"],
+                "test_headers": ["Host", "X-Forwarded-Host"]
+            },
+            "cache_poisoning": {
+                "enabled": false,
+                "test_headers": ["Host", "X-Forwarded-Host"]
+            }
+        },
+        
+        "integrity": {
+            "data_tampering": {
+                "enabled": true,
+                "test_params": ["admin", "role", "is_admin"],
+                "test_cookies": true,
+                "test_hidden_fields": true
+            },
+            "info_leakage": {
+                "enabled": true,
+                "check_headers": true,
+                "check_paths": true,
+                "check_patterns": true,
+                "deep_scan": false
+            },
+            "mitm_attacks": {
+                "enabled": true,
+                "check_ssl": true,
+                "check_hsts": true,
+                "check_dns": false
+            },
+            "parameter_pollution": {
+                "enabled": true,
+                "test_methods": ["get", "post"],
+                "test_headers": false
+            },
+            "business_logic": {
+                "enabled": true,
+                "test_price_manipulation": true,
+                "test_workflow_bypass": true,
+                "test_rate_limits": false
+            }
+        },
+        
+        "advanced": {
+            "api": {
+                "enabled": true,
+                "test_idor": true,
+                "test_auth": true,
+                "test_injection": true,
+                "test_rate_limiting": false
+            },
+            "graphql": {
+                "enabled": false,
+                "introspection": true,
+                "depth_attack": true
+            },
+            "websocket": {
+                "enabled": false,
+                "test_cross_origin": true,
+                "test_injection": true
+            },
+            "deserialization": {
+                "enabled": true,
+                "test_formats": ["json", "xml"],
+                "test_rce": false,
+                "gadget_chains": ["ysoserial"]
+            },
+            "browser_exploit": {
+                "enabled": false,
+                "auto_deploy": false,
+                "exploit_type": "beef"
+            },
+            "microservices": {
+                "enabled": false,
+                "scan_ports": true,
+                "test_service_discovery": false
+            }
+        }
+    },
+    
+    "phases": {
+        "footprint": {
+            "enabled": true,
+            "timeout": 300,
+            "dns_enum": true,
+            "subdomains": true,
+            "tech_detect": true,
+            "os_detect": false,
+            "ports": "80,443,8080,8443",
+            "scan_type": "tcp",
+            "scripts": "default",
+            "stealth": {
+                "randomize_scan_order": true,
+                "slow_scan": true
+            }
+        },
+        "analysis": {
+            "enabled": true,
+            "timeout": 600,
+            "dir_bruteforce": true,
+            "param_finding": true,
+            "api_detect": true,
+            "js_analyze": true,
+            "dir_depth": 3,
+            "recursive": false,
+            "wordlist": "common_directories.txt"
+        },
+        "scan": {
+            "enabled": true,
+            "timeout": 900,
+            "sql_scan": true,
+            "xss_scan": true,
+            "lfi_scan": true,
+            "cmd_scan": false,
+            "ssrf_scan": false,
+            "xxe_scan": false,
+            "redirect_scan": true,
+            "level": 2,
+            "techniques": "BEU"
+        },
+        "exploit": {
+            "enabled": true,
+            "timeout": 600,
+            "auto_exploit": false,
+            "get_shell": false,
+            "privilege_escalation": false,
+            "persistence": false,
+            "lhost": "auto",
+            "lport": 4444,
+            "payload": "reverse_shell"
+        }
+    },
+    
+    "reports": {
+        "default_format": "html",
+        "default_template": "standard",
+        "auto_generate": false,
+        "include_charts": true,
+        "include_recommendations": true,
+        "include_evidence": false,
+        "include_commands": false,
+        "retention_days": 30,
+        "encrypt": false,
+        "encryption_password": "",
+        "watermark": "",
+        "output_dir": "~/.RedForge/reports"
+    },
+    
+    "wordlists": {
+        "userlist": "config/wordlists/custom_users.txt",
+        "passlist": "config/wordlists/custom_passwords.txt",
+        "dirlist": "config/wordlists/custom_directories.txt",
+        "subdomainlist": "config/wordlists/custom_subdomains.txt",
+        "paramlist": "config/wordlists/custom_parameters.txt",
+        "custom_wordlists": {
+            "internal_users": "config/wordlists/internal_users.txt",
+            "service_accounts": "config/wordlists/service_accounts.txt"
+        },
+        "max_file_size": 100
+    },
+    
+    "notifications": {
+        "email": {
+            "enabled": false,
+            "smtp_server": "smtp.gmail.com",
+            "smtp_port": 587,
+            "use_tls": true,
+            "username": "",
+            "password": "",
+            "from_email": "",
+            "to_emails": []
+        },
+        "webhook": {
+            "enabled": false,
+            "url": "",
+            "method": "POST",
+            "headers": {},
+            "retry_count": 3
+        },
+        "events": {
+            "scan_start": true,
+            "scan_complete": true,
+            "vulnerability_found": true,
+            "critical_vulnerability_found": true,
+            "session_created": true,
+            "report_generated": true,
+            "error_occurred": true
+        }
+    },
+    
+    "performance": {
+        "cache_enabled": true,
+        "cache_ttl": 300,
+        "max_cache_size": 200,
+        "worker_threads": 4,
+        "async_tasks": true,
+        "task_queue_size": 50,
+        "memory_limit": 1024,
+        "cpu_limit": 50,
+        "gzip_compression": true
+    },
+    
+    "logging": {
+        "level": "INFO",
+        "format": "detailed",
+        "file_enabled": true,
+        "console_enabled": true,
+        "log_requests": false,
+        "log_responses": false,
+        "retention_days": 7,
+        "max_file_size": 50,
+        "backup_count": 3,
+        "sensitive_data_masking": true,
+        "masked_fields": ["password", "token", "secret", "key"],
+        "stealth_logging": {
+            "omit_payloads": true,
+            "anonymize_ips": true
+        }
+    },
+    
+    "opsec": {
+        "stealth_mode": true,
+        "random_delays": true,
+        "random_user_agents": true,
+        "ip_rotation": false,
+        "proxy_chain": [],
+        "tor_routing": false,
+        "clean_traces": true,
+        "encrypt_results": false,
+        "max_request_rate": 10,
+        "burst_limit": 20,
+        "cooldown_period": 60,
+        "jitter_percentage": 30,
+        "anti_forensics": true,
+        "memory_wipe": true
+    },
+    
+    "custom_settings": {
+        "target_scope": [],
+        "excluded_targets": [],
+        "time_window": {
+            "enabled": false,
+            "start": "00:00",
+            "end": "23:59",
+            "timezone": "UTC"
+        },
+        "max_duration": 0,
+        "auto_stop_on_detection": false,
+        "emergency_contact": "",
+        "notes": "",
+        "tags": []
+    },
+    
+    "backup": {
+        "enabled": false,
+        "interval": 86400,
+        "destination": "",
+        "retention": 30,
+        "compress": true,
+        "encrypt": false
+    }
+}

@@ -1,0 +1,623 @@
+{
+    "redforge": {
+        "version": "2.0.0",
+        "name": "RedForge",
+        "description": "Plateforme d'Orchestration de Pentest Web pour Red Team",
+        "author": "RedForge Team",
+        "license": "GPLv3",
+        "website": "https://redforge.io",
+        "repository": "https://github.com/Elfried002/RedForge",
+        "stealth_ready": true,
+        "apt_ready": true,
+        "attack_selection_ready": true
+    },
+    
+    "paths": {
+        "home": "~/.RedForge",
+        "workspace": "~/.RedForge/workspace",
+        "logs": "~/.RedForge/logs",
+        "reports": "~/.RedForge/reports",
+        "wordlists": "~/.RedForge/wordlists",
+        "sessions": "~/.RedForge/sessions",
+        "plugins": "/opt/RedForge/plugins",
+        "config": "/opt/RedForge/config",
+        "temp": "/tmp/redforge",
+        "cache": "~/.RedForge/cache",
+        "profiles": "~/.RedForge/profiles"
+    },
+    
+    "interface": {
+        "language": "fr_FR",
+        "theme": "auto",
+        "sidebar_collapsed": false,
+        "notifications_enabled": true,
+        "auto_refresh_interval": 30,
+        "items_per_page": 50,
+        "date_format": "%d/%m/%Y %H:%M:%S",
+        "chart_colors": {
+            "critical": "#7b1fa2",
+            "high": "#d32f2f",
+            "medium": "#ff9800",
+            "low": "#4caf50",
+            "info": "#2196f3"
+        },
+        "dashboard_layout": "grid",
+        "results_view": "detailed",
+        "attack_selection_mode": "multi_select"
+    },
+    
+    "scanning": {
+        "default_timeout": 300,
+        "default_threads": 10,
+        "default_level": 2,
+        "max_timeout": 3600,
+        "max_threads": 50,
+        "min_timeout": 30,
+        "min_threads": 1,
+        "retry_attempts": 3,
+        "retry_delay": 5,
+        "concurrent_scans": 3,
+        "rate_limit": 100,
+        "rate_limit_period": 60,
+        "max_payloads_per_request": 100,
+        "follow_redirects": true,
+        "respect_robots": false,
+        "adaptive_delay": false,
+        "jitter_percentage": 0
+    },
+    
+    "network": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "user_agent_rotation": false,
+        "user_agent_pool_size": 10,
+        "verify_ssl": false,
+        "follow_redirects": true,
+        "max_redirects": 10,
+        "timeout": 30,
+        "retries": 3,
+        "backoff_factor": 0.5,
+        "proxy": {
+            "enabled": false,
+            "http": "",
+            "https": "",
+            "no_proxy": ["localhost", "127.0.0.1"],
+            "auth_enabled": false,
+            "username": "",
+            "password": "",
+            "pool": []
+        },
+        "tor": {
+            "enabled": false,
+            "socks_port": 9050,
+            "control_port": 9051,
+            "password": "",
+            "new_circuit_per_request": false,
+            "new_circuit_per_target": false
+        },
+        "dns": {
+            "servers": ["8.8.8.8", "8.8.4.4", "1.1.1.1", "9.9.9.9"],
+            "timeout": 5,
+            "retries": 2,
+            "over_tor": false,
+            "over_https": false
+        },
+        "http2": {
+            "enabled": false,
+            "priority": false
+        },
+        "tls": {
+            "fingerprint_randomization": false,
+            "ja3_bypass": false
+        }
+    },
+    
+    "stealth": {
+        "enabled": false,
+        "level": 1,
+        "random_delays": {
+            "enabled": false,
+            "min_ms": 500,
+            "max_ms": 5000,
+            "adaptive": false
+        },
+        "random_user_agents": {
+            "enabled": false,
+            "pool": [
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+            ],
+            "rotation_interval": 10
+        },
+        "ip_rotation": {
+            "enabled": false,
+            "type": "proxy_pool",
+            "proxy_list": [],
+            "rotation_interval": 30
+        },
+        "request_jitter": {
+            "enabled": false,
+            "percentage": 0
+        },
+        "traffic_shaping": {
+            "enabled": false,
+            "human_behavior": false,
+            "mouse_movements": false
+        },
+        "dns_over_https": {
+            "enabled": false,
+            "provider": "cloudflare",
+            "url": "https://cloudflare-dns.com/dns-query"
+        },
+        "split_payloads": {
+            "enabled": false,
+            "chunk_size": 50,
+            "delay_between_chunks": 100
+        },
+        "signature_evasion": {
+            "enabled": false,
+            "techniques": ["case_manipulation", "encoding"],
+            "level": "low"
+        },
+        "waf_bypass": {
+            "enabled": false,
+            "techniques": ["parameter_pollution"],
+            "auto_detect": false
+        },
+        "honey_pot_detection": {
+            "enabled": false,
+            "timeout": 5,
+            "auto_stop": false
+        },
+        "sandbox_detection": {
+            "enabled": false,
+            "avoid_vm": false,
+            "avoid_debug": false
+        }
+    },
+    
+    "apt": {
+        "enabled": false,
+        "persistence": {
+            "enabled": false,
+            "methods": ["cron_jobs", "ssh_keys"],
+            "clean_traces": true,
+            "backdoor_type": "reverse_shell",
+            "callback_interval": 3600
+        },
+        "lateral_movement": {
+            "enabled": false,
+            "techniques": ["ssh_jumping"],
+            "max_hops": 1,
+            "discovery_enabled": false
+        },
+        "c2_channels": {
+            "enabled": false,
+            "type": "https",
+            "server_url": "",
+            "beacon_interval": 60,
+            "jitter": 30,
+            "encryption": true,
+            "fallback_channels": ["dns"]
+        },
+        "exfiltration": {
+            "enabled": false,
+            "method": "chunked_upload",
+            "encryption": true,
+            "compression": true,
+            "chunk_size": 1024,
+            "delay_between_chunks": 5,
+            "destination": "",
+            "stealth": false
+        },
+        "anti_forensics": {
+            "enabled": true,
+            "clear_logs": true,
+            "wipe_tools": true,
+            "memory_cleanup": true,
+            "timestamp_spoofing": false
+        },
+        "living_off_the_land": {
+            "enabled": true,
+            "use_system_tools": true,
+            "avoid_custom_binaries": true
+        },
+        "stage_capabilities": {
+            "initial_access": true,
+            "execution": true,
+            "persistence": false,
+            "privilege_escalation": false,
+            "defense_evasion": true,
+            "credential_access": false,
+            "discovery": true,
+            "lateral_movement": false,
+            "collection": true,
+            "command_and_control": false,
+            "exfiltration": false,
+            "impact": false
+        }
+    },
+    
+    "attack_selection": {
+        "mode": "single",
+        "categories": {
+            "injection": {
+                "selectable": true,
+                "attacks": ["sql", "nosql", "command", "ldap", "xpath", "html", "template"],
+                "default_selected": ["sql"]
+            },
+            "session": {
+                "selectable": true,
+                "attacks": ["hijacking", "fixation", "cookie", "jwt", "oauth"],
+                "default_selected": ["hijacking"]
+            },
+            "cross_site": {
+                "selectable": true,
+                "attacks": ["xss", "csrf", "clickjacking", "cors", "postmessage"],
+                "default_selected": ["xss"]
+            },
+            "authentication": {
+                "selectable": true,
+                "attacks": ["bruteforce", "credential_stuffing", "password_spraying", "mfa_bypass", "priv_esc", "race_condition"],
+                "default_selected": ["bruteforce"]
+            },
+            "file_system": {
+                "selectable": true,
+                "attacks": ["lfi_rfi", "file_upload", "dir_traversal", "buffer_overflow", "path_normalization", "zip_slip"],
+                "default_selected": ["lfi_rfi"]
+            },
+            "infrastructure": {
+                "selectable": true,
+                "attacks": ["waf_bypass", "misconfig", "load_balancer", "host_header", "cache_poisoning"],
+                "default_selected": ["misconfig"]
+            },
+            "integrity": {
+                "selectable": true,
+                "attacks": ["data_tampering", "info_leakage", "mitm", "param_pollution", "business_logic"],
+                "default_selected": ["info_leakage"]
+            },
+            "advanced": {
+                "selectable": true,
+                "attacks": ["api", "graphql", "websocket", "deserialization", "browser", "microservices", "chaining"],
+                "default_selected": ["api"]
+            }
+        },
+        "severity_filter": {
+            "enabled": false,
+            "levels": ["critical", "high", "medium", "low"],
+            "default": ["critical", "high"]
+        },
+        "profiles": {
+            "default": {
+                "name": "Défaut",
+                "selected": ["injection.sql"]
+            },
+            "aggressive": {
+                "name": "Agressif",
+                "selected": ["injection.sql", "cross_site.xss", "authentication.bruteforce"]
+            },
+            "stealth": {
+                "name": "Furtif",
+                "selected": ["injection.nosql", "session.hijacking"]
+            }
+        }
+    },
+    
+    "attacks": {
+        "default_level": 2,
+        "default_timeout": 300,
+        "default_threads": 10,
+        "stop_on_vulnerability": false,
+        "auto_exploit": false,
+        "stealth_mode": false,
+        "max_payloads": 1000,
+        "payload_timeout": 30,
+        "chaining": {
+            "enabled": true,
+            "max_chain_length": 10,
+            "auto_chain": true,
+            "chain_timeout": 600,
+            "stop_on_failure": true
+        },
+        "blind_injection": {
+            "enabled": true,
+            "callback_port": 8080,
+            "callback_host": "0.0.0.0",
+            "callback_path": "/callback"
+        }
+    },
+    
+    "phases": {
+        "footprint": {
+            "enabled": true,
+            "timeout": 300,
+            "dns_enum": true,
+            "subdomains": true,
+            "tech_detect": true,
+            "os_detect": false,
+            "ports": "1-1000",
+            "scan_type": "syn",
+            "scripts": "default",
+            "aggressive": false,
+            "stealth": {
+                "randomize_scan_order": false,
+                "slow_scan": false
+            }
+        },
+        "analysis": {
+            "enabled": true,
+            "timeout": 600,
+            "dir_bruteforce": true,
+            "param_finding": true,
+            "api_detect": true,
+            "js_analyze": true,
+            "dir_depth": 3,
+            "param_wordlist": "common_parameters.txt",
+            "recursive": false,
+            "extensions": ["php", "asp", "jsp", "html", "txt", "js", "css"]
+        },
+        "scan": {
+            "enabled": true,
+            "timeout": 900,
+            "sql_scan": true,
+            "xss_scan": true,
+            "lfi_scan": true,
+            "cmd_scan": true,
+            "ssrf_scan": true,
+            "xxe_scan": true,
+            "redirect_scan": true,
+            "level": 2,
+            "techniques": "BEUSTQ",
+            "risk": 1
+        },
+        "exploit": {
+            "enabled": true,
+            "timeout": 600,
+            "auto_exploit": true,
+            "get_shell": true,
+            "privilege_escalation": true,
+            "persistence": false,
+            "lhost": "auto",
+            "lport": 4444,
+            "payload": "reverse_shell",
+            "listener_type": "multi"
+        }
+    },
+    
+    "reports": {
+        "default_format": "html",
+        "default_template": "standard",
+        "output_dir": "~/.RedForge/reports",
+        "auto_generate": true,
+        "include_charts": true,
+        "include_recommendations": true,
+        "include_evidence": true,
+        "include_commands": false,
+        "max_report_size": 50,
+        "retention_days": 90,
+        "compression": true,
+        "encrypt": false,
+        "watermark": "",
+        "templates": {
+            "standard": {
+                "name": "Standard",
+                "description": "Rapport complet standard",
+                "sections": ["summary", "methodology", "vulnerabilities", "recommendations", "appendix"]
+            },
+            "detailed": {
+                "name": "Détaillé",
+                "description": "Rapport technique détaillé",
+                "sections": ["summary", "methodology", "vulnerabilities", "evidence", "remediation", "appendix"]
+            },
+            "executive": {
+                "name": "Direction",
+                "description": "Rapport pour la direction",
+                "sections": ["summary", "metrics", "recommendations"]
+            },
+            "technical": {
+                "name": "Technique",
+                "description": "Rapport pour les équipes techniques",
+                "sections": ["vulnerabilities", "evidence", "remediation"]
+            }
+        }
+    },
+    
+    "wordlists": {
+        "default_userlist": "common_usernames.txt",
+        "default_passlist": "common_passwords.txt",
+        "default_dirlist": "common_directories.txt",
+        "default_paramlist": "common_parameters.txt",
+        "default_subdomainlist": "common_subdomains.txt",
+        "default_xsslist": "xss_payloads.txt",
+        "default_sqllist": "sql_payloads.txt",
+        "custom_dir": "~/.RedForge/wordlists/custom",
+        "max_file_size": 100,
+        "supported_formats": [".txt", ".lst", ".wordlist", ".csv"],
+        "encoding": "utf-8"
+    },
+    
+    "logging": {
+        "level": "INFO",
+        "format": "json",
+        "file_enabled": true,
+        "console_enabled": true,
+        "max_file_size": 10,
+        "backup_count": 5,
+        "log_requests": false,
+        "log_responses": false,
+        "sensitive_data_masking": true,
+        "masked_fields": ["password", "token", "secret", "key", "authorization", "cookie", "api_key"],
+        "log_directory": "~/.RedForge/logs",
+        "retention_days": 30,
+        "stealth_logging": {
+            "omit_payloads": false,
+            "anonymize_ips": false
+        }
+    },
+    
+    "security": {
+        "api_token_required": false,
+        "session_timeout": 3600,
+        "max_login_attempts": 5,
+        "lockout_duration": 300,
+        "password_policy": {
+            "min_length": 8,
+            "require_uppercase": true,
+            "require_lowercase": true,
+            "require_digits": true,
+            "require_special": true
+        },
+        "allowed_ips": [],
+        "blocked_ips": [],
+        "rate_limiting": {
+            "enabled": true,
+            "requests_per_minute": 60,
+            "burst": 10
+        },
+        "jwt_secret": "",
+        "encryption_key": ""
+    },
+    
+    "database": {
+        "type": "sqlite",
+        "path": "~/.RedForge/redforge.db",
+        "backup_enabled": true,
+        "backup_interval": 86400,
+        "max_connections": 10,
+        "timeout": 30,
+        "pool_size": 5,
+        "echo": false
+    },
+    
+    "api": {
+        "enabled": true,
+        "host": "127.0.0.1",
+        "port": 5000,
+        "debug": false,
+        "cors_origins": ["http://localhost:3000", "http://localhost:8080", "http://localhost:5000"],
+        "rate_limit": 100,
+        "rate_limit_period": 60,
+        "version": "v1",
+        "docs_enabled": true,
+        "docs_path": "/api/docs"
+    },
+    
+    "websocket": {
+        "enabled": true,
+        "ping_interval": 30,
+        "ping_timeout": 10,
+        "max_message_size": 1024,
+        "queue_size": 100,
+        "reconnect_delay": 3,
+        "max_reconnect_attempts": 10
+    },
+    
+    "notifications": {
+        "email": {
+            "enabled": false,
+            "smtp_server": "smtp.gmail.com",
+            "smtp_port": 587,
+            "username": "",
+            "password": "",
+            "from_email": "redforge@example.com",
+            "to_emails": [],
+            "use_tls": true,
+            "use_ssl": false
+        },
+        "webhook": {
+            "enabled": false,
+            "url": "",
+            "method": "POST",
+            "headers": {},
+            "retry_count": 3,
+            "timeout": 10,
+            "retry_delay": 5
+        },
+        "events": {
+            "scan_start": true,
+            "scan_complete": true,
+            "vulnerability_found": true,
+            "critical_vulnerability_found": true,
+            "session_created": true,
+            "session_closed": true,
+            "report_generated": true,
+            "error_occurred": true,
+            "attack_completed": true
+        }
+    },
+    
+    "performance": {
+        "cache_enabled": true,
+        "cache_ttl": 300,
+        "max_cache_size": 100,
+        "gzip_compression": true,
+        "worker_threads": 4,
+        "async_tasks": true,
+        "task_queue_size": 100,
+        "task_timeout": 3600,
+        "memory_limit": 1024,
+        "cpu_limit": 50
+    },
+    
+    "features": {
+        "plugins_enabled": true,
+        "auto_update": false,
+        "telemetry": false,
+        "collaborative_mode": false,
+        "cloud_sync": false,
+        "ai_assisted": false,
+        "auto_report": true,
+        "screenshot": false,
+        "stealth_mode": false,
+        "apt_mode": false
+    },
+    
+    "limits": {
+        "max_targets": 1000,
+        "max_concurrent_scans": 5,
+        "max_file_upload_size": 10,
+        "max_wordlist_size": 500,
+        "max_report_size": 50,
+        "max_log_size": 100,
+        "max_payload_size": 1024,
+        "max_redirects": 10
+    },
+    
+    "defaults": {
+        "target": "",
+        "ports": "1-1000",
+        "threads": 10,
+        "timeout": 300,
+        "level": 2,
+        "output_format": "html",
+        "output_file": "report.html",
+        "language": "fr_FR",
+        "theme": "auto",
+        "attack_selection_mode": "single"
+    },
+    
+    "colors": {
+        "primary": "#d32f2f",
+        "secondary": "#ff4444",
+        "success": "#4caf50",
+        "warning": "#ff9800",
+        "error": "#f44336",
+        "info": "#2196f3",
+        "dark": "#1a1a2e",
+        "light": "#f5f5f5"
+    },
+    
+    "timeouts": {
+        "connection": 30,
+        "read": 30,
+        "write": 30,
+        "pool": 10,
+        "idle": 60
+    },
+    
+    "retry": {
+        "max_attempts": 3,
+        "backoff_factor": 0.5,
+        "status_forcelist": [500, 502, 503, 504]
+    }
+}

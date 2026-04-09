@@ -1,0 +1,1218 @@
+{#
+    RedForge - Navbar Améliorée
+    Barre de navigation supérieure commune à toutes les pages
+    Version: 2.0.0 - Support Multi-Attacks, Stealth Mode, APT Operations
+#}
+
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-brand">
+            <button class="navbar-toggler" id="navbar-toggler" aria-label="Menu">
+                <span class="toggler-icon"></span>
+                <span class="toggler-icon"></span>
+                <span class="toggler-icon"></span>
+            </button>
+            <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+                <span class="logo-icon">🔴</span>
+                <span class="logo-text">RedForge</span>
+                <span class="logo-badge">APT</span>
+            </a>
+        </div>
+        
+        <div class="navbar-menu" id="navbar-menu">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Tableau de bord</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('attacks_page') }}" class="nav-link {% if request.endpoint == 'attacks_page' %}active{% endif %}">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">Attaques</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('apt_page') }}" class="nav-link {% if request.endpoint == 'apt_page' %}active{% endif %}">
+                        <span class="nav-icon">🎭</span>
+                        <span class="nav-text">APT</span>
+                        <span class="nav-badge">New</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('stealth_page') }}" class="nav-link {% if request.endpoint == 'stealth_page' %}active{% endif %}">
+                        <span class="nav-icon">🕵️</span>
+                        <span class="nav-text">Mode Furtif</span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown-nav">
+                    <a href="#" class="nav-link dropdown-toggle" id="tools-dropdown">
+                        <span class="nav-icon">🛠️</span>
+                        <span class="nav-text">Outils</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </a>
+                    <ul class="dropdown-menu-nav" id="tools-menu">
+                        <li><a href="#" class="dropdown-item" data-tool="multi-attack">📚 Multi-Attaque</a></li>
+                        <li><a href="#" class="dropdown-item" data-tool="apt">🎯 Opération APT</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a href="#" class="dropdown-item" data-tool="nmap">🔍 Nmap Scanner</a></li>
+                        <li><a href="#" class="dropdown-item" data-tool="metasploit">💠 Metasploit</a></li>
+                        <li><a href="#" class="dropdown-item" data-tool="sqlmap">🗄️ SQLMap</a></li>
+                        <li><a href="#" class="dropdown-item" data-tool="hydra">🔑 Hydra</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a href="#" class="dropdown-item" data-tool="stealth">🕵️ Config Furtive</a></li>
+                        <li><a href="#" class="dropdown-item" data-tool="wordlist">📝 Wordlists</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('reports_page') }}" class="nav-link {% if request.endpoint == 'reports_page' %}active{% endif %}">
+                        <span class="nav-icon">📄</span>
+                        <span class="nav-text">Rapports</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="navbar-actions">
+            <!-- Indicateur mode furtif -->
+            <div class="stealth-indicator-nav" id="stealth-indicator-nav" style="display: none;">
+                <span class="stealth-icon">🕵️</span>
+                <span class="stealth-level" id="stealth-level-text">Standard</span>
+            </div>
+            
+            <!-- Recherche globale améliorée -->
+            <div class="navbar-search">
+                <input type="text" id="navbar-search" class="search-input" placeholder="Rechercher... (Ctrl+K)">
+                <button class="search-btn">🔍</button>
+                <div class="search-results-dropdown" id="search-results-dropdown" style="display: none;"></div>
+            </div>
+            
+            <!-- Notifications -->
+            <div class="navbar-notifications">
+                <button class="notifications-btn" id="notifications-btn">
+                    <span class="notif-icon">🔔</span>
+                    <span class="notif-badge" id="notif-badge" style="display: none;">0</span>
+                </button>
+                <div class="notifications-dropdown" id="notifications-dropdown">
+                    <div class="notifications-header">
+                        <h4>Notifications</h4>
+                        <div class="notifications-actions">
+                            <button id="mark-all-read">✓ Tout lire</button>
+                            <button id="clear-all-notifications">🗑️ Effacer</button>
+                        </div>
+                    </div>
+                    <div class="notifications-list" id="notifications-list">
+                        <div class="notification-empty">Aucune notification</div>
+                    </div>
+                    <div class="notifications-footer">
+                        <a href="#" id="view-all-notifications">Voir toutes les notifications →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Menu utilisateur -->
+            <div class="navbar-user">
+                <button class="user-btn" id="user-btn">
+                    <span class="user-avatar">👤</span>
+                    <span class="user-name">RedTeam</span>
+                    <span class="user-arrow">▼</span>
+                </button>
+                <div class="user-dropdown" id="user-dropdown">
+                    <div class="user-info">
+                        <div class="user-avatar-large">👤</div>
+                        <div class="user-details">
+                            <div class="user-name-full">RedTeam User</div>
+                            <div class="user-role">Administrateur</div>
+                            <div class="user-status" id="user-status">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Connecté</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="user-menu">
+                        <li><a href="#" id="profile-link">👤 Profil</a></li>
+                        <li><a href="#" id="preferences-link">⚙️ Préférences</a></li>
+                        <li><a href="#" id="api-keys-link">🔑 Clés API</a></li>
+                        <li><a href="{{ url_for('settings_page') }}" id="settings-link">🔧 Paramètres</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a href="#" id="stealth-toggle" class="stealth-toggle">
+                            <span class="toggle-icon">🕵️</span>
+                            <span class="toggle-text">Activer mode furtif</span>
+                            <span class="toggle-shortcut">Ctrl+Shift+S</span>
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a href="#" id="logout-link">🚪 Déconnexion</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Thème -->
+            <button class="navbar-theme-toggle" id="navbar-theme-toggle" aria-label="Changer de thème">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<style>
+.navbar {
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.navbar-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+}
+
+/* Brand */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.navbar-toggler {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+}
+
+.toggler-icon {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: var(--gray-700);
+    margin: 5px 0;
+    transition: var(--transition-fast);
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    text-decoration: none;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+}
+
+.logo-icon {
+    font-size: var(--font-size-2xl);
+}
+
+.logo-text {
+    color: var(--primary-red);
+}
+
+.logo-badge {
+    font-size: var(--font-size-xs);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--white);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-full);
+    margin-left: var(--spacing-xs);
+}
+
+/* Navigation Menu */
+.navbar-menu {
+    flex: 1;
+    margin-left: var(--spacing-xl);
+}
+
+.navbar-nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: var(--spacing-sm);
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--gray-700);
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.nav-link:hover {
+    background: var(--gray-100);
+    color: var(--primary-red);
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    background: var(--primary-red);
+    color: var(--white);
+}
+
+.nav-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff9800;
+    color: white;
+    font-size: 9px;
+    padding: 2px 4px;
+    border-radius: var(--border-radius-full);
+    font-weight: bold;
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.nav-icon {
+    font-size: var(--font-size-lg);
+}
+
+/* Dropdown amélioré */
+.dropdown-nav {
+    position: relative;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+}
+
+.dropdown-arrow {
+    font-size: var(--font-size-xs);
+    margin-left: var(--spacing-xs);
+    transition: transform var(--transition-fast);
+}
+
+.dropdown-nav:hover .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--white);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 220px;
+    padding: var(--spacing-sm) 0;
+    margin: 0;
+    list-style: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition-fast);
+    z-index: 100;
+}
+
+.dropdown-nav:hover .dropdown-menu-nav {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: block;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--gray-700);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.dropdown-item:hover {
+    background: var(--gray-100);
+    color: var(--primary-red);
+    padding-left: calc(var(--spacing-lg) + 5px);
+}
+
+.dropdown-divider {
+    margin: var(--spacing-sm) 0;
+    border: none;
+    border-top: 1px solid var(--gray-200);
+}
+
+/* Indicateur mode furtif */
+.stealth-indicator-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 4px 10px;
+    border-radius: var(--border-radius-full);
+    background: rgba(156, 39, 176, 0.1);
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.stealth-indicator-nav:hover {
+    background: rgba(156, 39, 176, 0.2);
+}
+
+.stealth-icon {
+    font-size: var(--font-size-md);
+}
+
+.stealth-level {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: #9c27b0;
+}
+
+/* Recherche améliorée */
+.navbar-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--gray-100);
+    border-radius: var(--border-radius-full);
+    overflow: visible;
+}
+
+.search-input {
+    border: none;
+    background: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    width: 220px;
+    outline: none;
+}
+
+.search-input:focus {
+    width: 280px;
+}
+
+.search-btn {
+    background: none;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    font-size: var(--font-size-md);
+    transition: transform var(--transition-fast);
+}
+
+.search-btn:hover {
+    transform: scale(1.1);
+}
+
+.search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 400px;
+    background: var(--white);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    margin-top: var(--spacing-sm);
+    z-index: 100;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Notifications améliorées */
+.navbar-notifications {
+    position: relative;
+}
+
+.notifications-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    position: relative;
+    font-size: var(--font-size-xl);
+    transition: transform var(--transition-fast);
+}
+
+.notifications-btn:hover {
+    transform: scale(1.1);
+}
+
+.notif-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--primary-red);
+    color: var(--white);
+    font-size: var(--font-size-xs);
+    padding: 2px 5px;
+    border-radius: var(--border-radius-full);
+    min-width: 18px;
+    text-align: center;
+    animation: pulse-badge 1s infinite;
+}
+
+.notifications-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 380px;
+    background: var(--white);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition-fast);
+    z-index: 100;
+}
+
+.notifications-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.notifications-header h4 {
+    margin: 0;
+    font-size: var(--font-size-md);
+}
+
+.notifications-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.notifications-actions button {
+    background: none;
+    border: none;
+    color: var(--primary-red);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+}
+
+.notifications-actions button:hover {
+    background: var(--gray-100);
+}
+
+.notifications-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.notification-item:hover {
+    background: var(--gray-100);
+}
+
+.notification-item.unread {
+    background: rgba(33, 150, 243, 0.05);
+    border-left: 3px solid #2196f3;
+}
+
+.notification-icon {
+    font-size: var(--font-size-lg);
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: var(--font-weight-medium);
+    margin-bottom: 2px;
+}
+
+.notification-message {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+.notification-time {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    margin-top: 4px;
+}
+
+.notification-empty {
+    padding: var(--spacing-lg);
+    text-align: center;
+    color: var(--gray-500);
+}
+
+.notifications-footer {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-top: 1px solid var(--gray-200);
+    text-align: center;
+}
+
+.notifications-footer a {
+    font-size: var(--font-size-sm);
+    color: var(--primary-red);
+    text-decoration: none;
+}
+
+/* User Menu amélioré */
+.user-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-full);
+    transition: all var(--transition-fast);
+}
+
+.user-btn:hover {
+    background: var(--gray-100);
+    transform: scale(1.05);
+}
+
+.user-avatar {
+    font-size: var(--font-size-xl);
+}
+
+.user-name {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.user-arrow {
+    font-size: var(--font-size-xs);
+    transition: transform var(--transition-fast);
+}
+
+.user-btn:hover .user-arrow {
+    transform: rotate(180deg);
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 300px;
+    background: var(--white);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition-fast);
+    z-index: 100;
+}
+
+.user-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-info {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.user-avatar-large {
+    font-size: var(--font-size-3xl);
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name-full {
+    font-weight: var(--font-weight-semibold);
+}
+
+.user-role {
+    font-size: var(--font-size-sm);
+    color: var(--gray-500);
+}
+
+.user-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--border-radius-full);
+    background-color: #4caf50;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.user-menu {
+    list-style: none;
+    padding: var(--spacing-sm) 0;
+    margin: 0;
+}
+
+.user-menu li a {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--gray-700);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.user-menu li a:hover {
+    background: var(--gray-100);
+    color: var(--primary-red);
+    padding-left: calc(var(--spacing-lg) + 5px);
+}
+
+.stealth-toggle {
+    background: rgba(156, 39, 176, 0.1);
+    border-radius: var(--border-radius-md);
+    margin: var(--spacing-xs) var(--spacing-sm);
+}
+
+.stealth-toggle.active {
+    background: rgba(156, 39, 176, 0.2);
+    color: #9c27b0;
+}
+
+.toggle-shortcut {
+    margin-left: auto;
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    font-family: monospace;
+}
+
+/* Theme Toggle */
+.navbar-theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-xl);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-full);
+    transition: all var(--transition-fast);
+}
+
+.navbar-theme-toggle:hover {
+    background: var(--gray-100);
+    transform: rotate(15deg);
+}
+
+/* Dark theme */
+.dark-theme .navbar {
+    background: var(--white);
+    border-bottom-color: var(--gray-200);
+}
+
+.dark-theme .nav-link {
+    color: var(--gray-400);
+}
+
+.dark-theme .nav-link:hover {
+    background: var(--gray-800);
+}
+
+.dark-theme .search-input {
+    color: var(--gray-200);
+}
+
+.dark-theme .search-input::placeholder {
+    color: var(--gray-500);
+}
+
+.dark-theme .dropdown-menu-nav,
+.dark-theme .notifications-dropdown,
+.dark-theme .user-dropdown,
+.dark-theme .search-results-dropdown {
+    background: var(--gray-800);
+    color: var(--gray-200);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .navbar-toggler {
+        display: block;
+    }
+    
+    .navbar-menu {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        width: 80%;
+        height: calc(100vh - 60px);
+        background: var(--white);
+        transition: left var(--transition-normal);
+        z-index: 99;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .navbar-menu.mobile-open {
+        left: 0;
+    }
+    
+    .navbar-nav {
+        flex-direction: column;
+        padding: var(--spacing-md);
+    }
+    
+    .dropdown-menu-nav {
+        position: static;
+        box-shadow: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        display: none;
+        background: var(--gray-100);
+    }
+    
+    .dropdown-nav:hover .dropdown-menu-nav {
+        display: block;
+    }
+    
+    .navbar-search {
+        display: none;
+    }
+    
+    .user-name {
+        display: none;
+    }
+    
+    .stealth-indicator-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .logo-text {
+        display: none;
+    }
+    
+    .notifications-dropdown {
+        width: 320px;
+        right: -80px;
+    }
+    
+    .user-dropdown {
+        width: 280px;
+    }
+    
+    .search-results-dropdown {
+        width: 320px;
+        right: -100px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle
+    const toggler = document.getElementById('navbar-toggler');
+    const menu = document.getElementById('navbar-menu');
+    
+    if (toggler && menu) {
+        toggler.addEventListener('click', function() {
+            menu.classList.toggle('mobile-open');
+            document.body.style.overflow = menu.classList.contains('mobile-open') ? 'hidden' : '';
+        });
+    }
+    
+    // User dropdown
+    const userBtn = document.getElementById('user-btn');
+    const userDropdown = document.getElementById('user-dropdown');
+    
+    if (userBtn && userDropdown) {
+        userBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+    }
+    
+    // Notifications dropdown
+    const notifBtn = document.getElementById('notifications-btn');
+    const notifDropdown = document.getElementById('notifications-dropdown');
+    
+    if (notifBtn && notifDropdown) {
+        notifBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notifDropdown.classList.toggle('show');
+            loadNotifications();
+        });
+    }
+    
+    // Fermer les dropdowns en cliquant ailleurs
+    document.addEventListener('click', function(e) {
+        if (userDropdown && !userBtn.contains(e.target)) {
+            userDropdown.classList.remove('show');
+        }
+        if (notifDropdown && !notifBtn.contains(e.target)) {
+            notifDropdown.classList.remove('show');
+        }
+    });
+    
+    // Thème toggle
+    const themeToggle = document.getElementById('navbar-theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('redforge-theme', isDark ? 'dark' : 'light');
+            themeToggle.querySelector('.theme-icon').textContent = isDark ? '☀️' : '🌙';
+        });
+        
+        const isDark = document.body.classList.contains('dark-theme');
+        themeToggle.querySelector('.theme-icon').textContent = isDark ? '☀️' : '🌙';
+    }
+    
+    // Recherche améliorée avec Ctrl+K
+    const searchInput = document.getElementById('navbar-search');
+    const searchResults = document.getElementById('search-results-dropdown');
+    
+    if (searchInput) {
+        // Raccourci Ctrl+K
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+        
+        searchInput.addEventListener('input', debounce(async function() {
+            const query = this.value.trim();
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const results = await response.json();
+                displaySearchResults(results, searchResults);
+                searchResults.style.display = 'block';
+            } catch (error) {
+                console.error('Erreur recherche:', error);
+            }
+        }, 300));
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value;
+                if (query) {
+                    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+        
+        // Fermer les résultats en cliquant ailleurs
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+    }
+    
+    // Mode furtif toggle
+    const stealthToggle = document.getElementById('stealth-toggle');
+    if (stealthToggle) {
+        stealthToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleStealthMode();
+        });
+    }
+    
+    // Mettre à jour l'indicateur de mode furtif
+    updateStealthIndicator();
+    
+    // Marquer toutes les notifications comme lues
+    const markAllRead = document.getElementById('mark-all-read');
+    if (markAllRead) {
+        markAllRead.addEventListener('click', function() {
+            markAllNotificationsRead();
+        });
+    }
+    
+    // Effacer toutes les notifications
+    const clearAll = document.getElementById('clear-all-notifications');
+    if (clearAll) {
+        clearAll.addEventListener('click', function() {
+            clearAllNotifications();
+        });
+    }
+});
+
+function displaySearchResults(results, container) {
+    if (!results.length) {
+        container.innerHTML = '<div class="search-no-results">Aucun résultat trouvé</div>';
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="search-results-header">
+            <span>${results.length} résultat(s)</span>
+        </div>
+        ${results.map(result => `
+            <div class="search-result-item" data-url="${result.url}">
+                <div class="result-icon">${result.icon || '📄'}</div>
+                <div class="result-content">
+                    <div class="result-title">${escapeHtml(result.title)}</div>
+                    <div class="result-description">${escapeHtml(result.description || '')}</div>
+                </div>
+            </div>
+        `).join('')}
+    `;
+    
+    container.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', () => {
+            window.location.href = item.dataset.url;
+        });
+    });
+}
+
+async function loadNotifications() {
+    try {
+        const response = await fetch('/api/notifications');
+        const notifications = await response.json();
+        displayNotifications(notifications);
+        
+        const unreadCount = notifications.filter(n => !n.read).length;
+        updateNotificationBadge(unreadCount);
+    } catch (error) {
+        console.error('Erreur chargement notifications:', error);
+    }
+}
+
+function displayNotifications(notifications) {
+    const container = document.getElementById('notifications-list');
+    if (!container) return;
+    
+    if (!notifications.length) {
+        container.innerHTML = '<div class="notification-empty">Aucune notification</div>';
+        return;
+    }
+    
+    container.innerHTML = notifications.slice(0, 10).map(notif => `
+        <div class="notification-item ${notif.read ? '' : 'unread'}" data-id="${notif.id}">
+            <div class="notification-icon">${getNotificationIcon(notif.type)}</div>
+            <div class="notification-content">
+                <div class="notification-title">${escapeHtml(notif.title)}</div>
+                <div class="notification-message">${escapeHtml(notif.message)}</div>
+                <div class="notification-time">${formatTimeAgo(notif.timestamp)}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    container.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', () => {
+            markNotificationRead(item.dataset.id);
+        });
+    });
+}
+
+function updateNotificationBadge(count) {
+    const badge = document.getElementById('notif-badge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+
+async function markNotificationRead(id) {
+    try {
+        await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+        loadNotifications();
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function markAllNotificationsRead() {
+    try {
+        await fetch('/api/notifications/read-all', { method: 'POST' });
+        loadNotifications();
+        showNotification('Toutes les notifications ont été marquées comme lues', 'success');
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function clearAllNotifications() {
+    if (confirm('Voulez-vous vraiment effacer toutes les notifications ?')) {
+        try {
+            await fetch('/api/notifications/clear', { method: 'DELETE' });
+            loadNotifications();
+            showNotification('Notifications effacées', 'success');
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+}
+
+async function toggleStealthMode() {
+    try {
+        const response = await fetch('/api/stealth/toggle', { method: 'POST' });
+        const data = await response.json();
+        
+        updateStealthIndicator();
+        showNotification(`Mode furtif ${data.enabled ? 'activé' : 'désactivé'} (niveau: ${data.level})`, 
+                        data.enabled ? 'warning' : 'info');
+        
+        // Mettre à jour l'interface
+        const stealthToggle = document.getElementById('stealth-toggle');
+        if (stealthToggle) {
+            if (data.enabled) {
+                stealthToggle.classList.add('active');
+                stealthToggle.querySelector('.toggle-text').textContent = 'Désactiver mode furtif';
+            } else {
+                stealthToggle.classList.remove('active');
+                stealthToggle.querySelector('.toggle-text').textContent = 'Activer mode furtif';
+            }
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('Erreur lors du changement de mode furtif', 'error');
+    }
+}
+
+async function updateStealthIndicator() {
+    try {
+        const response = await fetch('/api/stealth/status');
+        const data = await response.json();
+        
+        const indicator = document.getElementById('stealth-indicator-nav');
+        const levelText = document.getElementById('stealth-level-text');
+        
+        if (indicator && levelText) {
+            if (data.enabled) {
+                indicator.style.display = 'flex';
+                const levelNames = {
+                    'low': 'Furtif Bas',
+                    'medium': 'Furtif Moyen',
+                    'high': 'Furtif Élevé',
+                    'paranoid': 'Furtif Parano'
+                };
+                levelText.textContent = levelNames[data.level] || 'Furtif';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.debug('Erreur statut furtif:', error);
+    }
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'success': '✅',
+        'error': '❌',
+        'warning': '⚠️',
+        'info': 'ℹ️',
+        'attack': '🎯',
+        'scan': '🔍',
+        'apt': '🎭',
+        'stealth': '🕵️'
+    };
+    return icons[type] || '📌';
+}
+
+function formatTimeAgo(timestamp) {
+    const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+    
+    if (seconds < 60) return `il y a ${seconds} seconde${seconds > 1 ? 's' : ''}`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `il y a ${minutes} minute${minutes > 1 ? 's' : ''}`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `il y a ${hours} heure${hours > 1 ? 's' : ''}`;
+    const days = Math.floor(hours / 24);
+    return `il y a ${days} jour${days > 1 ? 's' : ''}`;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showNotification(message, type, duration = 3000) {
+    if (typeof window.showNotification === 'function') {
+        window.showNotification(message, type, duration);
+    } else {
+        console.log(`[${type}] ${message}`);
+    }
+}
+
+// Écouter les événements WebSocket pour les notifications en temps réel
+if (typeof window.redforgeWebSocket !== 'undefined') {
+    window.redforgeWebSocket.on('notification', (data) => {
+        loadNotifications();
+        updateNotificationBadge(data.unreadCount);
+    });
+    
+    window.redforgeWebSocket.on('stealth_status', () => {
+        updateStealthIndicator();
+    });
+}
+
+// Raccourci clavier pour le mode furtif
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+        e.preventDefault();
+        toggleStealthMode();
+    }
+});
+</script>

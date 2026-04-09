@@ -1,0 +1,420 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+RedForge - Plateforme d'Orchestration de Pentest Web pour Red Team
+Version: 1.0.0
+Copyright: Red Team
+Licence: GPLv3
+100% Français - Compatible Kali Linux & Parrot OS
+"""
+
+import sys
+import os
+import subprocess
+import argparse
+from pathlib import Path
+
+# Ajouter le chemin du projet
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
+
+
+def check_python_version():
+    """Vérifie la version de Python"""
+    if sys.version_info < (3, 11):
+        print("❌ RedForge nécessite Python 3.11 ou supérieur")
+        print(f"   Version actuelle: {sys.version_info.major}.{sys.version_info.minor}")
+        print("👉 Veuillez installer Python 3.11+")
+        sys.exit(1)
+
+
+def check_venv():
+    """Vérifie et active l'environnement virtuel"""
+    venv_path = os.path.join(PROJECT_ROOT, "venv")
+    
+    # Si on est déjà dans un environnement virtuel
+    if hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
+        return True
+    
+    # Vérifier si l'environnement virtuel existe
+    if os.path.exists(venv_path):
+        python_path = os.path.join(venv_path, "bin", "python")
+        if os.path.exists(python_path):
+            print("⚠️  Environnement virtuel détecté mais non activé")
+            print(f"👉 Veuillez activer l'environnement virtuel:")
+            print(f"   source {venv_path}/bin/activate")
+            print(f"   python bin/RedForge [options]")
+            return False
+    
+    return True
+
+
+def check_sudo_for_advanced():
+    """Vérifie les droits sudo pour les fonctionnalités avancées"""
+    args = sys.argv[1:]
+    
+    # Options nécessitant les droits root
+    advanced_features = {
+        'direct': ['-g', '--gui', '--stealth', '--apt'],
+        'phases': ['scan', 'exploit', 'all'],
+        'ports': ['--ports', '--scan-ports']
+    }
+    
+    # Vérifier les options directes
+    for feature in advanced_features['direct']:
+        if feature in args:
+            if os.geteuid() != 0:
+                print("❌ RedForge nécessite les droits sudo pour cette opération")
+                print("👉 Veuillez exécuter : sudo RedForge " + " ".join(args))
+                sys.exit(1)
+            return
+    
+    # Vérifier les phases dangereuses
+    for i, arg in enumerate(args):
+        if arg in ['-p', '--phase'] and i + 1 < len(args):
+            phase = args[i + 1]
+            if phase in advanced_features['phases']:
+                if os.geteuid() != 0:
+                    print(f"❌ La phase '{phase}' nécessite les droits sudo")
+                    print("👉 Veuillez exécuter : sudo RedForge " + " ".join(args))
+                    sys.exit(1)
+
+
+def check_dependencies():
+    """Vérifie les dépendances essentielles et les installe si nécessaire"""
+    missing = []
+    
+    # Packages Python essentiels
+    required_packages = ['flask', 'requests', 'rich', 'cryptography', 'yaml']
+    
+    for package in required_packages:
+        try:
+            __import__(package)
+        except ImportError:
+            missing.append(package)
+    
+    if missing:
+        print("⚠️  Dépendances Python manquantes: {}".format(', '.join(missing)))
+        print("👉 Installation automatique...")
+        
+        requirements_file = os.path.join(PROJECT_ROOT, "requirements.txt")
+        if os.path.exists(requirements_file):
+            try:
+                subprocess.run(
+                    [sys.executable, "-m", "pip", "install", "-r", requirements_file],
+                    check=True,
+                    capture_output=True
+                )
+                print("✅ Dépendances installées avec succès")
+            except subprocess.CalledProcessError as e:
+                print("❌ Erreur lors de l'installation des dépendances")
+                print(f"👉 Veuillez exécuter: pip install -r {requirements_file}")
+                sys.exit(1)
+        else:
+            print("❌ Fichier requirements.txt non trouvé")
+            sys.exit(1)
+
+
+def check_tools():
+    """Vérifie les outils système essentiels"""
+    required_tools = {
+        'nmap': 'nmap',
+        'sqlmap': 'sqlmap',
+        'whatweb': 'whatweb'
+    }
+    
+    optional_tools = {
+        'msfconsole': 'metasploit-framework',
+        'hydra': 'hydra',
+        'dirb': 'dirb'
+    }
+    
+    missing_required = []
+    missing_optional = []
+    
+    import shutil
+    for tool in required_tools:
+        if not shutil.which(tool):
+            missing_required.append(tool)
+    
+    for tool in optional_tools:
+        if not shutil.which(tool):
+            missing_optional.append(tool)
+    
+    if missing_required:
+        print("⚠️  Outils requis manquants: {}".format(', '.join(missing_required)))
+        print("👉 Installation recommandée: sudo apt install {}".format(' '.join(missing_required)))
+    
+    if missing_optional:
+        print("ℹ️  Outils optionnels manquants: {}".format(', '.join(missing_optional)))
+    
+    return len(missing_required) == 0
+
+
+def setup_directories():
+    """Crée les répertoires nécessaires"""
+    home_dir = Path.home()
+    redforge_dir = home_dir / ".RedForge"
+    
+    directories = [
+        redforge_dir,
+        redforge_dir / "logs",
+        redforge_dir / "reports",
+        redforge_dir / "workspace",
+        redforge_dir / "sessions",
+        redforge_dir / "wordlists",
+        redforge_dir / "cache",
+        redforge_dir / "profiles"
+    ]
+    
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+    
+    # Créer le fichier de configuration par défaut
+    config_file = redforge_dir / "config.json"
+    if not config_file.exists():
+        import json
+        default_config = {
+            "version": "1.0.0",
+            "language": "fr_FR",
+            "theme": "auto",
+            "timeout": 300,
+            "threads": 10,
+            "stealth_mode": False,
+            "apt_mode": False,
+            "workspace": str(redforge_dir / "workspace"),
+            "logs": str(redforge_dir / "logs"),
+            "reports": str(redforge_dir / "reports"),
+            "api": {
+                "enabled": True,
+                "port": 5000,
+                "host": "127.0.0.1"
+            },
+            "stealth": {
+                "random_delays": True,
+                "user_agent_rotation": True,
+                "request_jitter": 30,
+                "min_delay": 0.5,
+                "max_delay": 5.0
+            }
+        }
+        with open(config_file, 'w', encoding='utf-8') as f:
+            json.dump(default_config, f, indent=4)
+    
+    return redforge_dir
+
+
+def show_banner():
+    """Affiche la bannière"""
+    banner = """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   ██████╗ ███████╗██████╗ ███████╗ ██████╗ ██████╗  ██████╗ ███████╗         ║
+║   ██╔══██╗██╔════╝██╔══██╗██╔════╝██╔═══██╗██╔══██╗██╔════╝ ██╔════╝         ║
+║   ██████╔╝█████╗  ██║  ██║█████╗  ██║   ██║██████╔╝██║  ███╗█████╗           ║
+║   ██╔══██╗██╔══╝  ██║  ██║██╔══╝  ██║   ██║██╔══██╗██║   ██║██╔══╝           ║
+║   ██║  ██║███████╗██████╔╝██║     ╚██████╔╝██║  ██║╚██████╔╝███████╗         ║
+║   ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝         ║
+║                                                                              ║
+║         Plateforme d'Orchestration de Pentest Web pour Red Team             ║
+║                         Version 1.0.0 - 100% Français                       ║
+║                     Compatible Kali Linux & Parrot OS                       ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+    """
+    print(banner)
+
+
+def show_help():
+    """Affiche l'aide personnalisée"""
+    help_text = """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         GUIDE D'UTILISATION REDFORGE                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📖 SYNTAXE DE BASE:
+  RedForge [OPTIONS] [ARGUMENTS]
+
+🔧 OPTIONS PRINCIPALES:
+  -t, --target URL_OU_IP     Cible à analyser
+  -f, --file FICHIER         Fichier contenant les cibles
+  -p, --phase PHASE          Phase à exécuter (footprint, analysis, scan, exploit, all)
+  -g, --gui                  Lance l'interface graphique
+  -i, --interactive          Mode interactif
+  -o, --output FICHIER       Fichier de sortie pour le rapport
+  
+🎯 SÉLECTION D'ATTAQUES:
+  -a, --attacks LISTE        Attaques spécifiques (ex: --attacks injection.sql xss.reflected)
+  -c, --category CATEGORIE   Toutes les attaques d'une catégorie
+  --list-attacks             Lister toutes les attaques disponibles
+  --select-by-severity       Sélectionner par sévérité (critical,high,medium,low)
+  
+🕵️ MODE FURTIF (Stealth):
+  --stealth                  Active le mode furtif (requiert sudo)
+  --stealth-level Niveau     Niveau de furtivité (1-5, défaut: 3)
+  --proxy PROXY              Utiliser un proxy (socks5://127.0.0.1:9050)
+  --tor                      Router via Tor
+  --random-delay             Délais aléatoires entre requêtes
+  --rotate-user-agent        Rotation des User-Agents
+  
+🎯 MODE APT (Advanced Persistent Threat):
+  --apt                      Active le mode APT
+  --persistence              Établir une persistance
+  --lateral-movement         Tentative de mouvement latéral
+  --c2-server URL            Serveur C2 pour exfiltration
+  --exfiltrate               Exfiltrer les données trouvées
+
+⚙️ OPTIONS AVANCÉES:
+  --threads NOMBRE           Nombre de threads (défaut: 10)
+  --timeout SECONDES         Timeout global (défaut: 300)
+  --level Niveau             Niveau d'agressivité (1-5, défaut: 2)
+  --output-format FORMAT     Format du rapport (html, pdf, json, csv)
+  --no-banner                Supprime l'affichage de la bannière
+
+📊 EXEMPLES:
+  RedForge -t example.com -p footprint
+  RedForge -t example.com -a injection.sql xss.reflected
+  RedForge -t example.com -c cross_site
+  RedForge -t example.com --attacks injection.sql --stealth
+  RedForge -t example.com --apt --persistence --c2-server https://c2.domain.com
+  sudo RedForge -g --stealth
+
+❓ AIDE SPÉCIFIQUE:
+  RedForge --list-attacks    Liste toutes les attaques
+  RedForge --aide-commande    Aide pour une commande
+
+🔧 COMMANDES UTILES:
+  RedForge --version         Afficher la version
+  RedForge --check-deps      Vérifier les dépendances
+  RedForge --setup           Configurer l'environnement
+"""
+    print(help_text)
+
+
+def show_version():
+    """Affiche la version"""
+    version = "1.0.0"
+    print(f"RedForge v{version}")
+    print("Plateforme d'Orchestration de Pentest Web pour Red Team")
+    print("Licence GPLv3 - 100% Français")
+    print("APT Ready | Stealth Mode | Multi-Attack Selection")
+
+
+def list_attacks():
+    """Affiche la liste de toutes les attaques disponibles"""
+    print("\n🎯 LISTE DES ATTAQUES DISPONIBLES\n")
+    
+    attacks = {
+        "💉 INJECTION": ["sql", "nosql", "command", "ldap", "xpath", "html", "template"],
+        "🔐 SESSION": ["hijacking", "fixation", "cookie", "jwt", "oauth"],
+        "🌐 CROSS-SITE": ["xss", "csrf", "clickjacking", "cors", "postmessage"],
+        "🔑 AUTHENTIFICATION": ["bruteforce", "credential_stuffing", "password_spraying", "mfa_bypass", "priv_esc", "race_condition"],
+        "📁 FILE SYSTEM": ["lfi_rfi", "file_upload", "dir_traversal", "buffer_overflow", "path_normalization", "zip_slip"],
+        "🏗️ INFRASTRUCTURE": ["waf_bypass", "misconfig", "load_balancer", "host_header", "cache_poisoning"],
+        "🔒 INTÉGRITÉ": ["data_tampering", "info_leakage", "mitm", "param_pollution", "business_logic"],
+        "🚀 AVANCÉES": ["api", "graphql", "websocket", "deserialization", "browser", "microservices", "chaining"]
+    }
+    
+    for category, attack_list in attacks.items():
+        print(f"\n\033[96m{category}\033[0m")
+        print("  " + ", ".join(attack_list))
+    
+    print("\n💡 Utilisation: RedForge -t example.com -a injection.sql xss.reflected")
+    print("   RedForge -t example.com -c cross_site")
+
+
+def setup_environment():
+    """Configure l'environnement"""
+    print("🔧 Configuration de l'environnement RedForge...\n")
+    
+    # Créer les répertoires
+    redforge_dir = setup_directories()
+    print(f"✅ Répertoire de configuration: {redforge_dir}")
+    
+    # Vérifier les dépendances
+    check_dependencies()
+    
+    # Vérifier les outils
+    check_tools()
+    
+    print("\n✅ Configuration terminée")
+    print("👉 Lancez 'RedForge --help' pour commencer")
+
+
+def main():
+    """Point d'entrée principal"""
+    try:
+        # Vérifier la version de Python
+        check_python_version()
+        
+        # Vérifier les arguments spéciaux
+        if '--version' in sys.argv:
+            show_version()
+            sys.exit(0)
+        
+        if '--help' in sys.argv:
+            show_help()
+            sys.exit(0)
+        
+        if '--list-attacks' in sys.argv:
+            list_attacks()
+            sys.exit(0)
+        
+        if '--check-deps' in sys.argv:
+            check_dependencies()
+            check_tools()
+            sys.exit(0)
+        
+        if '--setup' in sys.argv:
+            setup_environment()
+            sys.exit(0)
+        
+        # Afficher la bannière
+        if '--no-banner' not in sys.argv:
+            show_banner()
+        
+        # Vérifier l'environnement virtuel
+        if not check_venv():
+            sys.exit(1)
+        
+        # Vérifier les dépendances
+        check_dependencies()
+        
+        # Vérifier les outils (avertissement seulement)
+        check_tools()
+        
+        # Créer les répertoires
+        setup_directories()
+        
+        # Vérifier les droits sudo pour les fonctionnalités avancées
+        check_sudo_for_advanced()
+        
+        # Lancer l'interface CLI
+        try:
+            from src.core.cli import RedForgeCLI
+            cli = RedForgeCLI()
+            cli.run()
+        except ImportError as e:
+            print(f"\n❌ Erreur d'import: {e}")
+            print("👉 Vérifiez que les dépendances sont installées: pip install -r requirements.txt")
+            sys.exit(1)
+        
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Interruption utilisateur. Arrêt de RedForge...")
+        sys.exit(0)
+    except FileNotFoundError as e:
+        print(f"\n❌ Fichier non trouvé: {e}")
+        sys.exit(1)
+    except PermissionError as e:
+        print(f"\n❌ Permission refusée: {e}")
+        print("👉 Essayez avec sudo: sudo RedForge [options]")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Erreur fatale: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

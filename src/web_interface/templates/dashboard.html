@@ -1,0 +1,984 @@
+{% extends "base.html" %}
+
+{% block title %}RedForge - Tableau de bord{% endblock %}
+
+{% block header_title %}📊 Tableau de bord - Vue d'ensemble{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Statistiques améliorées -->
+    <div class="stats-grid">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value" id="total-targets">0</div>
+                <div class="stat-label">Cibles</div>
+                <div class="stat-trend" id="targets-trend"></div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-value" id="total-attacks">0</div>
+                <div class="stat-label">Attaques lancées</div>
+                <div class="stat-trend" id="attacks-trend"></div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-value" id="vulnerabilities-found">0</div>
+                <div class="stat-label">Vulnérabilités</div>
+                <div class="stat-trend" id="vulns-trend"></div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-icon">🔌</div>
+                <div class="stat-value" id="active-sessions">0</div>
+                <div class="stat-label">Sessions actives</div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-icon">📚</div>
+                <div class="stat-value" id="multi-attacks-count">0</div>
+                <div class="stat-label">Multi-attaques</div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-icon">🎭</div>
+                <div class="stat-value" id="apt-operations-count">0</div>
+                <div class="stat-label">Opérations APT</div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-icon">🕵️</div>
+                <div class="stat-value" id="stealth-score">0%</div>
+                <div class="stat-label">Score furtif</div>
+                <div class="stat-progress">
+                    <div class="progress">
+                        <div class="progress-bar" id="stealth-progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-value" id="avg-response-time">0ms</div>
+                <div class="stat-label">Temps de réponse</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Graphiques améliorés -->
+    <div class="charts-grid">
+        <div class="card">
+            <div class="card-header">
+                <h3>📈 Vulnérabilités par type</h3>
+                <div class="card-actions">
+                    <button class="btn-icon" id="export-vuln-chart" title="Exporter">📥</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="vulnerability-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>⚠️ Sévérité des vulnérabilités</h3>
+                <div class="card-actions">
+                    <button class="btn-icon" id="export-severity-chart" title="Exporter">📥</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="severity-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>📅 Évolution temporelle</h3>
+                <div class="card-actions">
+                    <button class="btn-icon" id="export-timeline-chart" title="Exporter">📥</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="timeline-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>🎯 Distribution des attaques</h3>
+                <div class="card-actions">
+                    <button class="btn-icon" id="export-distribution-chart" title="Exporter">📥</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="attack-distribution-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Nouveaux graphiques pour Multi-Attacks et APT -->
+    <div class="charts-grid advanced-charts">
+        <div class="card">
+            <div class="card-header">
+                <h3>📚 Performance Multi-attaques</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="multi-attack-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>🎭 Timeline APT</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="apt-timeline-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>🕵️ Efficacité furtive</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="stealth-effectiveness-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>✅ Taux de succès par attaque</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="attack-success-rate-chart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Activités récentes et vulnérabilités améliorées -->
+    <div class="two-columns">
+        <div class="card">
+            <div class="card-header">
+                <h3>🕐 Activités récentes</h3>
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-secondary" id="clear-history">Effacer</button>
+                    <button class="btn btn-sm btn-secondary" id="export-activities">📥 Exporter</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="recent-activities" class="activities-list">
+                    <div class="loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>⚠️ Top vulnérabilités</h3>
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-primary" id="export-report">📄 Rapport</button>
+                    <button class="btn btn-sm btn-secondary" id="refresh-vulns">⟳</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="top-vulnerabilities" class="vulnerabilities-list">
+                    <div class="loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Opérations en cours -->
+    <div class="operations-grid">
+        <!-- Multi-attaques en cours -->
+        <div class="card">
+            <div class="card-header">
+                <h3>📚 Multi-attaques en cours</h3>
+                <button class="btn btn-sm btn-secondary" id="refresh-multi">⟳</button>
+            </div>
+            <div class="card-body">
+                <div id="active-multi-attacks" class="multi-attacks-list">
+                    <div class="no-data">Aucune multi-attaque en cours</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Opérations APT en cours -->
+        <div class="card">
+            <div class="card-header">
+                <h3>🎭 Opérations APT en cours</h3>
+                <button class="btn btn-sm btn-secondary" id="refresh-apt">⟳</button>
+            </div>
+            <div class="card-body">
+                <div id="active-apt-operations" class="apt-operations-list">
+                    <div class="no-data">Aucune opération APT en cours</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sessions actives améliorées -->
+    <div class="card">
+        <div class="card-header">
+            <h3>🔌 Sessions actives</h3>
+            <div class="card-actions">
+                <button class="btn btn-sm btn-secondary" id="refresh-sessions">⟳ Rafraîchir</button>
+                <button class="btn btn-sm btn-secondary" id="export-sessions">📥 Exporter</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="active-sessions" class="sessions-grid">
+                <div class="loading">Chargement...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alertes furtives -->
+    <div class="card">
+        <div class="card-header">
+            <h3>🕵️ Alertes de détection</h3>
+            <button class="btn btn-sm btn-secondary" id="clear-stealth-alerts">Effacer</button>
+        </div>
+        <div class="card-body">
+            <div id="stealth-alerts" class="stealth-alerts-list">
+                <div class="no-data">Aucune alerte</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Métriques système -->
+    <div class="card">
+        <div class="card-header">
+            <h3>📊 Métriques système</h3>
+        </div>
+        <div class="card-body">
+            <div class="system-metrics">
+                <div class="metric-item">
+                    <span class="metric-label">CPU Usage:</span>
+                    <span class="metric-value" id="cpu-usage">0%</span>
+                    <div class="progress">
+                        <div class="progress-bar" id="cpu-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Memory Usage:</span>
+                    <span class="metric-value" id="memory-usage">0%</span>
+                    <div class="progress">
+                        <div class="progress-bar" id="memory-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Disk Usage:</span>
+                    <span class="metric-value" id="disk-usage">0%</span>
+                    <div class="progress">
+                        <div class="progress-bar" id="disk-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Uptime:</span>
+                    <span class="metric-value" id="uptime">0h</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal session terminal -->
+<div id="session-terminal-modal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3>🔌 Terminal de session</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="session-terminal" class="terminal"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal rapport avancé -->
+<div id="report-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📄 Génération de rapport</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Format du rapport</label>
+                <select id="report-format" class="form-select">
+                    <option value="html">HTML</option>
+                    <option value="json">JSON</option>
+                    <option value="pdf">PDF</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="include-charts" checked> Inclure les graphiques
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="include-activities" checked> Inclure les activités
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="include-multi-attack" checked> Inclure les multi-attaques
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="include-apt" checked> Inclure les opérations APT
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="include-stealth" checked> Inclure les métriques furtives
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Annuler</button>
+            <button class="btn btn-primary" id="generate-report">Générer</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.stat-card {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition-fast);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-sm);
+}
+
+.stat-value {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    background: linear-gradient(135deg, var(--primary-red), var(--primary-red-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.stat-label {
+    color: var(--gray-600);
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+}
+
+.stat-trend {
+    font-size: var(--font-size-xs);
+    margin-top: var(--spacing-xs);
+}
+
+.stat-trend.positive {
+    color: #4caf50;
+}
+
+.stat-trend.negative {
+    color: #f44336;
+}
+
+.stat-progress {
+    margin-top: var(--spacing-sm);
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.advanced-charts {
+    margin-top: var(--spacing-md);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-lg);
+    padding: var(--spacing-xs);
+    border-radius: var(--border-radius-sm);
+    transition: background var(--transition-fast);
+}
+
+.btn-icon:hover {
+    background: var(--gray-200);
+}
+
+.two-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.operations-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.activities-list, .vulnerabilities-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-200);
+    transition: background var(--transition-fast);
+}
+
+.activity-item:hover {
+    background: var(--gray-100);
+}
+
+.activity-icon {
+    font-size: var(--font-size-xl);
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-xs);
+}
+
+.activity-description {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+.activity-time {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+}
+
+.vulnerability-item {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-200);
+    transition: background var(--transition-fast);
+}
+
+.vulnerability-item:hover {
+    background: var(--gray-100);
+}
+
+.vuln-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+}
+
+.vuln-type {
+    font-weight: var(--font-weight-medium);
+}
+
+.vuln-target {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+.sessions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.session-card {
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    transition: transform var(--transition-fast);
+}
+
+.session-card:hover {
+    transform: translateY(-2px);
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.session-id {
+    font-family: monospace;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.session-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.multi-attacks-list, .apt-operations-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.multi-attack-item, .apt-operation-item {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.multi-attack-name, .apt-operation-name {
+    font-weight: var(--font-weight-medium);
+}
+
+.multi-attack-progress, .apt-operation-progress {
+    width: 150px;
+}
+
+.stealth-alerts-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.stealth-alert {
+    padding: var(--spacing-md);
+    border-left: 3px solid;
+    margin-bottom: var(--spacing-sm);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-sm);
+}
+
+.stealth-alert.high {
+    border-left-color: #f44336;
+}
+
+.stealth-alert.medium {
+    border-left-color: #ff9800;
+}
+
+.stealth-alert.low {
+    border-left-color: #4caf50;
+}
+
+.system-metrics {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.metric-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.metric-label {
+    width: 120px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.metric-value {
+    width: 60px;
+    font-size: var(--font-size-sm);
+    font-family: monospace;
+}
+
+.metric-item .progress {
+    flex: 1;
+    min-width: 150px;
+}
+
+.modal-large {
+    max-width: 800px;
+    width: 90%;
+}
+
+.loading {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--gray-500);
+}
+
+.no-data {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--gray-500);
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .two-columns,
+    .operations-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .sessions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .metric-item .progress {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Rafraîchir les sessions
+        const refreshSessions = document.getElementById('refresh-sessions');
+        if (refreshSessions) {
+            refreshSessions.addEventListener('click', () => {
+                if (typeof loadSessions === 'function') loadSessions();
+                showNotification('Sessions actualisées', 'success', 2000);
+            });
+        }
+        
+        // Rafraîchir les multi-attaques
+        const refreshMulti = document.getElementById('refresh-multi');
+        if (refreshMulti) {
+            refreshMulti.addEventListener('click', () => {
+                if (typeof loadMultiAttackStats === 'function') loadMultiAttackStats();
+                showNotification('Multi-attaques actualisées', 'success', 2000);
+            });
+        }
+        
+        // Rafraîchir les opérations APT
+        const refreshAPT = document.getElementById('refresh-apt');
+        if (refreshAPT) {
+            refreshAPT.addEventListener('click', () => {
+                if (typeof loadAPTOperations === 'function') loadAPTOperations();
+                showNotification('Opérations APT actualisées', 'success', 2000);
+            });
+        }
+        
+        // Rafraîchir les vulnérabilités
+        const refreshVulns = document.getElementById('refresh-vulns');
+        if (refreshVulns) {
+            refreshVulns.addEventListener('click', () => {
+                if (typeof loadTopVulnerabilities === 'function') loadTopVulnerabilities();
+                showNotification('Vulnérabilités actualisées', 'success', 2000);
+            });
+        }
+        
+        // Effacer l'historique
+        const clearHistory = document.getElementById('clear-history');
+        if (clearHistory && typeof clearActivityHistory === 'function') {
+            clearHistory.addEventListener('click', clearActivityHistory);
+        }
+        
+        // Exporter les activités
+        const exportActivities = document.getElementById('export-activities');
+        if (exportActivities) {
+            exportActivities.addEventListener('click', () => {
+                const activities = document.getElementById('recent-activities').innerHTML;
+                const blob = new Blob([activities], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `redforge_activities_${new Date().toISOString().slice(0, 19)}.html`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('Activités exportées', 'success');
+            });
+        }
+        
+        // Exporter les sessions
+        const exportSessions = document.getElementById('export-sessions');
+        if (exportSessions) {
+            exportSessions.addEventListener('click', () => {
+                const sessions = document.getElementById('active-sessions').innerHTML;
+                const blob = new Blob([sessions], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `redforge_sessions_${new Date().toISOString().slice(0, 19)}.html`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('Sessions exportées', 'success');
+            });
+        }
+        
+        // Exporter le rapport
+        const exportReport = document.getElementById('export-report');
+        const reportModal = document.getElementById('report-modal');
+        if (exportReport && reportModal) {
+            exportReport.addEventListener('click', () => {
+                openModal(reportModal);
+            });
+        }
+        
+        // Générer le rapport
+        const generateReport = document.getElementById('generate-report');
+        if (generateReport && typeof exportDashboardReport === 'function') {
+            generateReport.addEventListener('click', () => {
+                const format = document.getElementById('report-format').value;
+                // Stocker le format pour l'export
+                window.exportFormat = format;
+                exportDashboardReport();
+                closeModal(reportModal);
+            });
+        }
+        
+        // Exporter les graphiques
+        const exportButtons = ['vuln', 'severity', 'timeline', 'distribution'];
+        exportButtons.forEach(type => {
+            const btn = document.getElementById(`export-${type}-chart`);
+            if (btn && typeof exportChartAsImage === 'function') {
+                btn.addEventListener('click', () => {
+                    const chartId = `${type === 'vuln' ? 'vulnerability' : type === 'severity' ? 'severity' : type === 'timeline' ? 'timeline' : 'attack-distribution'}-chart`;
+                    exportChartAsImage(chartId);
+                });
+            }
+        });
+        
+        // Effacer les alertes furtives
+        const clearStealthAlerts = document.getElementById('clear-stealth-alerts');
+        if (clearStealthAlerts) {
+            clearStealthAlerts.addEventListener('click', () => {
+                const container = document.getElementById('stealth-alerts');
+                if (container) {
+                    container.innerHTML = '<div class="no-data">Aucune alerte</div>';
+                }
+                showNotification('Alertes effacées', 'success');
+            });
+        }
+        
+        // Mettre à jour les métriques système périodiquement
+        async function updateSystemMetrics() {
+            try {
+                const response = await fetch('/api/system/metrics');
+                if (response.ok) {
+                    const metrics = await response.json();
+                    
+                    const cpuElem = document.getElementById('cpu-usage');
+                    const cpuProgress = document.getElementById('cpu-progress');
+                    if (cpuElem && cpuProgress) {
+                        cpuElem.textContent = `${metrics.cpu}%`;
+                        cpuProgress.style.width = `${metrics.cpu}%`;
+                    }
+                    
+                    const memoryElem = document.getElementById('memory-usage');
+                    const memoryProgress = document.getElementById('memory-progress');
+                    if (memoryElem && memoryProgress) {
+                        memoryElem.textContent = `${metrics.memory}%`;
+                        memoryProgress.style.width = `${metrics.memory}%`;
+                    }
+                    
+                    const diskElem = document.getElementById('disk-usage');
+                    const diskProgress = document.getElementById('disk-progress');
+                    if (diskElem && diskProgress) {
+                        diskElem.textContent = `${metrics.disk}%`;
+                        diskProgress.style.width = `${metrics.disk}%`;
+                    }
+                    
+                    const uptimeElem = document.getElementById('uptime');
+                    if (uptimeElem) {
+                        const hours = Math.floor(metrics.uptime / 3600);
+                        const minutes = Math.floor((metrics.uptime % 3600) / 60);
+                        uptimeElem.textContent = `${hours}h ${minutes}m`;
+                    }
+                }
+            } catch (error) {
+                console.debug('Erreur métriques système:', error);
+            }
+        }
+        
+        updateSystemMetrics();
+        setInterval(updateSystemMetrics, 30000);
+        
+        // Mettre à jour le score furtif
+        async function updateStealthScore() {
+            try {
+                const response = await fetch('/api/stealth/score');
+                if (response.ok) {
+                    const data = await response.json();
+                    const scoreElem = document.getElementById('stealth-score');
+                    const progressBar = document.getElementById('stealth-progress-bar');
+                    if (scoreElem && progressBar) {
+                        scoreElem.textContent = `${data.score}%`;
+                        progressBar.style.width = `${data.score}%`;
+                        
+                        // Changer la couleur selon le score
+                        if (data.score >= 80) {
+                            progressBar.style.backgroundColor = '#4caf50';
+                        } else if (data.score >= 60) {
+                            progressBar.style.backgroundColor = '#ff9800';
+                        } else {
+                            progressBar.style.backgroundColor = '#f44336';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.debug('Erreur score furtif:', error);
+            }
+        }
+        
+        updateStealthScore();
+        setInterval(updateStealthScore, 15000);
+        
+        // Écouter les événements WebSocket
+        if (typeof window.redforgeWebSocket !== 'undefined') {
+            window.redforgeWebSocket.on('scan_completed', () => {
+                refreshDashboard();
+            });
+            
+            window.redforgeWebSocket.on('vulnerability_found', () => {
+                if (typeof loadTopVulnerabilities === 'function') loadTopVulnerabilities();
+            });
+            
+            window.redforgeWebSocket.on('session_created', () => {
+                if (typeof loadSessions === 'function') loadSessions();
+            });
+            
+            window.redforgeWebSocket.on('session_closed', () => {
+                if (typeof loadSessions === 'function') loadSessions();
+            });
+            
+            window.redforgeWebSocket.on('multi_attack_completed', () => {
+                if (typeof loadMultiAttackStats === 'function') loadMultiAttackStats();
+                refreshDashboard();
+            });
+            
+            window.redforgeWebSocket.on('apt_completed', () => {
+                if (typeof loadAPTOperations === 'function') loadAPTOperations();
+                refreshDashboard();
+            });
+            
+            window.redforgeWebSocket.on('stealth_alert', (data) => {
+                const container = document.getElementById('stealth-alerts');
+                if (container) {
+                    if (container.querySelector('.no-data')) {
+                        container.innerHTML = '';
+                    }
+                    const alert = document.createElement('div');
+                    alert.className = `stealth-alert ${data.severity}`;
+                    alert.innerHTML = `
+                        <div class="alert-message">${escapeHtml(data.message)}</div>
+                        <div class="alert-time">${new Date(data.timestamp).toLocaleTimeString()}</div>
+                    `;
+                    container.insertBefore(alert, container.firstChild);
+                    
+                    while (container.children.length > 20) {
+                        container.removeChild(container.lastChild);
+                    }
+                }
+            });
+        }
+        
+        function refreshDashboard() {
+            if (typeof loadDashboardStats === 'function') loadDashboardStats();
+            if (typeof loadRecentActivities === 'function') loadRecentActivities();
+            if (typeof loadTopVulnerabilities === 'function') loadTopVulnerabilities();
+            if (typeof loadSessions === 'function') loadSessions();
+            if (typeof loadMultiAttackStats === 'function') loadMultiAttackStats();
+            if (typeof loadAPTOperations === 'function') loadAPTOperations();
+        }
+        
+        function openModal(modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showNotification(message, type, duration = 3000) {
+            if (typeof window.showNotification === 'function') {
+                window.showNotification(message, type, duration);
+            } else {
+                console.log(`[${type}] ${message}`);
+            }
+        }
+        
+        document.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal) closeModal(modal);
+            });
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target);
+            }
+        });
+    });
+</script>
+{% endblock %}

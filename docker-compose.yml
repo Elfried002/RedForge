@@ -1,0 +1,442 @@
+# ========================================
+# RedForge - Docker Compose Configuration
+# Orchestration des conteneurs Docker
+# Version: 2.0.0 - Support Multi-Attacks, Stealth Mode, APT Operations
+# ========================================
+
+version: '3.8'
+
+services:
+  # Service principal RedForge
+  redforge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REDFORGE_VERSION=${REDFORGE_VERSION:-2.0.0}
+        - BUILD_DATE=${BUILD_DATE:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        - VCS_REF=${VCS_REF:-latest}
+    container_name: redforge-app
+    hostname: redforge
+    restart: unless-stopped
+    
+    # Ports exposés
+    ports:
+      - "${REDFORGE_PORT:-5000}:5000"      # Interface web
+      - "${CALLBACK_PORT:-8080}:8080"      # Callback XSS
+      - "${WEBSOCKET_PORT:-5001}:5001"     # WebSocket
+      - "${C2_PORT:-4443}:4443"            # C2 Server (APT)
+      - "${DNS_PORT:-5353}:5353/udp"       # DNS Exfiltration
+    
+    # Variables d'environnement
+    environment:
+      - REDFORGE_ENV=${REDFORGE_ENV:-production}
+      - REDFORGE_DEBUG=${REDFORGE_DEBUG:-false}
+      - REDFORGE_SECRET_KEY=${REDFORGE_SECRET_KEY:-change_me_in_production}
+      - REDFORGE_LOG_LEVEL=${REDFORGE_LOG_LEVEL:-INFO}
+      - REDFORGE_WS_ENABLED=${REDFORGE_WS_ENABLED:-true}
+      - REDFORGE_STEALTH_ENABLED=${REDFORGE_STEALTH_ENABLED:-false}
+      - TZ=${TZ:-Europe/Paris}
+      
+      # Mode furtif
+      - STEALTH_TOR_ENABLED=${STEALTH_TOR_ENABLED:-false}
+      - STEALTH_PROXY_ROTATE=${STEALTH_PROXY_ROTATE:-false}
+      - STEALTH_DEFAULT_LEVEL=${STEALTH_DEFAULT_LEVEL:-medium}
+      
+      # Multi-attaques
+      - MULTI_ATTACK_MAX_PARALLEL=${MULTI_ATTACK_MAX_PARALLEL:-5}
+      - MULTI_ATTACK_DEFAULT_MODE=${MULTI_ATTACK_DEFAULT_MODE:-sequential}
+      
+      # Opérations APT
+      - APT_AUTO_CLEANUP=${APT_AUTO_CLEANUP:-true}
+      - APT_PERSISTENCE_DIR=${APT_PERSISTENCE_DIR:-/opt/redforge/persistence}
+      - APT_C2_SERVER=${APT_C2_SERVER:-}
+      
+      # Base de données
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      
+      # Base de données pour les résultats
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017}
+      - MONGODB_DB=${MONGODB_DB:-redforge}
+      
+      # Proxy (optionnel)
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+      - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1}
+      
+      # Notifications
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - NOTIFICATION_WEBHOOK=${NOTIFICATION_WEBHOOK:-}
+    
+    # Volumes
+    volumes:
+      - redforge-workspace:/home/redteam/.RedForge
+      - redforge-logs:/opt/RedForge/logs
+      - redforge-reports:/opt/RedForge/reports
+      - redforge-wordlists:/opt/RedForge/wordlists
+      - redforge-persistence:/opt/redforge/persistence
+      - redforge-stealth:/opt/redforge/stealth
+      - redforge-multi-attack:/opt/redforge/multi_attack
+      - redforge-apt:/opt/redforge/apt_operations
+      - ./config:/opt/RedForge/config:ro
+      - ./uploads:/opt/RedForge/uploads
+    
+    # Réseau
+    networks:
+      - redforge-network
+      - redforge-backend
+    
+    # Dépendances
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+    
+    # Healthcheck
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Sécurité
+    security_opt:
+      - no-new-privileges:true
+    
+    # Ressources
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    
+    # Labels pour traefik (optionnel)
+    labels:
+      - "traefik.enable=${TRAEFIK_ENABLE:-false}"
+      - "traefik.http.routers.redforge.rule=Host(`${REDFORGE_DOMAIN:-redforge.local}`)"
+      - "traefik.http.services.redforge.loadbalancer.server.port=5000"
+
+  # Service Redis pour la gestion des sessions et queues
+  redis:
+    image: redis:7-alpine
+    container_name: redforge-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    ports:
+      - "${REDIS_PORT_EXTERNAL:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - redforge-backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Service MongoDB pour le stockage des résultats
+  mongodb:
+    image: mongo:6
+    container_name: redforge-mongodb
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-changeme}
+      - MONGO_INITDB_DATABASE=redforge
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+    networks:
+      - redforge-backend
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # Service TOR pour le mode furtif (optionnel)
+  tor:
+    image: dperson/torproxy:latest
+    container_name: redforge-tor
+    restart: unless-stopped
+    profiles:
+      - stealth
+      - full
+    ports:
+      - "${TOR_PORT:-9050}:9050"
+      - "${TOR_CONTROL_PORT:-9051}:9051"
+    environment:
+      - TZ=${TZ:-Europe/Paris}
+    volumes:
+      - tor-data:/var/lib/tor
+    networks:
+      - redforge-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  # Service PostgreSQL pour les métriques (optionnel)
+  postgres:
+    image: postgres:15-alpine
+    container_name: redforge-postgres
+    restart: unless-stopped
+    profiles:
+      - metrics
+      - full
+    environment:
+      - POSTGRES_USER=${PG_USER:-redforge}
+      - POSTGRES_PASSWORD=${PG_PASSWORD:-changeme}
+      - POSTGRES_DB=${PG_DB:-redforge_metrics}
+    ports:
+      - "${PG_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - redforge-backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-redforge}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Service Prometheus pour le monitoring (optionnel)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: redforge-prometheus
+    restart: unless-stopped
+    profiles:
+      - monitoring
+      - full
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - redforge-backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Service Grafana pour les dashboards (optionnel)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: redforge-grafana
+    restart: unless-stopped
+    profiles:
+      - monitoring
+      - full
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - redforge-backend
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  # Version simplifiée sans dépendances externes
+  redforge-standalone:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REDFORGE_VERSION=${REDFORGE_VERSION:-2.0.0}
+    container_name: redforge-standalone
+    hostname: redforge
+    restart: unless-stopped
+    profiles:
+      - standalone
+    
+    ports:
+      - "${REDFORGE_PORT:-5000}:5000"
+      - "${CALLBACK_PORT:-8080}:8080"
+      - "${WEBSOCKET_PORT:-5001}:5001"
+    
+    environment:
+      - REDFORGE_ENV=${REDFORGE_ENV:-production}
+      - REDFORGE_DEBUG=${REDFORGE_DEBUG:-false}
+      - REDFORGE_STANDALONE=true
+      - TZ=${TZ:-Europe/Paris}
+    
+    volumes:
+      - redforge-workspace:/home/redteam/.RedForge
+      - redforge-logs:/opt/RedForge/logs
+      - redforge-reports:/opt/RedForge/reports
+      - redforge-wordlists:/opt/RedForge/wordlists
+    
+    networks:
+      - redforge-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Volumes
+volumes:
+  redforge-workspace:
+    driver: local
+  redforge-logs:
+    driver: local
+  redforge-reports:
+    driver: local
+  redforge-wordlists:
+    driver: local
+  redforge-persistence:
+    driver: local
+  redforge-stealth:
+    driver: local
+  redforge-multi-attack:
+    driver: local
+  redforge-apt:
+    driver: local
+  redis-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  mongodb-config:
+    driver: local
+  tor-data:
+    driver: local
+  postgres-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# Réseaux
+networks:
+  redforge-network:
+    driver: bridge
+    name: redforge-network
+  redforge-backend:
+    driver: bridge
+    name: redforge-backend
+    internal: true  # Réseau interne pour les services backend
+
+# ========================================
+# Commandes utiles
+# ========================================
+
+# Démarrage complet avec tous les services:
+# docker-compose --profile full up -d
+
+# Démarrage avec monitoring:
+# docker-compose --profile monitoring up -d
+
+# Démarrage avec mode furtif (TOR):
+# docker-compose --profile stealth up -d
+
+# Démarrage avec métriques:
+# docker-compose --profile metrics up -d
+
+# Démarrage standalone (sans dépendances):
+# docker-compose --profile standalone up -d
+
+# Démarrage uniquement RedForge + Redis + MongoDB:
+# docker-compose up -d
+
+# Arrêt:
+# docker-compose down
+
+# Arrêt avec suppression des volumes:
+# docker-compose down -v
+
+# Logs:
+# docker-compose logs -f redforge
+
+# Shell dans le conteneur:
+# docker-compose exec redforge /bin/bash
+
+# Redémarrer un service:
+# docker-compose restart redforge
+
+# Voir les ressources:
+# docker-compose top
+
+# Mettre à jour les images:
+# docker-compose pull
+
+# Vérifier la configuration:
+# docker-compose config
+
+# ========================================
+# Fichier .env recommandé
+# ========================================
+# REDFORGE_VERSION=2.0.0
+# REDFORGE_ENV=production
+# REDFORGE_DEBUG=false
+# REDFORGE_SECRET_KEY=votre_cle_secrete
+# REDFORGE_PORT=5000
+# 
+# # Mode furtif
+# STEALTH_TOR_ENABLED=false
+# STEALTH_DEFAULT_LEVEL=medium
+# 
+# # Base de données
+# REDIS_PASSWORD=redis_password
+# MONGO_USER=admin
+# MONGO_PASSWORD=mongo_password
+# 
+# # Monitoring
+# GRAFANA_USER=admin
+# GRAFANA_PASSWORD=admin
+# 
+# # TOR (optionnel)
+# TOR_PORT=9050
+# 
+# # C2 Server (APT)
+# APT_C2_SERVER=https://c2.example.com
+# 
+# # Notifications
+# SMTP_HOST=smtp.gmail.com
+# SMTP_USER=notifications@example.com

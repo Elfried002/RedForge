@@ -1,0 +1,200 @@
+{
+    "general": {
+        "operation_completed": "✅ Opération terminée avec succès",
+        "data_saved": "💾 Données sauvegardées avec succès",
+        "data_loaded": "📂 Données chargées avec succès",
+        "config_updated": "⚙️ Configuration mise à jour avec succès",
+        "initialized": "🚀 RedForge initialisé avec succès",
+        "shutdown": "🛑 RedForge arrêté avec succès",
+        "cleanup": "🧹 Nettoyage terminé avec succès"
+    },
+    
+    "cli": {
+        "phase_complete": "✅ Phase {phase} terminée avec succès",
+        "report_generated": "📄 Rapport généré avec succès : {file}",
+        "target_added": "🎯 Cible ajoutée avec succès : {target}",
+        "target_removed": "🗑️ Cible supprimée avec succès : {target}",
+        "scan_started": "🔍 Scan démarré sur {target}",
+        "scan_complete": "✅ Scan terminé sur {target} - {vulns} vulnérabilité(s) trouvée(s)",
+        "all_phases_complete": "🎉 Toutes les phases terminées avec succès en {duration}s",
+        "file_loaded": "📁 Fichier chargé avec succès : {file}",
+        "command_executed": "💻 Commande exécutée avec succès",
+        "output_saved": "💾 Sortie sauvegardée dans : {file}",
+        "workspace_ready": "📁 Espace de travail prêt : {workspace}",
+        "dependencies_installed": "📦 Dépendances installées avec succès"
+    },
+    
+    "attack": {
+        "sql_injection": "🗄️ Injection SQL détectée sur {parameter}",
+        "xss": "💉 XSS détecté sur {parameter}",
+        "lfi": "📁 LFI détectée sur {parameter}",
+        "rfi": "🌐 RFI détectée sur {parameter}",
+        "command_injection": "💻 Injection de commandes détectée sur {parameter}",
+        "csrf": "🔐 Vulnérabilité CSRF détectée",
+        "upload": "📤 Upload réussi : {filename}",
+        "bruteforce": "🔓 Identifiants trouvés : {username}:{password}",
+        "session_hijacking": "🎭 Session hijacking réussi",
+        "privilege_escalation": "⬆️ Privilèges élevés avec succès",
+        "idor": "🔑 IDOR détecté sur {parameter}",
+        "nosql": "🍃 Injection NoSQL détectée sur {parameter}",
+        "ldap": "📁 Injection LDAP détectée sur {parameter}",
+        "xpath": "🔍 Injection XPath détectée sur {parameter}",
+        "template": "📝 Injection de templates détectée sur {parameter}",
+        "clickjacking": "🖱️ Clickjacking détecté",
+        "cors": "🔗 Mauvaise configuration CORS détectée",
+        "ssrf": "🌐 SSRF détecté sur {parameter}",
+        "xxe": "📄 XXE détecté sur {parameter}",
+        "rce": "💣 RCE obtenue sur {target}"
+    },
+    
+    "tool": {
+        "nmap_scan_complete": "🔍 Scan Nmap terminé - {ports} port(s) ouvert(s) trouvé(s)",
+        "sqlmap_complete": "🗄️ SQLMap a terminé - {databases} base(s) de données trouvée(s)",
+        "metasploit_session": "🎯 Session Metasploit obtenue - {session_type} sur {target}",
+        "hydra_complete": "🔐 Force brute Hydra terminée - {credentials} identifiant(s) trouvé(s)",
+        "xsstrike_complete": "💉 Scan XSStrike terminé - {xss} vulnérabilité(s) XSS trouvée(s)",
+        "whatweb_complete": "🌐 WhatWeb terminé - {techs} technologie(s) détectée(s)",
+        "dirb_complete": "📁 Dirb terminé - {dirs} répertoire(s) trouvé(s)",
+        "ffuf_complete": "🚀 Ffuf terminé - {results} résultat(s) trouvé(s)",
+        "wafw00f_complete": "🛡️ Wafw00f terminé - {waf} WAF détecté",
+        "dalfox_complete": "🦊 Dalfox terminé - {xss} XSS trouvé(s)",
+        "jwt_tool_complete": "🔑 JWT Tool terminé - {vulns} vulnérabilité(s) trouvée(s)",
+        "zap_complete": "⚡ ZAP terminé - {alerts} alerte(s) générée(s)"
+    },
+    
+    "report": {
+        "generated": "📄 Rapport généré avec succès : {file}",
+        "exported": "📎 Rapport exporté avec succès : {file}",
+        "scheduled": "⏰ Rapport programmé avec succès - Fréquence: {frequency}",
+        "deleted": "🗑️ Rapport supprimé avec succès : {file}",
+        "uploaded": "☁️ Rapport uploadé avec succès",
+        "downloaded": "📥 Rapport téléchargé avec succès",
+        "shared": "🔗 Rapport partagé avec succès",
+        "template_loaded": "📋 Template de rapport chargé avec succès",
+        "preview_ready": "👁️ Aperçu du rapport prêt"
+    },
+    
+    "session": {
+        "created": "🔌 Session créée avec succès : {session_id} sur {target}",
+        "closed": "🔌 Session fermée avec succès : {session_id}",
+        "command_executed": "💻 Commande exécutée avec succès sur {session_id}",
+        "file_uploaded": "📤 Fichier uploadé avec succès sur {session_id} : {file}",
+        "file_downloaded": "📥 Fichier téléchargé avec succès depuis {session_id} : {file}",
+        "interactive_started": "🎮 Mode interactif démarré pour {session_id}",
+        "interactive_stopped": "🛑 Mode interactif arrêté pour {session_id}",
+        "session_saved": "💾 Session sauvegardée : {session_id}",
+        "session_loaded": "📂 Session chargée : {session_id}",
+        "listener_started": "🎧 Listener démarré sur {host}:{port}",
+        "listener_stopped": "🛑 Listener arrêté sur {host}:{port}",
+        "shell_obtained": "🐚 Shell obtenu sur {target}"
+    },
+    
+    "config": {
+        "saved": "⚙️ Configuration sauvegardée avec succès",
+        "loaded": "⚙️ Configuration chargée avec succès",
+        "reset": "🔄 Configuration réinitialisée avec succès",
+        "exported": "📤 Configuration exportée avec succès : {file}",
+        "imported": "📥 Configuration importée avec succès",
+        "validated": "✅ Configuration validée avec succès",
+        "migrated": "🔄 Configuration migrée vers v{version}",
+        "backup_created": "💾 Sauvegarde de configuration créée : {file}"
+    },
+    
+    "wordlist": {
+        "uploaded": "📤 Wordlist uploadée avec succès : {name}",
+        "deleted": "🗑️ Wordlist supprimée avec succès : {name}",
+        "downloaded": "📥 Wordlist téléchargée avec succès : {name}",
+        "generated": "🔨 Wordlist générée avec succès : {name} ({size} entrées)",
+        "updated": "✏️ Wordlist mise à jour avec succès : {name}",
+        "merged": "🔗 Wordlists fusionnées avec succès : {name}",
+        "cleaned": "🧹 Wordlist nettoyée avec succès : {name}"
+    },
+    
+    "target": {
+        "added": "🎯 Cible ajoutée avec succès : {target}",
+        "removed": "🗑️ Cible supprimée avec succès : {target}",
+        "updated": "✏️ Cible mise à jour avec succès : {target}",
+        "scanned": "🔍 Cible scannée avec succès : {target}",
+        "validated": "✅ Cible validée avec succès : {target}",
+        "imported": "📥 Cibles importées avec succès : {count} cibles",
+        "exported": "📤 Cibles exportées avec succès : {file}",
+        "batch_added": "🎯 {count} cibles ajoutées avec succès"
+    },
+    
+    "user": {
+        "logged_in": "🔐 Connexion réussie - Bienvenue {username}",
+        "logged_out": "🚪 Déconnexion réussie",
+        "profile_updated": "👤 Profil mis à jour avec succès",
+        "password_changed": "🔑 Mot de passe changé avec succès",
+        "registered": "📝 Utilisateur enregistré avec succès : {username}",
+        "deleted": "🗑️ Utilisateur supprimé avec succès : {username}",
+        "role_updated": "👥 Rôle utilisateur mis à jour avec succès",
+        "permissions_updated": "🔒 Permissions mises à jour avec succès"
+    },
+    
+    "plugin": {
+        "installed": "🔌 Plugin installé avec succès : {plugin}",
+        "uninstalled": "🔌 Plugin désinstallé avec succès : {plugin}",
+        "enabled": "✅ Plugin activé avec succès : {plugin}",
+        "disabled": "⛔ Plugin désactivé avec succès : {plugin}",
+        "updated": "🔄 Plugin mis à jour avec succès : {plugin}",
+        "loaded": "📂 Plugin chargé avec succès : {plugin}",
+        "configured": "⚙️ Plugin configuré avec succès : {plugin}",
+        "verified": "✅ Plugin vérifié avec succès : {plugin}"
+    },
+    
+    "database": {
+        "initialized": "🗄️ Base de données initialisée avec succès",
+        "backup": "💾 Base de données sauvegardée avec succès : {file}",
+        "restored": "🔄 Base de données restaurée avec succès : {file}",
+        "cleaned": "🧹 Base de données nettoyée avec succès",
+        "optimized": "⚡ Base de données optimisée avec succès",
+        "migrated": "🔄 Base de données migrée vers v{version}",
+        "connected": "🔌 Connexion à la base de données établie",
+        "disconnected": "🔌 Déconnexion de la base de données effectuée"
+    },
+    
+    "notification": {
+        "sent": "📧 Notification envoyée avec succès",
+        "configured": "⚙️ Notifications configurées avec succès",
+        "test_sent": "📧 Notification de test envoyée avec succès",
+        "subscribed": "✅ Abonnement aux notifications réussi",
+        "unsubscribed": "❌ Désabonnement aux notifications réussi",
+        "broadcast": "📢 Notification diffusée à {count} destinataires"
+    },
+    
+    "update": {
+        "available": "🔄 Mise à jour disponible : v{version}",
+        "downloaded": "📥 Mise à jour téléchargée avec succès",
+        "installed": "✅ Mise à jour installée avec succès - RedForge v{version}",
+        "no_update": "✅ RedForge est à jour (v{version})",
+        "changelog_loaded": "📋 Journal des modifications chargé",
+        "update_checked": "🔍 Vérification de mise à jour effectuée",
+        "auto_update_enabled": "🤖 Mise à jour automatique activée",
+        "auto_update_disabled": "🤖 Mise à jour automatique désactivée"
+    },
+    
+    "stealth": {
+        "enabled": "🕵️ Mode furtif activé",
+        "disabled": "👁️ Mode furtif désactivé",
+        "apt_enabled": "🎭 Mode APT activé - Opération ultra discrète",
+        "apt_disabled": "🎭 Mode APT désactivé",
+        "proxy_configured": "🔄 Proxy configuré avec succès : {proxy}",
+        "proxy_rotation_enabled": "🔄 Rotation de proxy activée",
+        "delay_configured": "⏱️ Délais configurés : {min}-{max}s",
+        "user_agent_rotation": "🔄 Rotation des User-Agents activée",
+        "inactivity_period_set": "💤 Période d'inactivité configurée : {start}h-{end}h"
+    },
+    
+    "apt": {
+        "operation_created": "🎯 Opération APT créée : {name} (ID: {id})",
+        "operation_started": "🚀 Opération APT démarrée : {name}",
+        "operation_paused": "⏸️ Opération APT mise en pause : {name}",
+        "operation_resumed": "▶️ Opération APT reprise : {name}",
+        "operation_completed": "✅ Opération APT terminée : {name}",
+        "phase_completed": "📊 Phase {phase} terminée - {duration}s",
+        "persistence_established": "💾 Persistance établie sur {target}",
+        "exfiltration_complete": "📤 Exfiltration terminée - {size} octets",
+        "traces_cleaned": "🧹 Traces nettoyées avec succès"
+    }
+}

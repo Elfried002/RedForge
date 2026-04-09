@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="description" content="RedForge - Plateforme d'Orchestration de Pentest Web pour Red Team avec support Multi-Attacks, Mode Furtif et Opérations APT">
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="color-scheme" content="dark light">
+    <title>{% block title %}RedForge - Plateforme de Pentest Avancée{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/apple-touch-icon.png') }}">
+    
+    <!-- Styles CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark_theme.css') }}">
+    
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Socket.IO pour temps réel -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        {% include 'partials/sidebar.html' %}
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            {% include 'partials/navbar.html' %}
+            
+            <!-- Content -->
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+            
+            <!-- Footer -->
+            {% include 'partials/footer.html' %}
+        </main>
+    </div>
+    
+    <!-- Modals Container -->
+    <div id="modal-container"></div>
+    
+    <!-- Global Notification Container -->
+    <div class="global-notification-container"></div>
+    
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+    
+    <script>
+        // Version de l'application
+        const APP_VERSION = '2.0.0';
+        const BUILD_DATE = '2024-01-15';
+        
+        // Configuration globale
+        window.redforgeConfig = {
+            version: APP_VERSION,
+            buildDate: BUILD_DATE,
+            websocketEnabled: true,
+            stealthSupported: true,
+            aptSupported: true,
+            multiAttackSupported: true
+        };
+        
+        // Mise à jour de l'horodatage
+        function updateTimestamp() {
+            const lastUpdate = document.getElementById('last-update');
+            if (lastUpdate) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('fr-FR');
+                const dateStr = now.toLocaleDateString('fr-FR');
+                lastUpdate.textContent = `Dernière mise à jour: ${dateStr} ${timeStr}`;
+            }
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 60000);
+        
+        // Gestion de la connexion WebSocket améliorée
+        const connectionStatus = document.getElementById('connection-status');
+        if (connectionStatus && typeof getConnectionStatus === 'function') {
+            setInterval(() => {
+                const status = getConnectionStatus();
+                const dot = connectionStatus.querySelector('.status-dot');
+                const text = connectionStatus.querySelector('.status-text');
+                
+                if (status === 'connected') {
+                    dot.style.backgroundColor = '#4caf50';
+                    dot.style.boxShadow = '0 0 5px #4caf50';
+                    text.textContent = 'Connecté';
+                    text.style.color = '#4caf50';
+                } else if (status === 'connecting') {
+                    dot.style.backgroundColor = '#ff9800';
+                    dot.style.boxShadow = '0 0 5px #ff9800';
+                    text.textContent = 'Connexion...';
+                    text.style.color = '#ff9800';
+                } else {
+                    dot.style.backgroundColor = '#f44336';
+                    dot.style.boxShadow = '0 0 5px #f44336';
+                    text.textContent = 'Déconnecté';
+                    text.style.color = '#f44336';
+                }
+            }, 1000);
+        }
+        
+        // Gestion du mode furtif global
+        let stealthModeActive = false;
+        
+        async function checkStealthStatus() {
+            try {
+                const response = await fetch('/api/stealth/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    stealthModeActive = data.enabled;
+                    updateStealthIndicator(data);
+                }
+            } catch (error) {
+                console.debug('Erreur vérification mode furtif:', error);
+            }
+        }
+        
+        function updateStealthIndicator(data) {
+            const stealthIndicator = document.querySelector('.stealth-indicator-nav');
+            if (stealthIndicator && data.enabled) {
+                stealthIndicator.style.display = 'flex';
+                const levelText = stealthIndicator.querySelector('.stealth-level');
+                if (levelText) {
+                    const levelNames = {
+                        'low': '🟢 Furtif Bas',
+                        'medium': '🟡 Furtif Moyen',
+                        'high': '🔴 Furtif Élevé',
+                        'paranoid': '🟣 Furtif Parano'
+                    };
+                    levelText.textContent = levelNames[data.level] || 'Furtif';
+                }
+            } else if (stealthIndicator) {
+                stealthIndicator.style.display = 'none';
+            }
+        }
+        
+        // Vérifier le statut furtif périodiquement
+        checkStealthStatus();
+        setInterval(checkStealthStatus, 30000);
+        
+        // Gestion des erreurs globales
+        window.addEventListener('error', function(event) {
+            console.error('Erreur globale:', event.error);
+            if (event.error && event.error.message) {
+                showNotification(`Erreur: ${event.error.message}`, 'error', 5000);
+            }
+        });
+        
+        // Gestion des promesses non capturées
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Promesse non gérée:', event.reason);
+            showNotification(`Erreur: ${event.reason?.message || 'Erreur inconnue'}`, 'error', 5000);
+        });
+        
+        // Sauvegarde automatique pour les formulaires
+        let autoSaveTimeout = null;
+        function setupAutoSave(formSelector, saveCallback) {
+            const form = document.querySelector(formSelector);
+            if (!form) return;
+            
+            const inputs = form.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+                    autoSaveTimeout = setTimeout(() => {
+                        if (saveCallback) saveCallback();
+                        showNotification('Sauvegarde automatique effectuée', 'info', 2000);
+                    }, 2000);
+                });
+            });
+        }
+        
+        // Export des fonctions globales
+        window.showNotification = function(message, type = 'info', duration = 5000) {
+            const container = document.querySelector('.global-notification-container');
+            if (!container) return;
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">${getNotificationIcon(type)}</div>
+                    <div class="notification-message">${escapeHtml(message)}</div>
+                    <button class="notification-close">×</button>
+                </div>
+                <div class="notification-progress" style="animation-duration: ${duration}ms"></div>
+            `;
+            
+            const closeBtn = notification.querySelector('.notification-close');
+            closeBtn.addEventListener('click', () => notification.remove());
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.opacity = '0';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, duration);
+        };
+        
+        function getNotificationIcon(type) {
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            return icons[type] || 'ℹ';
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Raccourcis clavier globaux
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + Shift + S: Mode furtif
+            if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                e.preventDefault();
+                const stealthToggle = document.getElementById('stealth-toggle-quick');
+                if (stealthToggle) stealthToggle.click();
+            }
+            
+            // Ctrl + Shift + A: Arrêter toutes les attaques
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                e.preventDefault();
+                if (confirm('Voulez-vous arrêter toutes les attaques en cours ?')) {
+                    fetch('/api/attacks/stop-all', { method: 'POST' })
+                        .then(() => showNotification('Toutes les attaques ont été arrêtées', 'success'))
+                        .catch(() => showNotification('Erreur lors de l\'arrêt', 'error'));
+                }
+            }
+            
+            // Ctrl + D: Dashboard
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                window.location.href = '/dashboard';
+            }
+            
+            // Ctrl + A: Attaques
+            if (e.ctrlKey && e.key === 'a' && !e.shiftKey) {
+                e.preventDefault();
+                window.location.href = '/attacks';
+            }
+            
+            // Ctrl + R: Rapports
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                window.location.href = '/reports';
+            }
+            
+            // Ctrl + S: Paramètres
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                window.location.href = '/settings';
+            }
+            
+            // Ctrl + ?: Aide
+            if (e.ctrlKey && e.key === '?') {
+                e.preventDefault();
+                window.location.href = '/help';
+            }
+            
+            // Échap: Fermer les modals
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+        
+        // Afficher les raccourcis clavier
+        function showKeyboardShortcuts() {
+            const shortcuts = `
+                ⌨️ Raccourcis clavier RedForge:
+                
+                • Ctrl + D → Tableau de bord
+                • Ctrl + A → Attaques
+                • Ctrl + R → Rapports
+                • Ctrl + S → Paramètres
+                • Ctrl + ? → Aide
+                • Ctrl + Shift + S → Mode furtif
+                • Ctrl + Shift + A → Arrêter toutes les attaques
+                • Échap → Fermer les modals
+            `;
+            console.log(shortcuts);
+            showNotification('Raccourcis clavier disponibles (Ctrl+?)', 'info', 5000);
+        }
+        
+        // Chargement des préférences utilisateur
+        async function loadUserPreferences() {
+            try {
+                const response = await fetch('/api/user/preferences');
+                if (response.ok) {
+                    const prefs = await response.json();
+                    
+                    // Appliquer le thème
+                    if (prefs.theme) {
+                        const isDark = prefs.theme === 'dark';
+                        document.body.classList.toggle('dark-theme', isDark);
+                        const themeToggle = document.querySelector('.navbar-theme-toggle .theme-icon');
+                        if (themeToggle) themeToggle.textContent = isDark ? '☀️' : '🌙';
+                    }
+                    
+                    // Appliquer la taille de police
+                    if (prefs.fontSize) {
+                        document.body.style.fontSize = prefs.fontSize;
+                    }
+                    
+                    // Appliquer la densité
+                    if (prefs.density === 'compact') {
+                        document.body.classList.add('compact-mode');
+                    }
+                }
+            } catch (error) {
+                console.debug('Erreur chargement préférences:', error);
+            }
+        }
+        
+        // Sauvegarde des préférences utilisateur
+        async function saveUserPreference(key, value) {
+            try {
+                await fetch('/api/user/preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ [key]: value })
+                });
+            } catch (error) {
+                console.debug('Erreur sauvegarde préférence:', error);
+            }
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserPreferences();
+            console.log(`🚀 RedForge ${APP_VERSION} - Plateforme de Pentest Avancée`);
+            console.log(`📅 Build: ${BUILD_DATE}`);
+            console.log(`🕵️ Mode furtif supporté: ${window.redforgeConfig.stealthSupported}`);
+            console.log(`🎯 Opérations APT supportées: ${window.redforgeConfig.aptSupported}`);
+            console.log(`📚 Multi-attaques supportées: ${window.redforgeConfig.multiAttackSupported}`);
+            
+            // Afficher les raccourcis dans la console
+            showKeyboardShortcuts();
+        });
+        
+        // Styles additionnels pour les notifications globales
+        const globalStyles = document.createElement('style');
+        globalStyles.textContent = `
+            .global-notification-container {
+                position: fixed;
+                top: 70px;
+                right: 20px;
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                max-width: 350px;
+            }
+            
+            .notification {
+                background: var(--white);
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                overflow: hidden;
+                animation: slideInRight 0.3s ease;
+                transition: opacity 0.3s ease;
+            }
+            
+            .dark-theme .notification {
+                background: #2d2d2d;
+                color: #e0e0e0;
+            }
+            
+            .notification-content {
+                padding: 12px 16px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .notification-icon {
+                font-size: 18px;
+                font-weight: bold;
+            }
+            
+            .notification-message {
+                flex: 1;
+                font-size: 14px;
+            }
+            
+            .notification-close {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 18px;
+                opacity: 0.6;
+                padding: 0 4px;
+            }
+            
+            .notification-close:hover {
+                opacity: 1;
+            }
+            
+            .notification-progress {
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary-red), var(--primary-red-light));
+                animation: progressBar linear forwards;
+            }
+            
+            .notification-success .notification-progress {
+                background: #4caf50;
+            }
+            
+            .notification-error .notification-progress {
+                background: #f44336;
+            }
+            
+            .notification-warning .notification-progress {
+                background: #ff9800;
+            }
+            
+            @keyframes progressBar {
+                from { width: 100%; }
+                to { width: 0%; }
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .global-notification-container {
+                    left: 20px;
+                    right: 20px;
+                    max-width: none;
+                }
+            }
+            
+            .compact-mode .sidebar-nav-item {
+                padding: 8px 16px;
+            }
+            
+            .compact-mode .card-header,
+            .compact-mode .card-body,
+            .compact-mode .card-footer {
+                padding: 12px;
+            }
+        `;
+        document.head.appendChild(globalStyles);
+    </script>
+</body>
+</html>

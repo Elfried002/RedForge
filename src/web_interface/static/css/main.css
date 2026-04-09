@@ -1,0 +1,896 @@
+/* ========================================
+   RedForge - Styles Principaux Améliorés
+   Plateforme d'Orchestration de Pentest Web
+   Version: 2.0.0
+   Support: Multi-Attacks, Stealth Mode, APT Operations
+   ======================================== */
+
+/* ===== RESET & BASE ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Couleurs principales */
+    --primary-red: #d32f2f;
+    --primary-red-dark: #b71c1c;
+    --primary-red-light: #ef5350;
+    --secondary-red: #f44336;
+    
+    /* Niveaux de sévérité */
+    --critical: #7b1fa2;
+    --high: #d32f2f;
+    --medium: #f57c00;
+    --low: #4caf50;
+    --info: #2196f3;
+    
+    /* Niveaux furtifs */
+    --stealth-low: #4caf50;
+    --stealth-medium: #ff9800;
+    --stealth-high: #f44336;
+    --stealth-paranoid: #9c27b0;
+    
+    /* Phases APT */
+    --apt-recon: #2196f3;
+    --apt-access: #ff5722;
+    --apt-persist: #9c27b0;
+    --apt-escalate: #f44336;
+    --apt-movement: #ff9800;
+    --apt-exfil: #00bcd4;
+    
+    /* Neutres */
+    --white: #ffffff;
+    --gray-100: #f5f5f5;
+    --gray-200: #eeeeee;
+    --gray-300: #e0e0e0;
+    --gray-400: #bdbdbd;
+    --gray-500: #9e9e9e;
+    --gray-600: #757575;
+    --gray-700: #616161;
+    --gray-800: #424242;
+    --gray-900: #212121;
+    --black: #000000;
+    
+    /* Ombres */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+    --shadow-glow: 0 0 10px rgba(211, 47, 47, 0.3);
+    
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 300ms ease;
+    --transition-slow: 500ms ease;
+    
+    /* Espacement */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    --spacing-3xl: 4rem;
+    
+    /* Bordures */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    --border-radius-full: 9999px;
+    
+    /* Police */
+    --font-family: 'Segoe UI', 'Courier New', 'Roboto', monospace;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* Layout */
+    --sidebar-width: 260px;
+    --header-height: 60px;
+    --footer-height: 50px;
+}
+
+/* ===== TYPOGRAPHIE ===== */
+body {
+    font-family: var(--font-family);
+    font-size: var(--font-size-md);
+    line-height: 1.6;
+    color: var(--gray-800);
+    background-color: var(--gray-100);
+}
+
+/* ===== LAYOUT ===== */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar améliorée */
+.sidebar {
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, var(--gray-900) 0%, var(--gray-800) 100%);
+    color: var(--white);
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform var(--transition-normal);
+    z-index: 100;
+}
+
+.sidebar-header {
+    padding: var(--spacing-lg);
+    text-align: center;
+    border-bottom: 1px solid var(--gray-700);
+}
+
+.sidebar-logo {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-red);
+    position: relative;
+    display: inline-block;
+}
+
+.sidebar-logo::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-red), transparent);
+}
+
+.sidebar-logo small {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    display: block;
+}
+
+.sidebar-nav {
+    padding: var(--spacing-lg) 0;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--gray-300);
+    transition: all var(--transition-fast);
+    border-left: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(90deg, rgba(211, 47, 47, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform var(--transition-fast);
+}
+
+.sidebar-nav-item:hover::before {
+    transform: translateX(0);
+}
+
+.sidebar-nav-item:hover {
+    color: var(--white);
+    border-left-color: var(--primary-red);
+}
+
+.sidebar-nav-item.active {
+    background: linear-gradient(90deg, rgba(211, 47, 47, 0.15), transparent);
+    color: var(--primary-red-light);
+    border-left-color: var(--primary-red);
+}
+
+.sidebar-nav-icon {
+    width: 24px;
+    margin-right: var(--spacing-md);
+    text-align: center;
+}
+
+.sidebar-footer {
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--gray-700);
+    font-size: var(--font-size-xs);
+    text-align: center;
+    color: var(--gray-500);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+}
+
+/* Header avec indicateurs */
+.header {
+    background: var(--white);
+    height: var(--header-height);
+    padding: 0 var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.header-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+}
+
+.status-indicator.active {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--low);
+}
+
+.status-indicator.stealth {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--stealth-medium);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--border-radius-full);
+    animation: pulse 2s infinite;
+}
+
+.status-dot.active {
+    background-color: var(--low);
+    box-shadow: 0 0 5px var(--low);
+}
+
+/* ===== COMPOSANTS AMÉLIORÉS ===== */
+
+/* Cartes pour attaques multiples */
+.multi-attack-panel {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.attack-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.attack-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-200);
+    transition: background var(--transition-fast);
+    cursor: pointer;
+}
+
+.attack-item:hover {
+    background: var(--gray-100);
+}
+
+.attack-item.selected {
+    background: rgba(211, 47, 47, 0.05);
+    border-left: 3px solid var(--primary-red);
+}
+
+.attack-info {
+    flex: 1;
+}
+
+.attack-name {
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-xs);
+}
+
+.attack-description {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+.attack-checkbox {
+    margin-right: var(--spacing-md);
+}
+
+/* Mode furtif */
+.stealth-config-panel {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--gray-200);
+}
+
+.stealth-level-selector {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stealth-level-btn {
+    flex: 1;
+    padding: var(--spacing-md);
+    text-align: center;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--border-radius-md);
+    background: var(--white);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.stealth-level-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.stealth-level-btn.selected {
+    border-color: var(--primary-red);
+    background: rgba(211, 47, 47, 0.05);
+}
+
+.stealth-level-low.selected { border-color: var(--stealth-low); }
+.stealth-level-medium.selected { border-color: var(--stealth-medium); }
+.stealth-level-high.selected { border-color: var(--stealth-high); }
+.stealth-level-paranoid.selected { border-color: var(--stealth-paranoid); }
+
+.delay-control {
+    margin-bottom: var(--spacing-lg);
+}
+
+.delay-value {
+    display: inline-block;
+    margin-left: var(--spacing-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-red);
+}
+
+/* Opérations APT */
+.apt-operation-card {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+
+.apt-operation-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.apt-operation-header {
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-800) 100%);
+    color: var(--white);
+    cursor: pointer;
+}
+
+.apt-operation-title {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-xs);
+}
+
+.apt-operation-description {
+    font-size: var(--font-size-sm);
+    opacity: 0.8;
+}
+
+.apt-phase {
+    border-left: 4px solid;
+    margin-bottom: var(--spacing-md);
+    background: var(--gray-50);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+}
+
+.apt-phase.recon { border-left-color: var(--apt-recon); }
+.apt-phase.access { border-left-color: var(--apt-access); }
+.apt-phase.persist { border-left-color: var(--apt-persist); }
+.apt-phase.escalate { border-left-color: var(--apt-escalate); }
+.apt-phase.movement { border-left-color: var(--apt-movement); }
+.apt-phase.exfil { border-left-color: var(--apt-exfil); }
+
+.apt-phase-header {
+    padding: var(--spacing-md);
+    background: var(--white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.apt-phase-title {
+    font-weight: var(--font-weight-semibold);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.apt-phase-icon {
+    font-size: var(--font-size-xl);
+}
+
+.apt-phase-content {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--gray-200);
+    display: none;
+}
+
+.apt-phase-content.expanded {
+    display: block;
+}
+
+.apt-attack-item {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    border-radius: var(--border-radius-sm);
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.apt-attack-status {
+    width: 20px;
+    height: 20px;
+    border-radius: var(--border-radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+}
+
+.apt-attack-status.pending {
+    background: var(--gray-400);
+}
+
+.apt-attack-status.running {
+    background: var(--info);
+    animation: pulse 1s infinite;
+}
+
+.apt-attack-status.success {
+    background: var(--low);
+}
+
+.apt-attack-status.failed {
+    background: var(--high);
+}
+
+/* Timeline APT */
+.apt-timeline {
+    position: relative;
+    padding-left: var(--spacing-2xl);
+}
+
+.apt-timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--primary-red), var(--gray-400));
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: var(--spacing-lg);
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -28px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: var(--border-radius-full);
+    background: var(--primary-red);
+    border: 2px solid var(--white);
+}
+
+.timeline-content {
+    background: var(--white);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Barre de progression APT */
+.apt-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gray-200);
+    z-index: 1000;
+}
+
+.apt-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-red), var(--primary-red-light));
+    width: 0%;
+    transition: width var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.apt-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    min-width: 300px;
+    background: var(--white);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-md);
+    z-index: 1100;
+    animation: slideInRight var(--transition-normal);
+    border-left: 4px solid;
+}
+
+.notification.success { border-left-color: var(--low); }
+.notification.warning { border-left-color: var(--medium); }
+.notification.error { border-left-color: var(--high); }
+.notification.info { border-left-color: var(--info); }
+
+.notification-title {
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-xs);
+}
+
+.notification-message {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+/* ===== TABLEAUX DE BORD ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.stat-card {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-red), var(--primary-red-light));
+}
+
+.stat-value {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    background: linear-gradient(135deg, var(--primary-red), var(--primary-red-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.stat-label {
+    color: var(--gray-600);
+    margin-top: var(--spacing-xs);
+}
+
+.stat-change {
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.stat-change.positive { color: var(--low); }
+.stat-change.negative { color: var(--high); }
+
+/* ===== TERMINAL ===== */
+.terminal {
+    background: var(--gray-900);
+    color: #00ff00;
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+}
+
+.terminal-header {
+    background: var(--gray-800);
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.terminal-control {
+    width: 12px;
+    height: 12px;
+    border-radius: var(--border-radius-full);
+}
+
+.terminal-control.close { background: #ff5f56; }
+.terminal-control.minimize { background: #ffbd2e; }
+.terminal-control.maximize { background: #27c93f; }
+
+.terminal-title {
+    flex: 1;
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--gray-400);
+}
+
+.terminal-body {
+    padding: var(--spacing-md);
+    height: 400px;
+    overflow-y: auto;
+}
+
+.terminal-line {
+    margin-bottom: var(--spacing-xs);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.terminal-prompt {
+    color: #00ff00;
+    user-select: none;
+}
+
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    outline: none;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px var(--primary-red);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--primary-red);
+    }
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-normal);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+.glow {
+    animation: glow 2s infinite;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .attacks-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stealth-level-selector {
+        flex-direction: column;
+    }
+    
+    .notification {
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        min-width: auto;
+    }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .sidebar,
+    .header,
+    .footer,
+    .btn,
+    .no-print,
+    .apt-progress,
+    .notification {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+    }
+    
+    .card,
+    .apt-operation-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid var(--gray-300);
+    }
+}
+
+/* ===== UTILITAIRES ===== */
+/* Classes existantes conservées + nouvelles */
+.stealth-text {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
+.apt-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--border-radius-full);
+    text-transform: uppercase;
+}
+
+.animation-paused {
+    animation-play-state: paused;
+}
+
+.cursor-wait {
+    cursor: wait;
+}
+
+.user-select-none {
+    user-select: none;
+}
+
+/* Support du mode sombre */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --white: #1e1e1e;
+        --gray-100: #2d2d2d;
+        --gray-200: #3d3d3d;
+        --gray-300: #4d4d4d;
+        --gray-800: #e0e0e0;
+    }
+    
+    body {
+        background-color: var(--gray-900);
+        color: var(--gray-800);
+    }
+}
+
+/* Classes de transition */
+.transition-all {
+    transition: all var(--transition-normal);
+}
+
+.transform-hover:hover {
+    transform: translateY(-2px);
+}
+
+/* Support des chargements lents */
+.loading-skeleton {
+    background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-300) 50%, var(--gray-200) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}

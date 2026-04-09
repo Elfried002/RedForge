@@ -1,0 +1,929 @@
+{% extends "base.html" %}
+
+{% block title %}RedForge - Aide & Documentation{% endblock %}
+
+{% block header_title %}❓ Aide, Documentation & Support{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <!-- En-tête -->
+    <div class="help-header">
+        <h1>❓ Aide et Documentation</h1>
+        <p>Guide complet d'utilisation de RedForge v2.0 - Multi-Attacks, Mode Furtif & Opérations APT</p>
+    </div>
+    
+    <!-- Recherche améliorée -->
+    <div class="search-bar card">
+        <div class="card-body">
+            <div class="form-group">
+                <div class="search-wrapper">
+                    <input type="text" id="help-search" class="form-input" placeholder="🔍 Rechercher dans l'aide... (ex: multi-attaque, furtif, APT)">
+                    <button id="clear-search" class="btn-icon">✖</button>
+                </div>
+                <div id="search-results" class="search-results-help" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Onglets améliorés -->
+    <div class="tabs help-tabs">
+        <div class="tab active" data-tab="getting-started">🚀 Démarrage</div>
+        <div class="tab" data-tab="attacks">🎯 Attaques</div>
+        <div class="tab" data-tab="multi-attacks">📚 Multi-Attaques</div>
+        <div class="tab" data-tab="stealth">🕵️ Mode Furtif</div>
+        <div class="tab" data-tab="apt">🎭 Opérations APT</div>
+        <div class="tab" data-tab="commands">💻 Commandes</div>
+        <div class="tab" data-tab="faq">❓ FAQ</div>
+        <div class="tab" data-tab="troubleshooting">🔧 Dépannage</div>
+        <div class="tab" data-tab="api">🔌 API</div>
+    </div>
+    
+    <!-- ==================== CONTENU DÉMARRAGE ==================== -->
+    <div id="tab-getting-started" class="tab-content active">
+        <div class="card">
+            <div class="card-header">
+                <h3>🚀 Bienvenue sur RedForge v2.0</h3>
+                <span class="badge badge-info">Nouvelle version</span>
+            </div>
+            <div class="card-body">
+                <h4>Installation</h4>
+                <pre class="code-block"><code># Cloner le dépôt
+git clone https://github.com/Elfried002/RedForge.git
+cd RedForge
+
+# Installer les dépendances
+sudo ./install.sh
+
+# Lancer RedForge (interface web)
+sudo python3 run.py
+
+# Accéder à l'interface
+http://localhost:5000</code></pre>
+                
+                <h4>Première utilisation</h4>
+                <ol>
+                    <li>Ajoutez une cible dans le tableau de bord</li>
+                    <li>Choisissez votre mode d'attaque :
+                        <ul>
+                            <li><strong>Attaques simples</strong> - Pour des tests ciblés</li>
+                            <li><strong>Multi-attaques</strong> - Pour des tests complets</li>
+                            <li><strong>Opérations APT</strong> - Pour des simulations avancées</li>
+                        </ul>
+                    </li>
+                    <li>Configurez le mode furtif si nécessaire</li>
+                    <li>Lancez l'attaque et surveillez les résultats en temps réel</li>
+                </ol>
+                
+                <div class="alert alert-info">
+                    <strong>💡 Nouveauté v2.0 :</strong> Support des attaques multiples, mode furtif avancé avec TOR/proxies, et opérations APT complètes!
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>📋 Prérequis système</h3>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li><strong>OS</strong> : Kali Linux 2024.1+ / Parrot OS 6.0+ / Ubuntu 22.04+</li>
+                    <li><strong>RAM</strong> : 4GB minimum (8GB recommandé pour APT)</li>
+                    <li><strong>CPU</strong> : 2 cœurs minimum (4 cœurs pour multi-attaques)</li>
+                    <li><strong>Storage</strong> : 10GB libre (20GB pour wordlists)</li>
+                    <li><strong>Network</strong> : Accès internet pour mises à jour et wordlists</li>
+                    <li><strong>TOR</strong> : Optionnel pour mode furtif</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== CONTENU ATTAQUES ==================== -->
+    <div id="tab-attacks" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🎯 Types d'attaques simples</h3>
+            </div>
+            <div class="card-body">
+                <div class="attack-help-grid">
+                    <div class="attack-help-item">
+                        <h4>💉 Injections</h4>
+                        <p>SQL, NoSQL, Command, LDAP, XPath, HTML, Template</p>
+                    </div>
+                    <div class="attack-help-item">
+                        <h4>🔐 Sessions</h4>
+                        <p>Hijacking, Fixation, Cookie, JWT, OAuth</p>
+                    </div>
+                    <div class="attack-help-item">
+                        <h4>🌐 Cross-Site</h4>
+                        <p>XSS (Reflected/DOM/Stored), CSRF, Clickjacking, CORS</p>
+                    </div>
+                    <div class="attack-help-item">
+                        <h4>🔑 Authentification</h4>
+                        <p>Brute force, Credential stuffing, Password spraying, MFA bypass</p>
+                    </div>
+                    <div class="attack-help-item">
+                        <h4>📁 Système de fichiers</h4>
+                        <p>LFI/RFI, File upload (bypass), Directory traversal, Zip slip</p>
+                    </div>
+                    <div class="attack-help-item">
+                        <h4>🏗️ Infrastructure</h4>
+                        <p>WAF bypass, Load balancer detection, Host header injection</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>⚙️ Configuration des attaques</h3>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr><th>Paramètre</th><th>Description</th><th>Valeurs possibles</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Niveau</td><td>Agressivité du scan</td><td>1 (Bas) à 4 (Maximum)</td></tr>
+                        <tr><td>Timeout</td><td>Temps maximum par attaque</td><td>30-3600 secondes</td></tr>
+                        <tr><td>Threads</td><td>Nombre de threads parallèles</td><td>1-50</td></tr>
+                        <tr><td>Headers</td><td>Headers HTTP personnalisés</td><td>Format JSON</td></tr>
+                        <tr><td>Proxy</td><td>Proxy HTTP/HTTPS/SOCKS</td><td>http://127.0.0.1:8080</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== CONTENU MULTI-ATTAQUES ==================== -->
+    <div id="tab-multi-attacks" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>📚 Attaques Multiples</h3>
+                <span class="badge badge-success">Nouveau</span>
+            </div>
+            <div class="card-body">
+                <h4>Principe</h4>
+                <p>Les multi-attaques permettent d'exécuter plusieurs attaques simultanément ou séquentiellement sur une même cible.</p>
+                
+                <h4>Modes d'exécution</h4>
+                <ul>
+                    <li><strong>Séquentiel</strong> : Les attaques s'exécutent une par une. Idéal pour éviter la détection.</li>
+                    <li><strong>Parallèle</strong> : Les attaques s'exécutent simultanément. Plus rapide mais plus détectable.</li>
+                </ul>
+                
+                <h4>Exemple d'utilisation</h4>
+                <pre class="code-block"><code># Sélectionnez vos attaques dans l'interface
+# Configurez le mode d'exécution et le niveau furtif
+# Lancez la multi-attaque
+
+# Via API
+curl -X POST http://localhost:5000/api/multi-attack \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target": "example.com",
+    "attacks": [
+      {"category": "injection", "type": "sql"},
+      {"category": "cross_site", "type": "xss"},
+      {"category": "authentication", "type": "bruteforce"}
+    ],
+    "execution_mode": "sequential",
+    "stealth_level": "high"
+  }'</code></pre>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== CONTENU MODE FURTIF ==================== -->
+    <div id="tab-stealth" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🕵️ Mode Furtif</h3>
+                <span class="badge badge-success">Nouveau</span>
+            </div>
+            <div class="card-body">
+                <h4>Niveaux de furtivité</h4>
+                <div class="stealth-levels-grid">
+                    <div class="stealth-level-card">
+                        <div class="level-icon">🟢</div>
+                        <div class="level-name">Low</div>
+                        <div class="level-desc">Détection facile, rapide</div>
+                        <div class="level-delay">Délai: 0.5s</div>
+                    </div>
+                    <div class="stealth-level-card">
+                        <div class="level-icon">🟡</div>
+                        <div class="level-name">Medium</div>
+                        <div class="level-desc">Équilibre performance/discrétion</div>
+                        <div class="level-delay">Délai: 1.5s</div>
+                    </div>
+                    <div class="stealth-level-card">
+                        <div class="level-icon">🔴</div>
+                        <div class="level-name">High</div>
+                        <div class="level-desc">Difficile à détecter</div>
+                        <div class="level-delay">Délai: 3.0s</div>
+                    </div>
+                    <div class="stealth-level-card">
+                        <div class="level-icon">🟣</div>
+                        <div class="level-name">Paranoid</div>
+                        <div class="level-desc">Maximum de discrétion</div>
+                        <div class="level-delay">Délai: 5.0s</div>
+                    </div>
+                </div>
+                
+                <h4>Techniques de furtivité</h4>
+                <ul>
+                    <li><strong>Jitter</strong> : Variation aléatoire des délais entre requêtes</li>
+                    <li><strong>User-Agents aléatoires</strong> : Rotation des user-agents</li>
+                    <li><strong>TOR</strong> : Routage via le réseau TOR</li>
+                    <li><strong>Rotation de proxies</strong> : Changement périodique de proxy</li>
+                    <li><strong>Mimétisme humain</strong> : Pauses et patterns humains</li>
+                    <li><strong>Slow Loris</strong> : Requêtes lentes et partielles</li>
+                </ul>
+                
+                <div class="alert alert-warning">
+                    <strong>⚠️ Attention :</strong> Le mode furtif ralentit considérablement les attaques. Utilisez-le uniquement lorsque la discrétion est primordiale.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== CONTENU OPÉRATIONS APT ==================== -->
+    <div id="tab-apt" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🎭 Opérations APT</h3>
+                <span class="badge badge-success">Nouveau</span>
+            </div>
+            <div class="card-body">
+                <h4>Qu'est-ce qu'une opération APT ?</h4>
+                <p>Les opérations APT (Advanced Persistent Threat) simulent des attaques avancées avec persistance, mouvement latéral et exfiltration de données.</p>
+                
+                <h4>Phases d'une opération APT</h4>
+                <div class="apt-phases">
+                    <div class="phase-item">
+                        <div class="phase-number">1</div>
+                        <div class="phase-info">
+                            <strong>Reconnaissance</strong>
+                            <p>Collecte d'informations sur la cible</p>
+                        </div>
+                    </div>
+                    <div class="phase-item">
+                        <div class="phase-number">2</div>
+                        <div class="phase-info">
+                            <strong>Initial Access</strong>
+                            <p>Obtention d'un premier accès</p>
+                        </div>
+                    </div>
+                    <div class="phase-item">
+                        <div class="phase-number">3</div>
+                        <div class="phase-info">
+                            <strong>Persistence</strong>
+                            <p>Maintien de l'accès</p>
+                        </div>
+                    </div>
+                    <div class="phase-item">
+                        <div class="phase-number">4</div>
+                        <div class="phase-info">
+                            <strong>Privilege Escalation</strong>
+                            <p>Élévation de privilèges</p>
+                        </div>
+                    </div>
+                    <div class="phase-item">
+                        <div class="phase-number">5</div>
+                        <div class="phase-info">
+                            <strong>Lateral Movement</strong>
+                            <p>Déplacement sur le réseau</p>
+                        </div>
+                    </div>
+                    <div class="phase-item">
+                        <div class="phase-number">6</div>
+                        <div class="phase-info">
+                            <strong>Data Exfiltration</strong>
+                            <p>Extraction des données</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4>Opérations prédéfinies</h4>
+                <ul>
+                    <li><strong>Reconnaissance → Exfiltration</strong> : Opération APT complète</li>
+                    <li><strong>Compromission d'Application Web</strong> : Ciblage web spécifique</li>
+                    <li><strong>Mouvement Latéral</strong> : Propagation sur le réseau</li>
+                    <li><strong>Mise en place de persistance</strong> : Backdoors et scheduled tasks</li>
+                </ul>
+                
+                <h4>Création d'opérations personnalisées</h4>
+                <pre class="code-block"><code># Via l'interface, cliquez sur "Créer une opération personnalisée"
+# Définissez les phases et les attaques associées
+# Sauvegardez et lancez l'opération
+
+# Via API
+curl -X POST http://localhost:5000/api/apt/custom \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Mon opération",
+    "phases": [
+      {"name": "Recon", "attacks": ["port_scan", "service_enum"]},
+      {"name": "Exploit", "attacks": ["sql_injection"]}
+    ],
+    "cleanup": true
+  }'</code></pre>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== CONTENU COMMANDES ==================== -->
+    <div id="tab-commands" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>💻 Commandes CLI</h3>
+            </div>
+            <div class="card-body">
+                <h4>Options principales</h4>
+                <table class="table">
+                    <thead><tr><th>Option</th><th>Description</th><th>Exemple</th></tr></thead>
+                    <tbody>
+                        <tr><td>-t, --target</td><td>Cible à analyser</td><td><code>RedForge -t example.com</code></td></tr>
+                        <tr><td>-m, --multi</td><td>Fichier de configuration multi-attaque</td><td><code>RedForge -t example.com -m config.json</code></td></tr>
+                        <tr><td>-s, --stealth</td><td>Activer mode furtif</td><td><code>RedForge -t example.com -s high</code></td></tr>
+                        <tr><td>--apt</td><td>Opération APT</td><td><code>RedForge -t example.com --apt recon_to_exfil</code></td></tr>
+                        <tr><td>--tor</td><td>Utiliser TOR</td><td><code>RedForge -t example.com --tor</code></td></tr>
+                        <tr><td>--proxy-list</td><td>Liste de proxies</td><td><code>RedForge -t example.com --proxy-list proxies.txt</code></td></tr>
+                        <tr><td>-o, --output</td><td>Fichier de rapport</td><td><code>RedForge -t example.com -o rapport.pdf</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== CONTENU FAQ ==================== -->
+    <div id="tab-faq" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>❓ Questions fréquentes</h3>
+            </div>
+            <div class="card-body">
+                <div class="faq-item">
+                    <h4>🔒 Comment activer le mode furtif ?</h4>
+                    <p>Utilisez le toggle dans la sidebar ou l'onglet "Mode Furtif". Vous pouvez aussi utiliser Ctrl+Shift+S.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>📚 Quelle est la différence entre attaque simple et multi-attaque ?</h4>
+                    <p>Les attaques simples ciblent une vulnérabilité spécifique. Les multi-attaques exécutent plusieurs attaques en séquence ou parallèle.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>🎭 Les opérations APT sont-elles réversibles ?</h4>
+                    <p>Oui, le mode cleanup est activé par défaut pour nettoyer les traces après l'opération.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>🕵️ Le mode furtif fonctionne-t-il avec TOR ?</h4>
+                    <p>Oui, activez l'option TOR dans la configuration furtive. Assurez-vous que TOR est installé et en cours d'exécution.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>📊 Comment exporter les résultats d'une multi-attaque ?</h4>
+                    <p>Les résultats sont disponibles dans l'onglet "Résultats". Utilisez le bouton "Exporter" pour sauvegarder.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>⚡ RedForge est-il compatible avec les CI/CD ?</h4>
+                    <p>Oui, l'API REST permet l'intégration dans vos pipelines de sécurité.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== CONTENU DÉPANNAGE ==================== -->
+    <div id="tab-troubleshooting" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🔧 Résolution des problèmes courants</h3>
+            </div>
+            <div class="card-body">
+                <div class="troubleshoot-item">
+                    <h4>❌ TOR non trouvé</h4>
+                    <p>Solution : <code>sudo apt install tor</code> puis <code>sudo systemctl start tor</code></p>
+                </div>
+                <div class="troubleshoot-item">
+                    <h4>❌ Multi-attaque bloquée</h4>
+                    <p>Solution : Vérifiez les logs dans /var/log/redforge/ et augmentez le timeout</p>
+                </div>
+                <div class="troubleshoot-item">
+                    <h4>❌ Mode furtif trop lent</h4>
+                    <p>Solution : Réduisez le niveau de furtivité ou désactivez certaines options (TOR, rotation proxies)</p>
+                </div>
+                <div class="troubleshoot-item">
+                    <h4>❌ WebSocket déconnecté</h4>
+                    <p>Solution : Vérifiez votre connexion réseau et redémarrez le serveur</p>
+                </div>
+                <div class="troubleshoot-item">
+                    <h4>❌ Permission denied</h4>
+                    <p>Solution : Lancez avec <code>sudo</code> pour les fonctionnalités réseau avancées</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== CONTENU API ==================== -->
+    <div id="tab-api" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🔌 Documentation API</h3>
+            </div>
+            <div class="card-body">
+                <h4>Authentification</h4>
+                <pre class="code-block"><code># Header requis
+X-API-Key: votre_token_api</code></pre>
+                
+                <h4>Nouveaux endpoints v2.0</h4>
+                
+                <div class="api-endpoint">
+                    <h5>POST /api/multi-attack</h5>
+                    <p>Lancer une multi-attaque</p>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h5>POST /api/apt/execute</h5>
+                    <p>Exécuter une opération APT</p>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h5>POST /api/stealth/config</h5>
+                    <p>Configurer le mode furtif</p>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h5>GET /api/stealth/status</h5>
+                    <p>Obtenir le statut du mode furtif</p>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h5>GET /api/apt/operations</h5>
+                    <p>Lister les opérations APT disponibles</p>
+                </div>
+                
+                <h4>WebSocket v2.0</h4>
+                <p>URL: <code>ws://localhost:5000/socket.io</code></p>
+                <p>Nouveaux événements: multi_attack_progress, apt_phase_start, stealth_alert</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Raccourcis clavier -->
+    <div class="card">
+        <div class="card-header">
+            <h3>⌨️ Raccourcis clavier</h3>
+        </div>
+        <div class="card-body">
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>D</kbd>
+                    <span>Tableau de bord</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>A</kbd>
+                    <span>Attaques</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>
+                    <span>Mode furtif</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>
+                    <span>Arrêter toutes les attaques</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>K</kbd>
+                    <span>Recherche globale</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>F1</kbd>
+                    <span>Aide</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Esc</kbd>
+                    <span>Fermer les modals</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact support -->
+    <div class="card">
+        <div class="card-header">
+            <h3>📞 Support</h3>
+        </div>
+        <div class="card-body">
+            <p>Besoin d'aide ? Contactez-nous :</p>
+            <ul>
+                <li>📧 Email : <a href="mailto:elfriedyobouet@gmail.com">elfriedyobouet@gmail.com</a></li>
+                <li>🐛 GitHub : <a href="#">https://github.com/Elfried002/RedForge/issues</a></li>
+                <li>💬 Discord : <a href="#">https://discord.gg/redforge</a></li>
+                <li>📚 Documentation : <a href="#">https://docs.redforge.io</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.help-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.help-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.search-wrapper {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.search-results-help {
+    margin-top: var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-results-help .result-item {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--gray-200);
+    cursor: pointer;
+}
+
+.search-results-help .result-item:hover {
+    background: var(--gray-200);
+}
+
+.attack-help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.attack-help-item {
+    padding: var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+    border-left: 3px solid var(--primary-red);
+}
+
+.stealth-levels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stealth-level-card {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+}
+
+.level-icon {
+    font-size: var(--font-size-3xl);
+}
+
+.level-name {
+    font-weight: bold;
+    margin: var(--spacing-xs) 0;
+}
+
+.level-delay {
+    font-size: var(--font-size-xs);
+    color: var(--gray-600);
+}
+
+.apt-phases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.phase-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+}
+
+.phase-number {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-red);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: var(--font-size-lg);
+}
+
+.phase-info {
+    flex: 1;
+}
+
+.phase-info p {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+.code-block {
+    background: var(--gray-900);
+    color: #00ff00;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: var(--font-size-sm);
+}
+
+.code-block code {
+    background: none;
+    color: inherit;
+}
+
+.api-endpoint {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+}
+
+.api-endpoint h5 {
+    color: var(--primary-red);
+    margin-bottom: var(--spacing-xs);
+}
+
+.faq-item, .troubleshoot-item {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+}
+
+.faq-item h4, .troubleshoot-item h4 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--primary-red);
+}
+
+.shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+}
+
+kbd {
+    background: var(--gray-800);
+    color: white;
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+    font-family: monospace;
+    font-size: var(--font-size-xs);
+}
+
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    margin: var(--spacing-md) 0;
+}
+
+.alert-info {
+    background: rgba(33, 150, 243, 0.1);
+    border-left: 4px solid #2196f3;
+}
+
+.alert-warning {
+    background: rgba(255, 152, 0, 0.1);
+    border-left: 4px solid #ff9800;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: bold;
+}
+
+.badge-info {
+    background: #2196f3;
+    color: white;
+}
+
+.badge-success {
+    background: #4caf50;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .attack-help-grid,
+    .stealth-levels-grid,
+    .apt-phases,
+    .shortcuts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .help-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab {
+        flex: 1 0 auto;
+        text-align: center;
+    }
+    
+    .code-block {
+        font-size: var(--font-size-xs);
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des onglets
+    const tabs = document.querySelectorAll('.help-tabs .tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            const activeContent = document.getElementById(`tab-${tabId}`);
+            if (activeContent) activeContent.classList.add('active');
+            
+            // Sauvegarder l'onglet actif
+            localStorage.setItem('redforge-help-tab', tabId);
+        });
+    });
+    
+    // Restaurer l'onglet sauvegardé
+    const savedTab = localStorage.getItem('redforge-help-tab');
+    if (savedTab) {
+        const tabToActivate = document.querySelector(`.help-tabs .tab[data-tab="${savedTab}"]`);
+        if (tabToActivate) tabToActivate.click();
+    }
+    
+    // Recherche améliorée
+    const searchInput = document.getElementById('help-search');
+    const clearBtn = document.getElementById('clear-search');
+    const searchResults = document.getElementById('search-results');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                searchResults.style.display = 'none';
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = '';
+                });
+                return;
+            }
+            
+            const results = [];
+            const contents = document.querySelectorAll('.tab-content');
+            
+            contents.forEach(content => {
+                const tabId = content.id.replace('tab-', '');
+                const text = content.textContent.toLowerCase();
+                const matches = text.match(new RegExp(searchTerm, 'g'))?.length || 0;
+                
+                if (matches > 0) {
+                    // Extraire le contexte autour du terme recherché
+                    const index = text.indexOf(searchTerm);
+                    const start = Math.max(0, index - 60);
+                    const end = Math.min(text.length, index + searchTerm.length + 60);
+                    let context = text.substring(start, end);
+                    if (start > 0) context = '...' + context;
+                    if (end < text.length) context = context + '...';
+                    
+                    results.push({
+                        tabId: tabId,
+                        tabName: getTabName(tabId),
+                        matches: matches,
+                        context: context
+                    });
+                }
+            });
+            
+            if (results.length > 0) {
+                displaySearchResults(results, searchTerm);
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.style.display = 'none';
+            }
+            
+            // Filtrer les contenus
+            if (searchTerm !== '') {
+                contents.forEach(content => {
+                    const tabId = content.id.replace('tab-', '');
+                    const hasResults = results.some(r => r.tabId === tabId);
+                    content.style.display = hasResults ? '' : 'none';
+                });
+            } else {
+                contents.forEach(content => {
+                    content.style.display = '';
+                });
+            }
+        });
+    }
+    
+    function getTabName(tabId) {
+        const names = {
+            'getting-started': '🚀 Démarrage',
+            'attacks': '🎯 Attaques',
+            'multi-attacks': '📚 Multi-Attaques',
+            'stealth': '🕵️ Mode Furtif',
+            'apt': '🎭 Opérations APT',
+            'commands': '💻 Commandes',
+            'faq': '❓ FAQ',
+            'troubleshooting': '🔧 Dépannage',
+            'api': '🔌 API'
+        };
+        return names[tabId] || tabId;
+    }
+    
+    function displaySearchResults(results, searchTerm) {
+        if (!searchResults) return;
+        
+        searchResults.innerHTML = `
+            <div class="search-results-header">
+                <strong>${results.length}</strong> résultat(s) pour "<em>${escapeHtml(searchTerm)}</em>"
+            </div>
+            ${results.map(result => `
+                <div class="result-item" data-tab="${result.tabId}">
+                    <div class="result-title">${result.tabName}</div>
+                    <div class="result-context">${escapeHtml(result.context)}</div>
+                    <div class="result-matches">${result.matches} occurrence(s)</div>
+                </div>
+            `).join('')}
+        `;
+        
+        searchResults.querySelectorAll('.result-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const tabId = item.dataset.tab;
+                const tab = document.querySelector(`.help-tabs .tab[data-tab="${tabId}"]`);
+                if (tab) tab.click();
+                searchResults.style.display = 'none';
+                searchInput.value = '';
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = '';
+                });
+            });
+        });
+    }
+    
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchResults.style.display = 'none';
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = '';
+            });
+        });
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Fermer les résultats en cliquant ailleurs
+    document.addEventListener('click', (e) => {
+        if (searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            if (searchInput.value === '') {
+                searchResults.style.display = 'none';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

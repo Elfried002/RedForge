@@ -1,0 +1,1211 @@
+{#
+    RedForge - Sidebar Améliorée
+    Barre latérale de navigation commune à toutes les pages
+    Version: 2.0.0 - Support Multi-Attacks, Stealth Mode, APT Operations
+#}
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <div class="logo-icon-large">🔴</div>
+            <div class="logo-text-large">
+                <span class="logo-title">RedForge</span>
+                <span class="logo-subtitle">Advanced Pentest Platform</span>
+            </div>
+        </div>
+        <button class="sidebar-collapse" id="sidebar-collapse" title="Réduire">
+            <span class="collapse-icon">◀</span>
+        </button>
+    </div>
+    
+    <div class="sidebar-user">
+        <div class="user-avatar-sidebar">👤</div>
+        <div class="user-info-sidebar">
+            <div class="user-name-sidebar">RedTeam User</div>
+            <div class="user-role-sidebar">Administrateur</div>
+            <div class="user-status-sidebar">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecté</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mode furtif rapide -->
+    <div class="sidebar-stealth" id="sidebar-stealth">
+        <div class="stealth-header">
+            <span class="stealth-icon">🕵️</span>
+            <span class="stealth-title">Mode Furtif</span>
+            <label class="stealth-toggle-switch">
+                <input type="checkbox" id="stealth-toggle-quick">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="stealth-level-selector" id="stealth-level-selector" style="display: none;">
+            <button class="stealth-level" data-level="low">🟢 Low</button>
+            <button class="stealth-level" data-level="medium">🟡 Medium</button>
+            <button class="stealth-level" data-level="high">🔴 High</button>
+            <button class="stealth-level" data-level="paranoid">🟣 Paranoid</button>
+        </div>
+        <div class="stealth-stats" id="stealth-stats" style="display: none;">
+            <div class="stat-item">
+                <span class="stat-label">Risque:</span>
+                <span class="stat-value" id="stealth-risk">Moyen</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Délai:</span>
+                <span class="stat-value" id="stealth-delay">1.5s</span>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <ul class="nav-list">
+                <li class="nav-item-sidebar {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link-sidebar">
+                        <span class="nav-icon-sidebar">📊</span>
+                        <span class="nav-text-sidebar">Tableau de bord</span>
+                        <span class="nav-badge" id="dashboard-badge" style="display: none;"></span>
+                    </a>
+                </li>
+                <li class="nav-item-sidebar {% if request.endpoint == 'attacks_page' %}active{% endif %}">
+                    <a href="{{ url_for('attacks_page') }}" class="nav-link-sidebar">
+                        <span class="nav-icon-sidebar">🎯</span>
+                        <span class="nav-text-sidebar">Attaques</span>
+                    </a>
+                </li>
+                <li class="nav-item-sidebar {% if request.endpoint == 'apt_page' %}active{% endif %}">
+                    <a href="{{ url_for('apt_page') }}" class="nav-link-sidebar">
+                        <span class="nav-icon-sidebar">🎭</span>
+                        <span class="nav-text-sidebar">Opérations APT</span>
+                        <span class="nav-badge-new">NEW</span>
+                    </a>
+                </li>
+                <li class="nav-item-sidebar {% if request.endpoint == 'reports_page' %}active{% endif %}">
+                    <a href="{{ url_for('reports_page') }}" class="nav-link-sidebar">
+                        <span class="nav-icon-sidebar">📄</span>
+                        <span class="nav-text-sidebar">Rapports</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-section-title">Opérations</div>
+            <ul class="nav-list">
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="multi-attack-menu">
+                        <span class="nav-icon-sidebar">📚</span>
+                        <span class="nav-text-sidebar">Multi-Attaque</span>
+                        <span class="nav-arrow">▼</span>
+                    </a>
+                    <ul class="nav-sublist" id="multi-attack-sublist">
+                        <li><a href="#" class="new-multi-attack">+ Nouvelle multi-attaque</a></li>
+                        <li id="multi-attack-list-container"></li>
+                    </ul>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="apt-operations-menu">
+                        <span class="nav-icon-sidebar">🎯</span>
+                        <span class="nav-text-sidebar">APT Operations</span>
+                        <span class="nav-arrow">▼</span>
+                    </a>
+                    <ul class="nav-sublist" id="apt-operations-sublist">
+                        <li><a href="#" class="new-apt-operation">+ Nouvelle opération</a></li>
+                        <li id="apt-ops-list-container"></li>
+                    </ul>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="targets-menu">
+                        <span class="nav-icon-sidebar">🎯</span>
+                        <span class="nav-text-sidebar">Cibles</span>
+                        <span class="nav-arrow">▼</span>
+                    </a>
+                    <ul class="nav-sublist" id="targets-sublist">
+                        <li><a href="#" class="add-target-link">+ Ajouter une cible</a></li>
+                        <li id="targets-list-container"></li>
+                    </ul>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="scans-menu">
+                        <span class="nav-icon-sidebar">🔍</span>
+                        <span class="nav-text-sidebar">Scans</span>
+                        <span class="nav-arrow">▼</span>
+                    </a>
+                    <ul class="nav-sublist" id="scans-sublist">
+                        <li><a href="#" class="new-scan-link">+ Nouveau scan</a></li>
+                        <li id="scans-list-container"></li>
+                    </ul>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="vulnerabilities-menu">
+                        <span class="nav-icon-sidebar">⚠️</span>
+                        <span class="nav-text-sidebar">Vulnérabilités</span>
+                        <span class="nav-arrow">▼</span>
+                        <span class="nav-badge" id="vulns-badge" style="display: none;">0</span>
+                    </a>
+                    <ul class="nav-sublist" id="vulnerabilities-sublist">
+                        <li id="vulns-list-container"></li>
+                        <li><a href="#" class="view-all-vulns">Voir toutes →</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-section-title">Outils</div>
+            <ul class="nav-list">
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="tools-menu">
+                        <span class="nav-icon-sidebar">🛠️</span>
+                        <span class="nav-text-sidebar">Outils intégrés</span>
+                        <span class="nav-arrow">▼</span>
+                    </a>
+                    <ul class="nav-sublist" id="tools-sublist">
+                        <li><a href="#" data-tool="nmap">🔍 Nmap Scanner</a></li>
+                        <li><a href="#" data-tool="metasploit">💠 Metasploit</a></li>
+                        <li><a href="#" data-tool="sqlmap">🗄️ SQLMap</a></li>
+                        <li><a href="#" data-tool="hydra">🔑 Hydra</a></li>
+                        <li><a href="#" data-tool="xsstrike">🎯 XSStrike</a></li>
+                        <li><a href="#" data-tool="wafw00f">🛡️ wafw00f</a></li>
+                        <li><hr class="divider"></li>
+                        <li><a href="#" data-tool="wordlist">📝 Wordlists</a></li>
+                        <li><a href="#" data-tool="custom">⚡ Script perso</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="wordlists-menu">
+                        <span class="nav-icon-sidebar">📚</span>
+                        <span class="nav-text-sidebar">Wordlists</span>
+                        <span class="nav-arrow">▼</span>
+                    </a>
+                    <ul class="nav-sublist" id="wordlists-sublist">
+                        <li><a href="#" data-wordlist="passwords">🔑 Mots de passe</a></li>
+                        <li><a href="#" data-wordlist="directories">📁 Répertoires</a></li>
+                        <li><a href="#" data-wordlist="subdomains">🌐 Sous-domaines</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="{{ url_for('settings_page') }}" class="nav-link-sidebar">
+                        <span class="nav-icon-sidebar">⚙️</span>
+                        <span class="nav-text-sidebar">Paramètres</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-section-title">Ressources</div>
+            <ul class="nav-list">
+                <li class="nav-item-sidebar">
+                    <a href="{{ url_for('help_page') }}" class="nav-link-sidebar">
+                        <span class="nav-icon-sidebar">❓</span>
+                        <span class="nav-text-sidebar">Aide & Support</span>
+                    </a>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="docs-link">
+                        <span class="nav-icon-sidebar">📚</span>
+                        <span class="nav-text-sidebar">Documentation</span>
+                    </a>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="keyboard-shortcuts-link">
+                        <span class="nav-icon-sidebar">⌨️</span>
+                        <span class="nav-text-sidebar">Raccourcis clavier</span>
+                    </a>
+                </li>
+                <li class="nav-item-sidebar">
+                    <a href="#" class="nav-link-sidebar" id="about-link">
+                        <span class="nav-icon-sidebar">ℹ️</span>
+                        <span class="nav-text-sidebar">À propos</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="sidebar-stats">
+            <div class="stat-item">
+                <span class="stat-icon">⚡</span>
+                <span class="stat-label">Actives:</span>
+                <span class="stat-value" id="active-attacks-count">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">🎭</span>
+                <span class="stat-label">APT:</span>
+                <span class="stat-value" id="active-apt-count">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">📚</span>
+                <span class="stat-label">Multi:</span>
+                <span class="stat-value" id="active-multi-count">0</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-status">
+            <div class="status-indicator" id="sidebar-status-indicator"></div>
+            <div class="status-text" id="sidebar-status-text">Connecté</div>
+            <div class="status-latency" id="status-latency">0ms</div>
+        </div>
+        
+        <div class="sidebar-version">
+            <span>RedForge v2.0.0</span>
+            <span class="version-build">build: {{ build_number or '2024.001' }}</span>
+        </div>
+        
+        <button class="sidebar-logout" id="sidebar-logout">
+            <span class="logout-icon">🚪</span>
+            <span class="logout-text">Déconnexion</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Overlay pour mobile -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<style>
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(180deg, var(--gray-900) 0%, var(--gray-800) 100%);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    transition: width var(--transition-normal), transform var(--transition-normal);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar.collapsed .sidebar-user,
+.sidebar.collapsed .nav-text-sidebar,
+.sidebar.collapsed .nav-badge,
+.sidebar.collapsed .nav-badge-new,
+.sidebar.collapsed .nav-arrow,
+.sidebar.collapsed .logo-text-large,
+.sidebar.collapsed .user-info-sidebar,
+.sidebar.collapsed .sidebar-status .status-text,
+.sidebar.collapsed .status-latency,
+.sidebar.collapsed .logout-text,
+.sidebar.collapsed .nav-section-title,
+.sidebar.collapsed .nav-sublist,
+.sidebar.collapsed .sidebar-stats,
+.sidebar.collapsed .sidebar-stealth .stealth-title,
+.sidebar.collapsed .sidebar-stealth .stealth-stats,
+.sidebar.collapsed .version-build,
+.sidebar.collapsed .stat-label {
+    display: none;
+}
+
+.sidebar.collapsed .nav-icon-sidebar {
+    margin-right: 0;
+}
+
+.sidebar.collapsed .nav-link-sidebar {
+    justify-content: center;
+    padding: var(--spacing-md);
+}
+
+.sidebar.collapsed .sidebar-stealth {
+    padding: var(--spacing-sm);
+}
+
+.sidebar.collapsed .stealth-toggle-switch {
+    margin: 0 auto;
+}
+
+/* Header */
+.sidebar-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-700);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.logo-icon-large {
+    font-size: var(--font-size-2xl);
+}
+
+.logo-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    background: linear-gradient(135deg, var(--primary-red), var(--primary-red-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.logo-subtitle {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    display: block;
+}
+
+.sidebar-collapse {
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.sidebar-collapse:hover {
+    background: var(--gray-700);
+    color: var(--white);
+}
+
+/* User Info */
+.sidebar-user {
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-700);
+}
+
+.user-avatar-sidebar {
+    font-size: var(--font-size-2xl);
+}
+
+.user-name-sidebar {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+}
+
+.user-role-sidebar {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+}
+
+.user-status-sidebar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--border-radius-full);
+    background-color: #4caf50;
+    animation: pulse 2s infinite;
+}
+
+/* Mode furtif sidebar */
+.sidebar-stealth {
+    margin: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: rgba(156, 39, 176, 0.1);
+    border-radius: var(--border-radius-md);
+    border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.stealth-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.stealth-icon {
+    font-size: var(--font-size-lg);
+}
+
+.stealth-title {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.stealth-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.stealth-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--gray-600);
+    transition: var(--transition-fast);
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: var(--transition-fast);
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #9c27b0;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+.stealth-level-selector {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.stealth-level {
+    flex: 1;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    background: var(--gray-700);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    color: var(--white);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.stealth-level:hover {
+    transform: translateY(-1px);
+}
+
+.stealth-level.active {
+    background: #9c27b0;
+}
+
+.stealth-stats {
+    margin-top: var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+/* Navigation */
+.sidebar-nav {
+    flex: 1;
+    padding: var(--spacing-md) 0;
+}
+
+.nav-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.nav-section-title {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray-500);
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item-sidebar {
+    margin-bottom: var(--spacing-xs);
+    position: relative;
+}
+
+.nav-link-sidebar {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--gray-300);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.nav-link-sidebar:hover {
+    background: var(--gray-800);
+    color: var(--white);
+    padding-left: calc(var(--spacing-lg) + 5px);
+}
+
+.nav-item-sidebar.active .nav-link-sidebar {
+    background: linear-gradient(90deg, var(--primary-red), transparent);
+    color: var(--white);
+}
+
+.nav-icon-sidebar {
+    width: 24px;
+    margin-right: var(--spacing-md);
+    font-size: var(--font-size-lg);
+}
+
+.nav-text-sidebar {
+    flex: 1;
+    font-size: var(--font-size-sm);
+}
+
+.nav-badge {
+    background: var(--primary-red);
+    color: var(--white);
+    font-size: var(--font-size-xs);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-full);
+    min-width: 20px;
+    text-align: center;
+}
+
+.nav-badge-new {
+    background: linear-gradient(135deg, #ff9800, #f44336);
+    color: white;
+    font-size: var(--font-size-xs);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-full);
+    margin-left: var(--spacing-sm);
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.nav-arrow {
+    font-size: var(--font-size-xs);
+    transition: transform var(--transition-fast);
+}
+
+.nav-item-sidebar.open .nav-arrow {
+    transform: rotate(180deg);
+}
+
+.nav-sublist {
+    list-style: none;
+    padding-left: calc(var(--spacing-lg) + 24px);
+    margin: 0;
+    display: none;
+}
+
+.nav-item-sidebar.open .nav-sublist {
+    display: block;
+}
+
+.nav-sublist li a {
+    display: block;
+    padding: var(--spacing-xs) var(--spacing-lg);
+    color: var(--gray-400);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+}
+
+.nav-sublist li a:hover {
+    color: var(--white);
+    padding-left: calc(var(--spacing-lg) + 5px);
+}
+
+.divider {
+    margin: var(--spacing-sm) 0;
+    border: none;
+    border-top: 1px solid var(--gray-700);
+}
+
+.empty-message {
+    padding: var(--spacing-xs) var(--spacing-lg);
+    color: var(--gray-500);
+    font-size: var(--font-size-xs);
+    font-style: italic;
+}
+
+/* Footer */
+.sidebar-footer {
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--gray-700);
+}
+
+.sidebar-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-700);
+}
+
+.sidebar-stats .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+}
+
+.sidebar-stats .stat-icon {
+    font-size: var(--font-size-md);
+}
+
+.sidebar-stats .stat-value {
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-red-light);
+}
+
+.sidebar-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-xs);
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--border-radius-full);
+    background: #4caf50;
+    box-shadow: 0 0 5px #4caf50;
+    animation: pulse 2s infinite;
+}
+
+.status-latency {
+    margin-left: auto;
+    color: var(--gray-500);
+}
+
+.sidebar-version {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.version-build {
+    font-size: var(--font-size-xs);
+    opacity: 0.7;
+}
+
+.sidebar-logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.sidebar-logout:hover {
+    background: var(--gray-800);
+    color: var(--primary-red);
+    transform: translateY(-1px);
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: var(--gray-800);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--gray-600);
+    border-radius: var(--border-radius-full);
+}
+
+/* Overlay mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 150;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.1); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar collapse
+    const collapseBtn = document.getElementById('sidebar-collapse');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (collapseBtn && sidebar) {
+        collapseBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+        });
+        
+        const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+        if (isCollapsed) {
+            sidebar.classList.add('collapsed');
+        }
+    }
+    
+    // Sous-menus
+    const menuItems = document.querySelectorAll('#targets-menu, #scans-menu, #vulnerabilities-menu, #tools-menu, #multi-attack-menu, #apt-operations-menu, #wordlists-menu');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const parent = this.closest('.nav-item-sidebar');
+            parent.classList.toggle('open');
+        });
+    });
+    
+    // Mode furtif toggle
+    const stealthToggle = document.getElementById('stealth-toggle-quick');
+    const stealthLevelSelector = document.getElementById('stealth-level-selector');
+    const stealthStats = document.getElementById('stealth-stats');
+    
+    if (stealthToggle) {
+        stealthToggle.addEventListener('change', async function() {
+            const enabled = this.checked;
+            try {
+                const response = await fetch('/api/stealth/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled: enabled })
+                });
+                const data = await response.json();
+                
+                if (enabled) {
+                    stealthLevelSelector.style.display = 'flex';
+                    stealthStats.style.display = 'flex';
+                    updateStealthLevel(data.level || 'medium');
+                } else {
+                    stealthLevelSelector.style.display = 'none';
+                    stealthStats.style.display = 'none';
+                }
+                
+                showNotification(`Mode furtif ${enabled ? 'activé' : 'désactivé'}`, enabled ? 'warning' : 'info');
+            } catch (error) {
+                console.error('Erreur:', error);
+                this.checked = !enabled;
+            }
+        });
+        
+        // Charger l'état initial
+        loadStealthStatus();
+    }
+    
+    // Sélecteurs de niveau furtif
+    document.querySelectorAll('.stealth-level').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const level = this.dataset.level;
+            try {
+                const response = await fetch('/api/stealth/level', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ level: level })
+                });
+                if (response.ok) {
+                    updateStealthLevel(level);
+                    showNotification(`Niveau furtif changé: ${level}`, 'info');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        });
+    });
+    
+    // Charger les cibles
+    async function loadTargetsList() {
+        try {
+            const response = await fetch('/api/targets');
+            if (response.ok) {
+                const data = await response.json();
+                const container = document.getElementById('targets-list-container');
+                if (container) {
+                    if (data.targets && data.targets.length > 0) {
+                        container.innerHTML = data.targets.map(t => 
+                            `<li><a href="#" class="target-link" data-target="${t}">🎯 ${escapeHtml(t)}</a></li>`
+                        ).join('');
+                        
+                        // Ajouter les événements
+                        document.querySelectorAll('.target-link').forEach(link => {
+                            link.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const target = this.dataset.target;
+                                window.location.href = `/target/${encodeURIComponent(target)}`;
+                            });
+                        });
+                    } else {
+                        container.innerHTML = '<li><span class="empty-message">Aucune cible</span></li>';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement cibles:', error);
+        }
+    }
+    
+    // Charger les opérations APT
+    async function loadAPTOperations() {
+        try {
+            const response = await fetch('/api/apt/operations');
+            if (response.ok) {
+                const data = await response.json();
+                const container = document.getElementById('apt-ops-list-container');
+                if (container) {
+                    const allOps = [...(data.predefined || []), ...(data.custom || [])];
+                    if (allOps.length > 0) {
+                        container.innerHTML = allOps.slice(0, 5).map(op => 
+                            `<li><a href="#" class="apt-operation-link" data-operation="${op}">🎭 ${escapeHtml(op)}</a></li>`
+                        ).join('');
+                        
+                        document.querySelectorAll('.apt-operation-link').forEach(link => {
+                            link.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const operation = this.dataset.operation;
+                                window.location.href = `/apt/operation/${encodeURIComponent(operation)}`;
+                            });
+                        });
+                    } else {
+                        container.innerHTML = '<li><span class="empty-message">Aucune opération</span></li>';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement APT:', error);
+        }
+    }
+    
+    // Charger les multi-attaques
+    async function loadMultiAttacks() {
+        try {
+            const response = await fetch('/api/multi-attack/list');
+            if (response.ok) {
+                const data = await response.json();
+                const container = document.getElementById('multi-attack-list-container');
+                if (container) {
+                    if (data.multiAttacks && data.multiAttacks.length > 0) {
+                        container.innerHTML = data.multiAttacks.slice(0, 5).map(ma => 
+                            `<li><a href="#" class="multi-attack-link" data-id="${ma.id}">📚 ${escapeHtml(ma.name)}</a></li>`
+                        ).join('');
+                    } else {
+                        container.innerHTML = '<li><span class="empty-message">Aucune multi-attaque</span></li>';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement multi-attaques:', error);
+        }
+    }
+    
+    // Charger les vulnérabilités récentes
+    async function loadRecentVulnerabilities() {
+        try {
+            const response = await fetch('/api/vulnerabilities/recent?limit=5');
+            if (response.ok) {
+                const data = await response.json();
+                const container = document.getElementById('vulns-list-container');
+                const badge = document.getElementById('vulns-badge');
+                
+                if (container) {
+                    if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+                        container.innerHTML = data.vulnerabilities.map(v => 
+                            `<li><a href="#" class="vuln-link" data-vuln="${v.id}">
+                                <span class="severity-dot severity-${v.severity}"></span>
+                                ${escapeHtml(v.type)}
+                            </a></li>`
+                        ).join('');
+                        
+                        if (badge) {
+                            badge.textContent = data.vulnerabilities.length;
+                            badge.style.display = 'inline-block';
+                        }
+                    } else {
+                        container.innerHTML = '<li><span class="empty-message">Aucune vulnérabilité récente</span></li>';
+                        if (badge) badge.style.display = 'none';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement vulnérabilités:', error);
+        }
+    }
+    
+    // Mettre à jour les compteurs actifs
+    async function updateActiveCounts() {
+        try {
+            const [attacksRes, aptRes, multiRes] = await Promise.all([
+                fetch('/api/attacks/active-count'),
+                fetch('/api/apt/active-count'),
+                fetch('/api/multi-attack/active-count')
+            ]);
+            
+            const attacks = await attacksRes.json();
+            const apt = await aptRes.json();
+            const multi = await multiRes.json();
+            
+            const attacksCount = document.getElementById('active-attacks-count');
+            const aptCount = document.getElementById('active-apt-count');
+            const multiCount = document.getElementById('active-multi-count');
+            
+            if (attacksCount) attacksCount.textContent = attacks.count || 0;
+            if (aptCount) aptCount.textContent = apt.count || 0;
+            if (multiCount) multiCount.textContent = multi.count || 0;
+        } catch (error) {
+            console.debug('Erreur chargement compteurs:', error);
+        }
+    }
+    
+    // Mettre à jour le statut de connexion
+    function updateSidebarStatus() {
+        const indicator = document.getElementById('sidebar-status-indicator');
+        const text = document.getElementById('sidebar-status-text');
+        const latencySpan = document.getElementById('status-latency');
+        
+        if (indicator && text) {
+            const status = getConnectionStatus ? getConnectionStatus() : 'connected';
+            if (status === 'connected') {
+                indicator.style.background = '#4caf50';
+                indicator.style.boxShadow = '0 0 5px #4caf50';
+                text.textContent = 'Connecté';
+            } else if (status === 'connecting') {
+                indicator.style.background = '#ff9800';
+                indicator.style.boxShadow = '0 0 5px #ff9800';
+                text.textContent = 'Connexion...';
+            } else {
+                indicator.style.background = '#f44336';
+                indicator.style.boxShadow = '0 0 5px #f44336';
+                text.textContent = 'Déconnecté';
+            }
+        }
+        
+        // Mettre à jour la latence
+        if (latencySpan && typeof measureLatency === 'function') {
+            measureLatency().then(latency => {
+                latencySpan.textContent = `${latency}ms`;
+                if (latency > 500) {
+                    latencySpan.style.color = '#ff9800';
+                } else if (latency > 1000) {
+                    latencySpan.style.color = '#f44336';
+                } else {
+                    latencySpan.style.color = '#4caf50';
+                }
+            }).catch(() => {
+                latencySpan.textContent = '--ms';
+            });
+        }
+    }
+    
+    // Charger le statut furtif
+    async function loadStealthStatus() {
+        try {
+            const response = await fetch('/api/stealth/status');
+            if (response.ok) {
+                const data = await response.json();
+                if (stealthToggle) {
+                    stealthToggle.checked = data.enabled;
+                    if (data.enabled) {
+                        stealthLevelSelector.style.display = 'flex';
+                        stealthStats.style.display = 'flex';
+                        updateStealthLevel(data.level);
+                    }
+                }
+            }
+        } catch (error) {
+            console.debug('Erreur chargement statut furtif:', error);
+        }
+    }
+    
+    function updateStealthLevel(level) {
+        const buttons = document.querySelectorAll('.stealth-level');
+        buttons.forEach(btn => {
+            if (btn.dataset.level === level) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        const riskSpan = document.getElementById('stealth-risk');
+        const delaySpan = document.getElementById('stealth-delay');
+        
+        const levels = {
+            low: { risk: 'Élevé', delay: '0.5s' },
+            medium: { risk: 'Moyen', delay: '1.5s' },
+            high: { risk: 'Faible', delay: '3.0s' },
+            paranoid: { risk: 'Très faible', delay: '5.0s' }
+        };
+        
+        if (riskSpan && delaySpan && levels[level]) {
+            riskSpan.textContent = levels[level].risk;
+            delaySpan.textContent = levels[level].delay;
+        }
+    }
+    
+    // Nouvelle multi-attaque
+    const newMultiAttack = document.querySelector('.new-multi-attack');
+    if (newMultiAttack) {
+        newMultiAttack.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/attacks?tab=multi';
+        });
+    }
+    
+    // Nouvelle opération APT
+    const newAPTOperation = document.querySelector('.new-apt-operation');
+    if (newAPTOperation) {
+        newAPTOperation.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/apt?tab=new';
+        });
+    }
+    
+    // Voir toutes les vulnérabilités
+    const viewAllVulns = document.querySelector('.view-all-vulns');
+    if (viewAllVulns) {
+        viewAllVulns.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/reports?tab=vulnerabilities';
+        });
+    }
+    
+    // Raccourcis clavier
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+            e.preventDefault();
+            if (stealthToggle) stealthToggle.click();
+        }
+    });
+    
+    // Déconnexion
+    const logoutBtn = document.getElementById('sidebar-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function() {
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error('Erreur déconnexion:', error);
+                }
+            }
+        });
+    }
+    
+    // Initialisation
+    loadTargetsList();
+    loadAPTOperations();
+    loadMultiAttacks();
+    loadRecentVulnerabilities();
+    updateActiveCounts();
+    updateSidebarStatus();
+    
+    // Rafraîchir périodiquement
+    setInterval(loadRecentVulnerabilities, 30000);
+    setInterval(updateActiveCounts, 10000);
+    setInterval(updateSidebarStatus, 5000);
+    
+    // WebSocket listeners
+    if (typeof window.redforgeWebSocket !== 'undefined') {
+        window.redforgeWebSocket.on('stealth_status', () => {
+            loadStealthStatus();
+        });
+        
+        window.redforgeWebSocket.on('attack_progress', () => {
+            updateActiveCounts();
+        });
+        
+        window.redforgeWebSocket.on('apt_phase_start', () => {
+            updateActiveCounts();
+        });
+    }
+});
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showNotification(message, type) {
+    if (typeof window.showNotification === 'function') {
+        window.showNotification(message, type);
+    } else {
+        console.log(`[${type}] ${message}`);
+    }
+}
+
+function measureLatency() {
+    return new Promise((resolve) => {
+        const start = performance.now();
+        fetch('/api/ping', { method: 'HEAD', cache: 'no-cache' })
+            .then(() => {
+                const end = performance.now();
+                resolve(Math.round(end - start));
+            })
+            .catch(() => resolve(999));
+    });
+}
+</script>

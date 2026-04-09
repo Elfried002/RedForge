@@ -1,0 +1,1495 @@
+{% extends "base.html" %}
+
+{% block title %}RedForge - Paramètres{% endblock %}
+
+{% block header_title %}⚙️ Paramètres et Configuration{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- En-tête -->
+    <div class="settings-header">
+        <h1>⚙️ Paramètres</h1>
+        <p>Configurez RedForge selon vos besoins (Multi-Attaques, Mode Furtif, APT)</p>
+    </div>
+    
+    <!-- Onglets -->
+    <div class="tabs settings-tabs">
+        <div class="tab active" data-tab="general">📋 Général</div>
+        <div class="tab" data-tab="stealth">🕵️ Mode Furtif</div>
+        <div class="tab" data-tab="multi">📚 Multi-Attaques</div>
+        <div class="tab" data-tab="apt">🎭 Opérations APT</div>
+        <div class="tab" data-tab="tools">🛠️ Outils</div>
+        <div class="tab" data-tab="wordlists">📖 Wordlists</div>
+        <div class="tab" data-tab="proxy">🌐 Proxy</div>
+        <div class="tab" data-tab="notifications">🔔 Notifications</div>
+        <div class="tab" data-tab="advanced">⚠️ Avancé</div>
+    </div>
+    
+    <!-- ==================== ONGLET GÉNÉRAL ==================== -->
+    <div id="tab-general" class="tab-content active">
+        <div class="card">
+            <div class="card-header">
+                <h3>🔧 Configuration générale</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Langue</label>
+                        <select id="settings-language" class="form-select">
+                            <option value="fr" selected>Français</option>
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Thème</label>
+                        <select id="settings-theme" class="form-select">
+                            <option value="light">Clair</option>
+                            <option value="dark">Sombre</option>
+                            <option value="auto">Automatique</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Timeout par défaut (secondes)</label>
+                        <input type="number" id="settings-timeout" class="form-input" value="300" min="30" max="3600">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Threads par défaut</label>
+                        <input type="number" id="settings-threads" class="form-input" value="10" min="1" max="50">
+                    </div>
+                </div>
+                
+                <div class="options-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="settings-auto-save"> 💾 Sauvegarde automatique des résultats
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="settings-verify-ssl" checked> 🔒 Vérifier les certificats SSL
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="settings-compress-results"> 📦 Compresser les résultats
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="settings-keep-logs"> 📝 Conserver les logs détaillés
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== ONGLET MODE FURTIF ==================== -->
+    <div id="tab-stealth" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🕵️ Configuration du mode furtif</h3>
+                <span class="badge badge-info">Nouveau</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="stealth-global-enabled"> Activer le mode furtif globalement
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Niveau furtif par défaut</label>
+                    <select id="stealth-default-level" class="form-select">
+                        <option value="low">🟢 Low - Rapide, détection facile</option>
+                        <option value="medium" selected>🟡 Medium - Équilibré</option>
+                        <option value="high">🔴 High - Discret, lent</option>
+                        <option value="paranoid">🟣 Paranoid - Très discret, très lent</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Délai minimum entre requêtes (secondes)</label>
+                    <input type="number" id="stealth-min-delay" class="form-input" value="0.5" min="0.1" max="10" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Délai maximum entre requêtes (secondes)</label>
+                    <input type="number" id="stealth-max-delay" class="form-input" value="3.0" min="0.5" max="30" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Jitter (variation aléatoire %)</label>
+                    <input type="range" id="stealth-jitter" min="0" max="100" value="30">
+                    <span id="stealth-jitter-value">30%</span>
+                </div>
+                
+                <div class="options-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="stealth-random-user-agents"> 🎭 User-Agents aléatoires
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="stealth-use-tor"> 🧅 Utiliser TOR (nécessite TOR installé)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="stealth-rotate-proxies"> 🔄 Rotation de proxies
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="stealth-mimic-human"> 👤 Mimétisme humain
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="stealth-slow-loris"> 🐢 Mode Slow Loris
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="stealth-random-delays"> 🎲 Délais aléatoires
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Liste des proxies (un par ligne)</label>
+                    <textarea id="stealth-proxy-list" class="form-textarea" rows="4" placeholder="http://proxy1:8080&#10;socks5://proxy2:1080"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">User-Agents personnalisés (un par ligne)</label>
+                    <textarea id="stealth-user-agents" class="form-textarea" rows="4" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36&#10;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== ONGLET MULTI-ATTAQUES ==================== -->
+    <div id="tab-multi" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>📚 Configuration des multi-attaques</h3>
+                <span class="badge badge-info">Nouveau</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Mode d'exécution par défaut</label>
+                    <select id="multi-default-mode" class="form-select">
+                        <option value="sequential">🔄 Séquentiel (un par un)</option>
+                        <option value="parallel">⚡ Parallèle (simultané)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nombre maximum d'attaques parallèles</label>
+                    <input type="number" id="multi-max-parallel" class="form-input" value="5" min="1" max="20">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Délai entre attaques (secondes)</label>
+                    <input type="number" id="multi-delay" class="form-input" value="1" min="0" max="60" step="0.5">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Timeout par attaque (secondes)</label>
+                    <input type="number" id="multi-timeout" class="form-input" value="300" min="30" max="3600">
+                </div>
+                
+                <div class="options-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="multi-stop-on-error"> ⏹️ Arrêter la multi-attaque en cas d'erreur
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="multi-save-intermediate"> 💾 Sauvegarder les résultats intermédiaires
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="multi-auto-retry"> 🔄 Réessayer automatiquement les attaques échouées
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== ONGLET OPÉRATIONS APT ==================== -->
+    <div id="tab-apt" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🎭 Configuration des opérations APT</h3>
+                <span class="badge badge-info">Nouveau</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="apt-auto-cleanup" checked> 🧹 Nettoyage automatique post-opération
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="apt-log-all-phases"> 📝 Logger toutes les phases
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="apt-require-confirmation"> ⚠️ Demander confirmation avant chaque phase critique
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Délai entre les phases (secondes)</label>
+                    <input type="number" id="apt-phase-delay" class="form-input" value="5" min="0" max="300">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Répertoire de persistence</label>
+                    <input type="text" id="apt-persistence-dir" class="form-input" value="/tmp/redforge_persistence">
+                </div>
+                
+                <h4>Serveur C2 (Command & Control)</h4>
+                <div class="form-group">
+                    <label class="form-label">Serveur C2</label>
+                    <input type="text" id="apt-c2-server" class="form-input" placeholder="https://c2.example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Token d'authentification C2</label>
+                    <input type="password" id="apt-c2-token" class="form-input" placeholder="Token d'authentification">
+                </div>
+                
+                <h4>Exfiltration de données</h4>
+                <div class="form-group">
+                    <label class="form-label">Méthode d'exfiltration par défaut</label>
+                    <select id="apt-exfil-method" class="form-select">
+                        <option value="http">HTTP</option>
+                        <option value="https">HTTPS</option>
+                        <option value="dns">DNS Tunneling</option>
+                        <option value="custom">Personnalisé</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Taille des chunks (octets)</label>
+                    <input type="number" id="apt-chunk-size" class="form-input" value="512" min="64" max="8192">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>📋 Opérations APT personnalisées</h3>
+            </div>
+            <div class="card-body">
+                <div id="custom-apt-list" class="custom-apt-list">
+                    <div class="loading">Chargement...</div>
+                </div>
+                <button id="add-custom-apt" class="btn btn-secondary mt-2">+ Ajouter une opération personnalisée</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== ONGLET OUTILS ==================== -->
+    <div id="tab-tools" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🛠️ Configuration des outils</h3>
+            </div>
+            <div class="card-body">
+                <div id="tools-config" class="tools-config">
+                    <div class="loading">Chargement des outils...</div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Chemin personnalisé Metasploit</label>
+                        <input type="text" id="tool-metasploit-path" class="form-input" placeholder="/usr/bin/msfconsole">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chemin personnalisé Nmap</label>
+                        <input type="text" id="tool-nmap-path" class="form-input" placeholder="/usr/bin/nmap">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chemin personnalisé SQLMap</label>
+                        <input type="text" id="tool-sqlmap-path" class="form-input" placeholder="/usr/bin/sqlmap">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chemin personnalisé Hydra</label>
+                        <input type="text" id="tool-hydra-path" class="form-input" placeholder="/usr/bin/hydra">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chemin personnalisé XSStrike</label>
+                        <input type="text" id="tool-xsstrike-path" class="form-input" placeholder="/usr/bin/xsstrike">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chemin TOR</label>
+                        <input type="text" id="tool-tor-path" class="form-input" placeholder="/usr/bin/tor">
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <button id="verify-tools" class="btn btn-secondary">🔍 Vérifier les outils</button>
+                    <button id="install-missing-tools" class="btn btn-secondary">📦 Installer les outils manquants</button>
+                    <button id="save-tools" class="btn btn-primary">💾 Sauvegarder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== ONGLET WORDLISTS ==================== -->
+    <div id="tab-wordlists" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>📖 Gestion des wordlists</h3>
+                <button id="upload-wordlist" class="btn btn-sm btn-primary">📤 Upload</button>
+                <button id="download-wordlists" class="btn btn-sm btn-secondary">📥 Télécharger des wordlists</button>
+            </div>
+            <div class="card-body">
+                <div id="wordlists-list" class="wordlists-list">
+                    <div class="loading">Chargement des wordlists...</div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Wordlist par défaut (utilisateurs)</label>
+                        <select id="default-userlist" class="form-select">
+                            <option value="">Sélectionner une wordlist</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Wordlist par défaut (mots de passe)</label>
+                        <select id="default-passlist" class="form-select">
+                            <option value="">Sélectionner une wordlist</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Wordlist par défaut (répertoires)</label>
+                        <select id="default-dirlist" class="form-select">
+                            <option value="">Sélectionner une wordlist</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Wordlist par défaut (sous-domaines)</label>
+                        <select id="default-subdomainlist" class="form-select">
+                            <option value="">Sélectionner une wordlist</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== ONGLET PROXY ==================== -->
+    <div id="tab-proxy" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🌐 Configuration proxy</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="proxy-enabled"> Activer le proxy
+                    </label>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Type de proxy</label>
+                        <select id="proxy-type" class="form-select">
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                            <option value="socks4">SOCKS4</option>
+                            <option value="socks5">SOCKS5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Hôte</label>
+                        <input type="text" id="proxy-host" class="form-input" placeholder="127.0.0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Port</label>
+                        <input type="number" id="proxy-port" class="form-input" placeholder="8080">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Authentification</label>
+                    <input type="text" id="proxy-username" class="form-input" placeholder="Nom d'utilisateur">
+                    <input type="password" id="proxy-password" class="form-input mt-2" placeholder="Mot de passe">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ignorer pour les domaines</label>
+                    <input type="text" id="proxy-no-proxy" class="form-input" placeholder="localhost,127.0.0.1">
+                </div>
+                
+                <div class="settings-actions">
+                    <button id="test-proxy" class="btn btn-secondary">🧪 Tester le proxy</button>
+                    <button id="save-proxy" class="btn btn-primary">💾 Sauvegarder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== ONGLET NOTIFICATIONS ==================== -->
+    <div id="tab-notifications" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>🔔 Configuration des notifications</h3>
+            </div>
+            <div class="card-body">
+                <div class="options-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notify-scan-complete"> 📊 Scan terminé
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notify-vulnerability"> ⚠️ Nouvelle vulnérabilité
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notify-session"> 🔌 Session créée/fermée
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notify-report"> 📄 Rapport généré
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notify-multi-complete"> 📚 Multi-attaque terminée
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notify-apt-complete"> 🎭 Opération APT terminée
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notify-stealth-alert"> 🕵️ Alerte furtive
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email de notification</label>
+                    <input type="email" id="notify-email" class="form-input" placeholder="admin@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Webhook URL (Slack/Discord)</label>
+                    <input type="url" id="notify-webhook" class="form-input" placeholder="https://hooks.slack.com/services/...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Seuil de notification (nombre de vulnérabilités)</label>
+                    <input type="number" id="notify-threshold" class="form-input" value="5" min="1">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== ONGLET AVANCÉ ==================== -->
+    <div id="tab-advanced" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3>⚠️ Configuration avancée</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Taille maximale des logs (MB)</label>
+                    <input type="number" id="adv-max-log-size" class="form-input" value="100" min="10" max="1000">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Niveau de log</label>
+                    <select id="adv-log-level" class="form-select">
+                        <option value="debug">Debug (tous les logs)</option>
+                        <option value="info" selected>Info (logs standards)</option>
+                        <option value="warning">Warning (erreurs seulement)</option>
+                        <option value="error">Error (critique seulement)</option>
+                    </select>
+                </div>
+                
+                <div class="options-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="adv-log-requests"> 📝 Logger toutes les requêtes HTTP
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="adv-log-responses"> 📝 Logger toutes les réponses HTTP
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="adv-performance-monitoring"> 📊 Monitoring des performances
+                    </label>
+                </div>
+                
+                <hr>
+                
+                <div class="form-group">
+                    <label class="form-label">Token API (lecture seule)</label>
+                    <div class="token-container">
+                        <input type="text" id="adv-api-token" class="form-input" readonly>
+                        <button id="regenerate-api-token" class="btn btn-sm btn-secondary">Régénérer</button>
+                        <button id="copy-api-token" class="btn btn-sm btn-secondary">📋 Copier</button>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="danger-zone">
+                    <h4>⚠️ Zone dangereuse</h4>
+                    <div class="danger-actions">
+                        <button id="clear-all-data" class="btn btn-danger">🗑️ Effacer toutes les données</button>
+                        <button id="reset-config" class="btn btn-danger">🔄 Réinitialiser la configuration</button>
+                        <button id="clear-logs" class="btn btn-danger">📝 Effacer les logs</button>
+                        <button id="restart-server" class="btn btn-warning">🔄 Redémarrer le serveur</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>ℹ️ Informations système</h3>
+            </div>
+            <div class="card-body">
+                <div id="system-info" class="system-info">
+                    <div class="loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Actions globales -->
+    <div class="settings-footer">
+        <button id="cancel-settings" class="btn btn-secondary">Annuler</button>
+        <button id="save-all-settings" class="btn btn-primary">💾 Sauvegarder tous les paramètres</button>
+    </div>
+</div>
+
+<!-- Modal upload wordlist -->
+<div id="upload-wordlist-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📤 Upload d'une wordlist</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" id="wordlist-name" class="form-input" placeholder="ma_wordlist">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Type</label>
+                <select id="wordlist-type" class="form-select">
+                    <option value="passwords">Mots de passe</option>
+                    <option value="usernames">Utilisateurs</option>
+                    <option value="directories">Répertoires</option>
+                    <option value="subdomains">Sous-domaines</option>
+                    <option value="custom">Personnalisé</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fichier</label>
+                <input type="file" id="wordlist-file" class="form-input" accept=".txt,.lst,.wordlist">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Annuler</button>
+            <button id="upload-wordlist-confirm" class="btn btn-primary">Uploader</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal opération APT personnalisée -->
+<div id="custom-apt-modal" class="modal modal-large">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>✨ Nouvelle opération APT personnalisée</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Nom de l'opération</label>
+                <input type="text" id="custom-apt-name" class="form-input" placeholder="Mon opération APT">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea id="custom-apt-description" class="form-textarea" rows="2" placeholder="Description..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="custom-apt-cleanup" checked> Nettoyage post-opération
+                </label>
+            </div>
+            <h4>Phases</h4>
+            <div id="custom-apt-phases" class="custom-apt-phases"></div>
+            <button id="add-custom-phase" class="btn btn-secondary">+ Ajouter une phase</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Annuler</button>
+            <button id="save-custom-apt" class="btn btn-primary">Sauvegarder</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.settings-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+}
+
+.settings-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.settings-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+    position: sticky;
+    bottom: 0;
+}
+
+.token-container {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.token-container .form-input {
+    flex: 1;
+}
+
+.danger-zone {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.danger-zone h4 {
+    color: #f44336;
+    margin-bottom: var(--spacing-md);
+}
+
+.danger-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.tools-config {
+    margin-bottom: var(--spacing-lg);
+}
+
+.tool-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.tool-name {
+    font-weight: var(--font-weight-medium);
+}
+
+.tool-status {
+    font-size: var(--font-size-sm);
+}
+
+.tool-status.found {
+    color: #4caf50;
+}
+
+.tool-status.not-found {
+    color: #f44336;
+}
+
+.wordlists-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: var(--spacing-lg);
+}
+
+.wordlist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.wordlist-name {
+    font-weight: var(--font-weight-medium);
+}
+
+.wordlist-size {
+    font-size: var(--font-size-xs);
+    color: var(--gray-600);
+}
+
+.wordlist-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.system-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-sm);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-sm);
+}
+
+.custom-apt-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.custom-apt-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.custom-apt-phases {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: var(--spacing-md) 0;
+}
+
+.phase-item {
+    background: var(--gray-100);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: bold;
+}
+
+.badge-info {
+    background: #2196f3;
+    color: white;
+}
+
+.mt-2 {
+    margin-top: var(--spacing-sm);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-grid,
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-footer {
+        flex-direction: column;
+    }
+    
+    .settings-footer button {
+        width: 100%;
+    }
+    
+    .danger-actions {
+        flex-direction: column;
+    }
+    
+    .token-container {
+        flex-direction: column;
+    }
+    
+    .token-container button {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let phaseCounter = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des onglets
+    const tabs = document.querySelectorAll('.settings-tabs .tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            // Charger les données spécifiques à l'onglet
+            if (tabId === 'tools') loadToolsConfig();
+            if (tabId === 'wordlists') loadWordlists();
+            if (tabId === 'apt') loadCustomAPTOperations();
+            if (tabId === 'advanced') loadSystemInfo();
+        });
+    });
+    
+    // Gestion du jitter
+    const jitterSlider = document.getElementById('stealth-jitter');
+    const jitterValue = document.getElementById('stealth-jitter-value');
+    if (jitterSlider && jitterValue) {
+        jitterSlider.addEventListener('input', () => {
+            jitterValue.textContent = `${jitterSlider.value}%`;
+        });
+    }
+    
+    // Charger la configuration
+    async function loadConfig() {
+        try {
+            const response = await fetch('/api/config');
+            if (response.ok) {
+                const config = await response.json();
+                applyConfig(config);
+            }
+        } catch (error) {
+            console.error('Erreur chargement config:', error);
+        }
+    }
+    
+    function applyConfig(config) {
+        // Général
+        document.getElementById('settings-language').value = config.language || 'fr';
+        document.getElementById('settings-theme').value = config.theme || 'auto';
+        document.getElementById('settings-timeout').value = config.timeout || 300;
+        document.getElementById('settings-threads').value = config.threads || 10;
+        document.getElementById('settings-auto-save').checked = config.auto_save || false;
+        document.getElementById('settings-verify-ssl').checked = config.verify_ssl !== false;
+        document.getElementById('settings-compress-results').checked = config.compress_results || false;
+        document.getElementById('settings-keep-logs').checked = config.keep_logs || false;
+        
+        // Mode furtif
+        document.getElementById('stealth-global-enabled').checked = config.stealth?.enabled || false;
+        document.getElementById('stealth-default-level').value = config.stealth?.default_level || 'medium';
+        document.getElementById('stealth-min-delay').value = config.stealth?.min_delay || 0.5;
+        document.getElementById('stealth-max-delay').value = config.stealth?.max_delay || 3.0;
+        document.getElementById('stealth-jitter').value = (config.stealth?.jitter || 30) * 100;
+        if (jitterValue) jitterValue.textContent = `${(config.stealth?.jitter || 30) * 100}%`;
+        document.getElementById('stealth-random-user-agents').checked = config.stealth?.random_user_agents || false;
+        document.getElementById('stealth-use-tor').checked = config.stealth?.use_tor || false;
+        document.getElementById('stealth-rotate-proxies').checked = config.stealth?.rotate_proxies || false;
+        document.getElementById('stealth-mimic-human').checked = config.stealth?.mimic_human || false;
+        document.getElementById('stealth-slow-loris').checked = config.stealth?.slow_loris || false;
+        document.getElementById('stealth-random-delays').checked = config.stealth?.random_delays || false;
+        if (config.stealth?.proxy_list) {
+            document.getElementById('stealth-proxy-list').value = config.stealth.proxy_list.join('\n');
+        }
+        
+        // Multi-attaques
+        document.getElementById('multi-default-mode').value = config.multi_attack?.default_mode || 'sequential';
+        document.getElementById('multi-max-parallel').value = config.multi_attack?.max_parallel || 5;
+        document.getElementById('multi-delay').value = config.multi_attack?.delay || 1;
+        document.getElementById('multi-timeout').value = config.multi_attack?.timeout || 300;
+        document.getElementById('multi-stop-on-error').checked = config.multi_attack?.stop_on_error || false;
+        document.getElementById('multi-save-intermediate').checked = config.multi_attack?.save_intermediate || false;
+        document.getElementById('multi-auto-retry').checked = config.multi_attack?.auto_retry || false;
+        
+        // Opérations APT
+        document.getElementById('apt-auto-cleanup').checked = config.apt?.auto_cleanup !== false;
+        document.getElementById('apt-log-all-phases').checked = config.apt?.log_all_phases || false;
+        document.getElementById('apt-require-confirmation').checked = config.apt?.require_confirmation || false;
+        document.getElementById('apt-phase-delay').value = config.apt?.phase_delay || 5;
+        document.getElementById('apt-persistence-dir').value = config.apt?.persistence_dir || '/tmp/redforge_persistence';
+        document.getElementById('apt-c2-server').value = config.apt?.c2_server || '';
+        document.getElementById('apt-exfil-method').value = config.apt?.exfil_method || 'http';
+        document.getElementById('apt-chunk-size').value = config.apt?.chunk_size || 512;
+        
+        // Proxy
+        document.getElementById('proxy-enabled').checked = config.proxy?.enabled || false;
+        document.getElementById('proxy-type').value = config.proxy?.type || 'http';
+        document.getElementById('proxy-host').value = config.proxy?.host || '';
+        document.getElementById('proxy-port').value = config.proxy?.port || '';
+        document.getElementById('proxy-username').value = config.proxy?.username || '';
+        document.getElementById('proxy-no-proxy').value = config.proxy?.no_proxy || '';
+        
+        // Notifications
+        document.getElementById('notify-scan-complete').checked = config.notifications?.scan_complete || false;
+        document.getElementById('notify-vulnerability').checked = config.notifications?.vulnerability || false;
+        document.getElementById('notify-session').checked = config.notifications?.session || false;
+        document.getElementById('notify-report').checked = config.notifications?.report || false;
+        document.getElementById('notify-multi-complete').checked = config.notifications?.multi_complete || false;
+        document.getElementById('notify-apt-complete').checked = config.notifications?.apt_complete || false;
+        document.getElementById('notify-stealth-alert').checked = config.notifications?.stealth_alert || false;
+        document.getElementById('notify-email').value = config.notifications?.email || '';
+        document.getElementById('notify-webhook').value = config.notifications?.webhook || '';
+        document.getElementById('notify-threshold').value = config.notifications?.threshold || 5;
+        
+        // Avancé
+        document.getElementById('adv-max-log-size').value = config.advanced?.max_log_size || 100;
+        document.getElementById('adv-log-level').value = config.advanced?.log_level || 'info';
+        document.getElementById('adv-log-requests').checked = config.advanced?.log_requests || false;
+        document.getElementById('adv-log-responses').checked = config.advanced?.log_responses || false;
+        document.getElementById('adv-performance-monitoring').checked = config.advanced?.performance_monitoring || false;
+        document.getElementById('adv-api-token').value = config.api_token || '';
+    }
+    
+    async function saveConfig() {
+        const config = {
+            language: document.getElementById('settings-language').value,
+            theme: document.getElementById('settings-theme').value,
+            timeout: parseInt(document.getElementById('settings-timeout').value),
+            threads: parseInt(document.getElementById('settings-threads').value),
+            auto_save: document.getElementById('settings-auto-save').checked,
+            verify_ssl: document.getElementById('settings-verify-ssl').checked,
+            compress_results: document.getElementById('settings-compress-results').checked,
+            keep_logs: document.getElementById('settings-keep-logs').checked,
+            stealth: {
+                enabled: document.getElementById('stealth-global-enabled').checked,
+                default_level: document.getElementById('stealth-default-level').value,
+                min_delay: parseFloat(document.getElementById('stealth-min-delay').value),
+                max_delay: parseFloat(document.getElementById('stealth-max-delay').value),
+                jitter: parseInt(document.getElementById('stealth-jitter').value) / 100,
+                random_user_agents: document.getElementById('stealth-random-user-agents').checked,
+                use_tor: document.getElementById('stealth-use-tor').checked,
+                rotate_proxies: document.getElementById('stealth-rotate-proxies').checked,
+                mimic_human: document.getElementById('stealth-mimic-human').checked,
+                slow_loris: document.getElementById('stealth-slow-loris').checked,
+                random_delays: document.getElementById('stealth-random-delays').checked,
+                proxy_list: document.getElementById('stealth-proxy-list').value.split('\n').filter(p => p.trim())
+            },
+            multi_attack: {
+                default_mode: document.getElementById('multi-default-mode').value,
+                max_parallel: parseInt(document.getElementById('multi-max-parallel').value),
+                delay: parseInt(document.getElementById('multi-delay').value),
+                timeout: parseInt(document.getElementById('multi-timeout').value),
+                stop_on_error: document.getElementById('multi-stop-on-error').checked,
+                save_intermediate: document.getElementById('multi-save-intermediate').checked,
+                auto_retry: document.getElementById('multi-auto-retry').checked
+            },
+            apt: {
+                auto_cleanup: document.getElementById('apt-auto-cleanup').checked,
+                log_all_phases: document.getElementById('apt-log-all-phases').checked,
+                require_confirmation: document.getElementById('apt-require-confirmation').checked,
+                phase_delay: parseInt(document.getElementById('apt-phase-delay').value),
+                persistence_dir: document.getElementById('apt-persistence-dir').value,
+                c2_server: document.getElementById('apt-c2-server').value,
+                exfil_method: document.getElementById('apt-exfil-method').value,
+                chunk_size: parseInt(document.getElementById('apt-chunk-size').value)
+            },
+            proxy: {
+                enabled: document.getElementById('proxy-enabled').checked,
+                type: document.getElementById('proxy-type').value,
+                host: document.getElementById('proxy-host').value,
+                port: parseInt(document.getElementById('proxy-port').value) || 0,
+                username: document.getElementById('proxy-username').value,
+                password: document.getElementById('proxy-password').value,
+                no_proxy: document.getElementById('proxy-no-proxy').value
+            },
+            notifications: {
+                scan_complete: document.getElementById('notify-scan-complete').checked,
+                vulnerability: document.getElementById('notify-vulnerability').checked,
+                session: document.getElementById('notify-session').checked,
+                report: document.getElementById('notify-report').checked,
+                multi_complete: document.getElementById('notify-multi-complete').checked,
+                apt_complete: document.getElementById('notify-apt-complete').checked,
+                stealth_alert: document.getElementById('notify-stealth-alert').checked,
+                email: document.getElementById('notify-email').value,
+                webhook: document.getElementById('notify-webhook').value,
+                threshold: parseInt(document.getElementById('notify-threshold').value)
+            },
+            advanced: {
+                max_log_size: parseInt(document.getElementById('adv-max-log-size').value),
+                log_level: document.getElementById('adv-log-level').value,
+                log_requests: document.getElementById('adv-log-requests').checked,
+                log_responses: document.getElementById('adv-log-responses').checked,
+                performance_monitoring: document.getElementById('adv-performance-monitoring').checked
+            }
+        };
+        
+        try {
+            const response = await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+            
+            if (response.ok) {
+                showNotification('Configuration sauvegardée', 'success');
+                // Appliquer le thème
+                if (config.theme === 'dark') {
+                    document.body.classList.add('dark-theme');
+                } else if (config.theme === 'light') {
+                    document.body.classList.remove('dark-theme');
+                }
+            } else {
+                throw new Error('Erreur sauvegarde');
+            }
+        } catch (error) {
+            showNotification('Erreur lors de la sauvegarde', 'error');
+        }
+    }
+    
+    async function loadToolsConfig() {
+        try {
+            const response = await fetch('/api/tools/list');
+            const tools = await response.json();
+            const container = document.getElementById('tools-config');
+            
+            if (container) {
+                container.innerHTML = Object.entries(tools).map(([name, info]) => `
+                    <div class="tool-item">
+                        <span class="tool-name">${name}</span>
+                        <span class="tool-status ${info.found ? 'found' : 'not-found'}">
+                            ${info.found ? '✅ ' + info.path : '❌ Non trouvé'}
+                        </span>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Erreur chargement outils:', error);
+        }
+    }
+    
+    async function loadWordlists() {
+        try {
+            const response = await fetch('/api/wordlists');
+            const data = await response.json();
+            const container = document.getElementById('wordlists-list');
+            const userSelect = document.getElementById('default-userlist');
+            const passSelect = document.getElementById('default-passlist');
+            const dirSelect = document.getElementById('default-dirlist');
+            const subSelect = document.getElementById('default-subdomainlist');
+            
+            if (container && data.wordlists) {
+                let html = '';
+                for (const [category, lists] of Object.entries(data.wordlists)) {
+                    html += `<h4>${category}</h4>`;
+                    lists.forEach(list => {
+                        html += `
+                            <div class="wordlist-item">
+                                <div>
+                                    <div class="wordlist-name">${escapeHtml(list.name)}</div>
+                                    <div class="wordlist-size">${list.size} lignes</div>
+                                </div>
+                                <div class="wordlist-actions">
+                                    <button class="btn btn-sm btn-secondary preview-wordlist" data-path="${list.path}">👁️</button>
+                                    <button class="btn btn-sm btn-danger delete-wordlist" data-path="${list.path}">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                container.innerHTML = html || '<div class="no-data">Aucune wordlist trouvée</div>';
+                
+                // Remplir les selects
+                const allLists = [];
+                for (const category of Object.values(data.wordlists)) {
+                    allLists.push(...category);
+                }
+                const options = allLists.map(l => `<option value="${l.path}">${l.name} (${l.size} lignes)</option>`).join('');
+                if (userSelect) userSelect.innerHTML = '<option value="">Sélectionner</option>' + options;
+                if (passSelect) passSelect.innerHTML = '<option value="">Sélectionner</option>' + options;
+                if (dirSelect) dirSelect.innerHTML = '<option value="">Sélectionner</option>' + options;
+                if (subSelect) subSelect.innerHTML = '<option value="">Sélectionner</option>' + options;
+            }
+        } catch (error) {
+            console.error('Erreur chargement wordlists:', error);
+        }
+    }
+    
+    async function loadCustomAPTOperations() {
+        try {
+            const response = await fetch('/api/apt/operations');
+            const data = await response.json();
+            const container = document.getElementById('custom-apt-list');
+            
+            if (container) {
+                const custom = data.custom || [];
+                if (custom.length === 0) {
+                    container.innerHTML = '<div class="no-data">Aucune opération personnalisée</div>';
+                } else {
+                    container.innerHTML = custom.map(op => `
+                        <div class="custom-apt-item">
+                            <div>
+                                <div class="custom-apt-name">${escapeHtml(op)}</div>
+                            </div>
+                            <div class="custom-apt-actions">
+                                <button class="btn btn-sm btn-secondary edit-apt" data-name="${op}">✏️</button>
+                                <button class="btn btn-sm btn-danger delete-apt" data-name="${op}">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement APT:', error);
+        }
+    }
+    
+    async function loadSystemInfo() {
+        try {
+            const response = await fetch('/api/system/info');
+            const info = await response.json();
+            const container = document.getElementById('system-info');
+            
+            if (container) {
+                container.innerHTML = `
+                    <div class="info-item"><span>Version RedForge:</span><span>${info.version || '2.0.0'}</span></div>
+                    <div class="info-item"><span>Système d'exploitation:</span><span>${info.os || 'N/A'}</span></div>
+                    <div class="info-item"><span>Python version:</span><span>${info.python_version || 'N/A'}</span></div>
+                    <div class="info-item"><span>CPU:</span><span>${info.cpu_count || 'N/A'} cœurs</span></div>
+                    <div class="info-item"><span>Mémoire totale:</span><span>${info.total_memory || 'N/A'} MB</span></div>
+                    <div class="info-item"><span>Mémoire disponible:</span><span>${info.available_memory || 'N/A'} MB</span></div>
+                    <div class="info-item"><span>Espace disque:</span><span>${info.disk_free || 'N/A'} GB libre / ${info.disk_total || 'N/A'} GB</span></div>
+                    <div class="info-item"><span>Uptime serveur:</span><span>${info.uptime || 'N/A'}</span></div>
+                `;
+            }
+        } catch (error) {
+            console.error('Erreur chargement infos système:', error);
+        }
+    }
+    
+    // Vérifier les outils
+    document.getElementById('verify-tools')?.addEventListener('click', async () => {
+        showNotification('Vérification des outils en cours...', 'info');
+        try {
+            const response = await fetch('/api/tools/verify');
+            const data = await response.json();
+            let message = '';
+            for (const [tool, status] of Object.entries(data)) {
+                message += `${tool}: ${status.found ? '✅' : '❌'} ${status.path || ''}\n`;
+            }
+            alert(message);
+        } catch (error) {
+            showNotification('Erreur lors de la vérification', 'error');
+        }
+    });
+    
+    // Tester le proxy
+    document.getElementById('test-proxy')?.addEventListener('click', async () => {
+        const proxyConfig = {
+            enabled: document.getElementById('proxy-enabled').checked,
+            type: document.getElementById('proxy-type').value,
+            host: document.getElementById('proxy-host').value,
+            port: parseInt(document.getElementById('proxy-port').value)
+        };
+        
+        showNotification('Test du proxy en cours...', 'info');
+        
+        try {
+            const response = await fetch('/api/proxy/test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(proxyConfig)
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                showNotification('Proxy fonctionnel', 'success');
+            } else {
+                showNotification(`Proxy non fonctionnel: ${result.error}`, 'error');
+            }
+        } catch (error) {
+            showNotification('Erreur lors du test', 'error');
+        }
+    });
+    
+    // Upload wordlist
+    const uploadBtn = document.getElementById('upload-wordlist');
+    const uploadModal = document.getElementById('upload-wordlist-modal');
+    if (uploadBtn && uploadModal) {
+        uploadBtn.addEventListener('click', () => openModal(uploadModal));
+    }
+    
+    document.getElementById('upload-wordlist-confirm')?.addEventListener('click', async () => {
+        const name = document.getElementById('wordlist-name').value;
+        const type = document.getElementById('wordlist-type').value;
+        const file = document.getElementById('wordlist-file').files[0];
+        
+        if (!name || !file) {
+            showNotification('Veuillez remplir tous les champs', 'warning');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('type', type);
+        formData.append('file', file);
+        
+        try {
+            const response = await fetch('/api/wordlists/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                showNotification('Wordlist uploadée avec succès', 'success');
+                closeModal(uploadModal);
+                loadWordlists();
+            } else {
+                throw new Error('Erreur upload');
+            }
+        } catch (error) {
+            showNotification('Erreur lors de l\'upload', 'error');
+        }
+    });
+    
+    // Régénérer le token API
+    document.getElementById('regenerate-api-token')?.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/token/regenerate', { method: 'POST' });
+            const data = await response.json();
+            document.getElementById('adv-api-token').value = data.token;
+            showNotification('Token régénéré', 'success');
+        } catch (error) {
+            showNotification('Erreur lors de la régénération', 'error');
+        }
+    });
+    
+    // Copier le token API
+    document.getElementById('copy-api-token')?.addEventListener('click', () => {
+        const token = document.getElementById('adv-api-token');
+        token.select();
+        document.execCommand('copy');
+        showNotification('Token copié', 'success');
+    });
+    
+    // Effacer toutes les données
+    document.getElementById('clear-all-data')?.addEventListener('click', () => {
+        if (confirm('⚠️ Cette action est irréversible. Voulez-vous vraiment effacer toutes les données ?')) {
+            fetch('/api/data/clear', { method: 'DELETE' })
+                .then(() => showNotification('Données effacées', 'success'))
+                .catch(() => showNotification('Erreur', 'error'));
+        }
+    });
+    
+    // Effacer les logs
+    document.getElementById('clear-logs')?.addEventListener('click', async () => {
+        if (confirm('Voulez-vous vraiment effacer tous les logs ?')) {
+            try {
+                await fetch('/api/logs/clear', { method: 'DELETE' });
+                showNotification('Logs effacés', 'success');
+            } catch (error) {
+                showNotification('Erreur', 'error');
+            }
+        }
+    });
+    
+    // Redémarrer le serveur
+    document.getElementById('restart-server')?.addEventListener('click', async () => {
+        if (confirm('⚠️ Le redémarrage du serveur interrompra les opérations en cours. Continuer ?')) {
+            try {
+                await fetch('/api/server/restart', { method: 'POST' });
+                showNotification('Redémarrage du serveur...', 'info');
+                setTimeout(() => location.reload(), 5000);
+            } catch (error) {
+                showNotification('Erreur', 'error');
+            }
+        }
+    });
+    
+    // Réinitialiser la configuration
+    document.getElementById('reset-config')?.addEventListener('click', () => {
+        if (confirm('Voulez-vous vraiment réinitialiser tous les paramètres ?')) {
+            fetch('/api/config/reset', { method: 'POST' })
+                .then(() => {
+                    showNotification('Configuration réinitialisée', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                })
+                .catch(() => showNotification('Erreur', 'error'));
+        }
+    });
+    
+    // Sauvegarder tous les paramètres
+    document.getElementById('save-all-settings')?.addEventListener('click', saveConfig);
+    document.getElementById('save-tools')?.addEventListener('click', saveConfig);
+    document.getElementById('save-proxy')?.addEventListener('click', saveConfig);
+    
+    // Annuler
+    document.getElementById('cancel-settings')?.addEventListener('click', () => {
+        if (confirm('Annuler les modifications ?')) {
+            loadConfig();
+        }
+    });
+    
+    // Opération APT personnalisée
+    const addCustomApt = document.getElementById('add-custom-apt');
+    const customAptModal = document.getElementById('custom-apt-modal');
+    if (addCustomApt && customAptModal) {
+        addCustomApt.addEventListener('click', () => {
+            resetCustomAPTForm();
+            openModal(customAptModal);
+        });
+    }
+    
+    document.getElementById('add-custom-phase')?.addEventListener('click', () => {
+        addPhaseToForm();
+    });
+    
+    document.getElementById('save-custom-apt')?.addEventListener('click', async () => {
+        const name = document.getElementById('custom-apt-name').value;
+        const description = document.getElementById('custom-apt-description').value;
+        const cleanup = document.getElementById('custom-apt-cleanup').checked;
+        
+        const phases = [];
+        document.querySelectorAll('.phase-item').forEach((phase, index) => {
+            const phaseName = phase.querySelector('.phase-name-input').value;
+            const attacks = Array.from(phase.querySelector('.phase-attacks-select').selectedOptions).map(opt => opt.value);
+            if (phaseName && attacks.length) {
+                phases.push({ name: phaseName, attacks });
+            }
+        });
+        
+        if (!name || phases.length === 0) {
+            showNotification('Veuillez remplir le nom et au moins une phase', 'warning');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/apt/custom', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description, phases, cleanup })
+            });
+            
+            if (response.ok) {
+                showNotification('Opération APT créée', 'success');
+                closeModal(customAptModal);
+                loadCustomAPTOperations();
+            } else {
+                throw new Error('Erreur création');
+            }
+        } catch (error) {
+            showNotification('Erreur lors de la création', 'error');
+        }
+    });
+    
+    function resetCustomAPTForm() {
+        document.getElementById('custom-apt-name').value = '';
+        document.getElementById('custom-apt-description').value = '';
+        document.getElementById('custom-apt-cleanup').checked = true;
+        const container = document.getElementById('custom-apt-phases');
+        container.innerHTML = '';
+        phaseCounter = 0;
+        addPhaseToForm();
+    }
+    
+    function addPhaseToForm() {
+        phaseCounter++;
+        const container = document.getElementById('custom-apt-phases');
+        const phaseDiv = document.createElement('div');
+        phaseDiv.className = 'phase-item';
+        phaseDiv.innerHTML = `
+            <div class="phase-header">
+                <strong>Phase ${phaseCounter}</strong>
+                <button class="remove-phase btn-sm btn-danger">🗑️ Supprimer</button>
+            </div>
+            <div class="form-group">
+                <label>Nom de la phase</label>
+                <input type="text" class="phase-name-input form-input" placeholder="Reconnaissance">
+            </div>
+            <div class="form-group">
+                <label>Attaques</label>
+                <select multiple class="phase-attacks-select form-select" size="5">
+                    <option value="port_scan">Port Scan</option>
+                    <option value="service_enum">Service Enumeration</option>
+                    <option value="sql_injection">SQL Injection</option>
+                    <option value="xss">XSS</option>
+                    <option value="file_upload">File Upload</option>
+                    <option value="lfi">LFI/RFI</option>
+                    <option value="command_injection">Command Injection</option>
+                    <option value="bruteforce">Bruteforce</option>
+                    <option value="persistence">Persistence</option>
+                    <option value="lateral_movement">Lateral Movement</option>
+                </select>
+            </div>
+        `;
+        phaseDiv.querySelector('.remove-phase').addEventListener('click', () => phaseDiv.remove());
+        container.appendChild(phaseDiv);
+    }
+    
+    // Fonctions utilitaires
+    function openModal(modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal(modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function showNotification(message, type) {
+        if (typeof window.showNotification === 'function') {
+            window.showNotification(message, type);
+        } else {
+            console.log(`[${type}] ${message}`);
+        }
+    }
+    
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) closeModal(modal);
+        });
+    });
+    
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            closeModal(e.target);
+        }
+    });
+    
+    // Chargement initial
+    loadConfig();
+    loadToolsConfig();
+    loadWordlists();
+    loadCustomAPTOperations();
+    loadSystemInfo();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,177 @@
+{
+    "welcome": "Bienvenue dans RedForge v{version}",
+    "banner": "RedForge - Plateforme d'Orchestration de Pentest Web pour Red Team",
+    "help_header": "=== GUIDE D'UTILISATION REDFORGE ===",
+    "help_footer": "Pour plus d'aide : RedForge --aide-commande [commande]",
+    
+    "options": {
+        "target": "Cible à analyser (URL ou IP)",
+        "file": "Fichier contenant la liste des cibles",
+        "phase": "Phase à exécuter",
+        "gui": "Lance l'interface graphique",
+        "output": "Fichier de sortie pour le rapport",
+        "ports": "Ports à scanner (défaut: 1-1000)",
+        "threads": "Nombre de threads (défaut: 10)",
+        "timeout": "Timeout global en secondes (défaut: 300)",
+        "help": "Affiche cette aide",
+        "version": "Affiche la version",
+        "interactive": "Mode interactif",
+        "no_banner": "Supprime l'affichage de la bannière",
+        "verbose": "Mode verbeux (affiche plus de détails)",
+        "quiet": "Mode silencieux (affiche moins d'informations)",
+        "stealth": "Mode furtif (ralentit les requêtes)",
+        "apt": "Mode APT (ultra discret)",
+        "schedule": "Planification cron pour attaques récurrentes",
+        "duration": "Durée de l'opération APT en secondes"
+    },
+    
+    "phases": {
+        "footprint": "Reconnaissance",
+        "analysis": "Analyse approfondie",
+        "scan": "Scan de vulnérabilités",
+        "exploit": "Exploitation",
+        "all": "Chaîne complète"
+    },
+    
+    "phase_descriptions": {
+        "footprint": "Collecte d'informations sur la cible (ports, services, technologies)",
+        "analysis": "Analyse détaillée de l'application (répertoires, paramètres, formulaires)",
+        "scan": "Détection des vulnérabilités (XSS, SQLi, LFI, etc.)",
+        "exploit": "Exploitation des vulnérabilités découvertes",
+        "all": "Exécute toutes les phases séquentiellement"
+    },
+    
+    "examples": {
+        "scan": "RedForge -t example.com -p footprint",
+        "full": "RedForge -t 192.168.1.100 -p all -o rapport.html",
+        "xss": "RedForge -t example.com -p scan --xss",
+        "sql": "RedForge -t example.com -p scan --sqlmap",
+        "bruteforce": "RedForge -t example.com -p exploit --bruteforce",
+        "gui": "sudo RedForge -g",
+        "interactive": "RedForge -i",
+        "stealth": "RedForge -t example.com --stealth",
+        "apt": "RedForge -t example.com --apt --duration 86400",
+        "schedule": "RedForge -t example.com --schedule '0 2 * * *' --stealth",
+        "file": "RedForge -f cibles.txt -p footprint"
+    },
+    
+    "attack_options": {
+        "xss": "Active le scan XSS (Cross-Site Scripting)",
+        "sqlmap": "Active le scan SQLi avec SQLMap",
+        "bruteforce": "Active la force brute sur l'authentification",
+        "lfi": "Active le scan LFI/RFI (Local/Remote File Inclusion)",
+        "ssrf": "Active le scan SSRF (Server-Side Request Forgery)",
+        "xxe": "Active le scan XXE (XML External Entity)",
+        "rce": "Active la recherche de RCE (Remote Code Execution)",
+        "nosql": "Active le scan d'injection NoSQL",
+        "command": "Active le scan d'injection de commandes",
+        "csrf": "Active le scan CSRF",
+        "jwt": "Active l'analyse de tokens JWT"
+    },
+    
+    "stealth_levels": {
+        "low": "Faible - Rapide, détectable",
+        "medium": "Moyen - Équilibré",
+        "high": "Élevé - Lent, discret",
+        "extreme": "Extrême - Très lent, ultra discret",
+        "apt": "APT - Ultra lent, style APT"
+    },
+    
+    "status": {
+        "starting": "🚀 Lancement de RedForge...",
+        "running_phase": "Exécution de la phase {phase}...",
+        "phase_complete": "✅ Phase {phase} terminée",
+        "phase_error": "❌ Erreur lors de la phase {phase}: {error}",
+        "generating_report": "📄 Génération du rapport vers {output}...",
+        "report_generated": "✅ Rapport généré : {output}",
+        "complete": "✅ RedForge a terminé son exécution en {duration}s !",
+        "interrupted": "⚠️ Interruption utilisateur. Arrêt de RedForge...",
+        "vulnerabilities_found": "⚠️ {count} vulnérabilité(s) détectée(s)",
+        "no_vulnerabilities": "✅ Aucune vulnérabilité détectée",
+        "target_missing": "❌ Erreur: Spécifiez une cible avec -t ou -f",
+        "file_not_found": "❌ Erreur: Fichier '{file}' non trouvé",
+        "tool_missing": "⚠️ Outil manquant: {tool}",
+        "dependency_missing": "⚠️ Dépendance manquante: {dep}",
+        "sudo_required": "❌ Cette opération nécessite les droits sudo",
+        "check_help": "👉 Tapez RedForge --help pour l'aide"
+    },
+    
+    "interactive": {
+        "prompt": "RedForge> ",
+        "welcome": "💬 MODE INTERACTIF REDFORGE",
+        "help": "Tapez 'help' pour l'aide, 'exit' pour quitter",
+        "commands": {
+            "help": "Affiche l'aide",
+            "exit": "Quitte le mode interactif",
+            "quit": "Quitte le mode interactif",
+            "scan": "Lance un scan sur une cible",
+            "list": "Liste les modules disponibles",
+            "status": "Affiche le statut",
+            "target": "Définit ou affiche la cible courante",
+            "phase": "Change la phase courante",
+            "mode": "Change le mode (standard/stealth/apt)",
+            "report": "Génère un rapport",
+            "clear": "Efface l'écran",
+            "history": "Affiche l'historique des commandes"
+        },
+        "examples": {
+            "target": "target example.com",
+            "phase": "phase scan",
+            "mode": "mode stealth",
+            "scan": "scan",
+            "report": "report rapport.html"
+        }
+    },
+    
+    "loading": "Chargement...",
+    "yes": "Oui",
+    "no": "Non",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "continue": "Continuer",
+    "retry": "Réessayer",
+    "skip": "Ignorer",
+    "abort": "Abandonner",
+    
+    "errors": {
+        "generic": "Une erreur est survenue",
+        "network": "Erreur réseau: {error}",
+        "timeout": "Délai d'attente dépassé",
+        "permission": "Permission refusée",
+        "invalid_target": "Cible invalide: {target}",
+        "invalid_phase": "Phase invalide: {phase}",
+        "invalid_option": "Option invalide: {option}",
+        "module_not_found": "Module non trouvé: {module}",
+        "tool_not_found": "Outil non trouvé: {tool}. Installez-le avec: sudo apt install {tool}",
+        "config_error": "Erreur de configuration: {error}"
+    },
+    
+    "warnings": {
+        "slow_scan": "⚠️ Scan lent en raison du mode furtif",
+        "apt_mode": "🎭 Mode APT activé - Opération ultra discrète",
+        "stealth_mode": "🕵️ Mode furtif activé",
+        "background": "🔄 Opération en arrière-plan",
+        "no_internet": "⚠️ Pas de connexion Internet détectée",
+        "low_disk": "⚠️ Espace disque faible ({free} MB restants)",
+        "outdated": "⚠️ Une nouvelle version ({version}) est disponible"
+    },
+    
+    "info": {
+        "version": "RedForge v{version}",
+        "copyright": "© 2026 RedForge - Licence GPLv3",
+        "issues": "Rapporter un bug: https://github.com/Elfried002/RedForge/issues"
+    },
+    
+    "report": {
+        "title": "Rapport RedForge",
+        "summary": "Résumé",
+        "details": "Détails",
+        "vulnerabilities": "Vulnérabilités",
+        "recommendations": "Recommandations",
+        "target": "Cible",
+        "date": "Date",
+        "duration": "Durée",
+        "phase": "Phase",
+        "status": "Statut"
+    }
+}

@@ -1,0 +1,724 @@
+{#
+    RedForge - Footer Amélioré
+    Pied de page commun à toutes les pages
+    Version: 2.0.0 - Support Multi-Attacks, Stealth Mode, APT Operations
+#}
+
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-content">
+            <div class="footer-info">
+                <div class="footer-logo">
+                    🔴 <strong>RedForge</strong> <span class="footer-version">v2.0.0</span>
+                    <span class="footer-badge beta">APT Ready</span>
+                </div>
+                <div class="footer-copyright">
+                    &copy; 2024-2025 RedForge Team. Tous droits réservés.
+                </div>
+                <div class="footer-tagline">
+                    Orchestration de pentest avancée | Multi-Attacks | Mode Furtif | Opérations APT
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <div class="footer-links-group">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="{{ url_for('dashboard') }}">📊 Tableau de bord</a></li>
+                        <li><a href="{{ url_for('attacks_page') }}">🎯 Attaques</a></li>
+                        <li><a href="{{ url_for('apt_page') }}">🎭 Opérations APT</a></li>
+                        <li><a href="{{ url_for('stealth_page') }}">🕵️ Mode Furtif</a></li>
+                        <li><a href="{{ url_for('reports_page') }}">📄 Rapports</a></li>
+                        <li><a href="{{ url_for('settings_page') }}">⚙️ Paramètres</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links-group">
+                    <h4>Fonctionnalités</h4>
+                    <ul>
+                        <li><a href="#" onclick="showFeatureInfo('multi-attacks')">📚 Attaques Multiples</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('stealth')">🕵️ Mode Furtif</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('apt')">🎯 Opérations APT</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('reports')">📊 Rapports avancés</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('realtime')">⚡ Temps réel</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('api')">🔌 API REST</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links-group">
+                    <h4>Ressources</h4>
+                    <ul>
+                        <li><a href="#" target="_blank">📖 Documentation</a></li>
+                        <li><a href="#" target="_blank">🔧 API Reference</a></li>
+                        <li><a href="#" target="_blank">💻 GitHub</a></li>
+                        <li><a href="#" target="_blank">🐛 Signalement de bugs</a></li>
+                        <li><a href="#" target="_blank">📝 Changelog</a></li>
+                        <li><a href="#" target="_blank">🔒 Security Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links-group">
+                    <h4>Communauté</h4>
+                    <ul>
+                        <li><a href="#" target="_blank">💬 Discord</a></li>
+                        <li><a href="#" target="_blank">🐦 Twitter/X</a></li>
+                        <li><a href="#" target="_blank">📧 Email Support</a></li>
+                        <li><a href="#" target="_blank">🗣️ Forum</a></li>
+                        <li><a href="#" target="_blank">📺 YouTube</a></li>
+                        <li><a href="#" target="_blank">📱 Telegram</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links-group">
+                    <h4>Légal</h4>
+                    <ul>
+                        <li><a href="#" target="_blank">⚖️ Conditions d'utilisation</a></li>
+                        <li><a href="#" target="_blank">🔒 Politique de confidentialité</a></li>
+                        <li><a href="#" target="_blank">📜 Mentions légales</a></li>
+                        <li><a href="#" target="_blank">📄 Licence GPLv3</a></li>
+                        <li><a href="#" target="_blank">🍪 Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-stats">
+                <div class="footer-stat" title="Statut de la connexion">
+                    <span class="stat-icon">🔌</span>
+                    <span id="footer-connection-status" class="status-connected">Connecté</span>
+                </div>
+                <div class="footer-stat" title="Mode furtif actif">
+                    <span class="stat-icon">🕵️</span>
+                    <span id="footer-stealth-status">Standard</span>
+                </div>
+                <div class="footer-stat" title="Opérations APT en cours">
+                    <span class="stat-icon">🎯</span>
+                    <span id="footer-apt-count">0 APT actives</span>
+                </div>
+                <div class="footer-stat" title="Multi-attaques en cours">
+                    <span class="stat-icon">📚</span>
+                    <span id="footer-multi-count">0 multi-attaques</span>
+                </div>
+                <div class="footer-stat" title="Horloge système">
+                    <span class="stat-icon">🕐</span>
+                    <span id="footer-time"></span>
+                </div>
+                <div class="footer-stat" title="Performance">
+                    <span class="stat-icon">⚡</span>
+                    <span id="footer-response-time">0ms</span>
+                </div>
+            </div>
+            
+            <div class="footer-progress">
+                <div class="global-progress" id="global-progress" style="display: none;">
+                    <div class="progress-bar" style="width: 0%"></div>
+                    <span class="progress-text"></span>
+                </div>
+            </div>
+            
+            <div class="footer-legal">
+                <span>⚠️ RedForge est un outil de test d'intrusion.</span>
+                <span>Utilisez-le UNIQUEMENT sur des systèmes autorisés.</span>
+                <span class="legal-warning">Toute utilisation non autorisée est illégale.</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+.footer {
+    background: var(--white);
+    border-top: 1px solid var(--gray-200);
+    padding: var(--spacing-lg) 0 0 0;
+    margin-top: auto;
+    font-size: var(--font-size-sm);
+}
+
+.footer-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.footer-info {
+    flex: 1;
+    min-width: 250px;
+}
+
+.footer-logo {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.footer-version {
+    font-size: var(--font-size-sm);
+    color: var(--gray-500);
+    font-weight: normal;
+}
+
+.footer-badge {
+    font-size: var(--font-size-xs);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-full);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 500;
+}
+
+.footer-badge.beta {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.footer-copyright {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-xs);
+}
+
+.footer-tagline {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    font-style: italic;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xl);
+    flex: 3;
+    justify-content: flex-end;
+}
+
+.footer-links-group {
+    min-width: 130px;
+}
+
+.footer-links-group h4 {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-sm);
+    color: var(--gray-700);
+    border-left: 3px solid var(--primary-red);
+    padding-left: var(--spacing-sm);
+}
+
+.footer-links-group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links-group li {
+    margin-bottom: var(--spacing-xs);
+}
+
+.footer-links-group a {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    display: inline-block;
+}
+
+.footer-links-group a:hover {
+    color: var(--primary-red);
+    transform: translateX(3px);
+}
+
+.footer-bottom {
+    padding: var(--spacing-md) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.footer-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    justify-content: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.footer-stat {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--gray-100);
+    border-radius: var(--border-radius-full);
+    transition: all var(--transition-fast);
+}
+
+.footer-stat:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-icon {
+    font-size: var(--font-size-md);
+}
+
+#footer-connection-status {
+    font-weight: var(--font-weight-medium);
+}
+
+#footer-connection-status.status-connected {
+    color: #4caf50;
+}
+
+#footer-connection-status.status-connecting {
+    color: #ff9800;
+}
+
+#footer-connection-status.status-disconnected {
+    color: #f44336;
+}
+
+#footer-stealth-status.stealth-active {
+    color: #9c27b0;
+    font-weight: bold;
+}
+
+#footer-stealth-status.stealth-paranoid {
+    color: #e91e63;
+    font-weight: bold;
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 0px #e91e63; }
+    50% { text-shadow: 0 0 5px #e91e63; }
+}
+
+.footer-progress {
+    width: 100%;
+}
+
+.global-progress {
+    width: 100%;
+    background: var(--gray-200);
+    border-radius: var(--border-radius-full);
+    overflow: hidden;
+    position: relative;
+    height: 4px;
+}
+
+.global-progress .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-red), var(--primary-red-light));
+    transition: width var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.global-progress .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.global-progress .progress-text {
+    position: absolute;
+    right: 8px;
+    top: -20px;
+    font-size: var(--font-size-xs);
+    color: var(--gray-600);
+}
+
+.footer-legal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+    color: var(--gray-500);
+    font-size: var(--font-size-xs);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--gray-100);
+}
+
+.legal-warning {
+    color: #ff9800;
+    font-weight: var(--font-weight-medium);
+}
+
+/* Dark theme */
+.dark-theme .footer {
+    background: var(--white);
+    border-top-color: var(--gray-200);
+}
+
+.dark-theme .footer-copyright,
+.dark-theme .footer-stat,
+.dark-theme .footer-links-group a {
+    color: var(--gray-500);
+}
+
+.dark-theme .footer-links-group h4 {
+    color: var(--gray-400);
+}
+
+.dark-theme .footer-links-group a:hover {
+    color: var(--primary-red-light);
+}
+
+.dark-theme .footer-stat {
+    background: var(--gray-100);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .footer-links {
+        gap: var(--spacing-lg);
+    }
+    
+    .footer-links-group {
+        min-width: 110px;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+    
+    .footer-links {
+        justify-content: flex-start;
+        gap: var(--spacing-md);
+    }
+    
+    .footer-links-group {
+        min-width: calc(50% - var(--spacing-md));
+    }
+    
+    .footer-stats {
+        gap: var(--spacing-sm);
+    }
+    
+    .footer-stat {
+        font-size: var(--font-size-xs);
+    }
+    
+    .footer-legal {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-links {
+        flex-direction: column;
+    }
+    
+    .footer-links-group {
+        min-width: auto;
+    }
+    
+    .footer-stats {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .footer-stat {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .footer-logo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+
+<script>
+// Mise à jour de l'horloge dans le footer
+function updateFooterTime() {
+    const timeElement = document.getElementById('footer-time');
+    if (timeElement) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('fr-FR');
+        const dateStr = now.toLocaleDateString('fr-FR', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric' 
+        });
+        timeElement.textContent = `${dateStr} ${timeStr}`;
+    }
+}
+
+// Mise à jour du statut de connexion
+function updateFooterConnectionStatus() {
+    const statusElement = document.getElementById('footer-connection-status');
+    if (!statusElement) return;
+    
+    let status = 'connected';
+    let statusText = 'Connecté';
+    let statusClass = 'status-connected';
+    
+    if (typeof window.redforgeWebSocket !== 'undefined') {
+        const wsStatus = window.redforgeWebSocket.getStatus();
+        if (wsStatus === 'connected') {
+            status = 'connected';
+            statusText = '✅ Connecté';
+            statusClass = 'status-connected';
+        } else if (wsStatus === 'connecting') {
+            status = 'connecting';
+            statusText = '🔄 Connexion...';
+            statusClass = 'status-connecting';
+        } else {
+            status = 'disconnected';
+            statusText = '❌ Déconnecté';
+            statusClass = 'status-disconnected';
+        }
+    }
+    
+    statusElement.textContent = statusText;
+    statusElement.className = statusClass;
+}
+
+// Mise à jour du statut mode furtif
+async function updateFooterStealthStatus() {
+    const stealthElement = document.getElementById('footer-stealth-status');
+    if (!stealthElement) return;
+    
+    try {
+        const response = await fetch('/api/stealth/status');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.enabled) {
+                const levelText = {
+                    'low': '🟢 Furtif: Bas',
+                    'medium': '🟡 Furtif: Moyen',
+                    'high': '🔴 Furtif: Élevé',
+                    'paranoid': '🟣 Furtif: Paranoïaque'
+                };
+                stealthElement.textContent = levelText[data.level] || '🕵️ Furtif actif';
+                stealthElement.className = `stealth-active stealth-${data.level}`;
+            } else {
+                stealthElement.textContent = '🕵️ Mode standard';
+                stealthElement.className = '';
+            }
+        }
+    } catch (error) {
+        console.debug('Erreur statut furtif:', error);
+    }
+}
+
+// Mise à jour du compteur APT
+async function updateFooterAPTCount() {
+    const aptElement = document.getElementById('footer-apt-count');
+    if (!aptElement) return;
+    
+    try {
+        const response = await fetch('/api/apt/active-count');
+        if (response.ok) {
+            const data = await response.json();
+            const count = data.count || 0;
+            aptElement.textContent = count === 0 ? '0 APT actives' : `${count} APT active${count > 1 ? 's' : ''}`;
+            
+            if (count > 0) {
+                aptElement.style.fontWeight = 'bold';
+                aptElement.style.color = '#ff9800';
+            } else {
+                aptElement.style.fontWeight = 'normal';
+                aptElement.style.color = '';
+            }
+        }
+    } catch (error) {
+        console.debug('Erreur compteur APT:', error);
+    }
+}
+
+// Mise à jour du compteur multi-attaques
+async function updateFooterMultiCount() {
+    const multiElement = document.getElementById('footer-multi-count');
+    if (!multiElement) return;
+    
+    try {
+        const response = await fetch('/api/multi-attack/active-count');
+        if (response.ok) {
+            const data = await response.json();
+            const count = data.count || 0;
+            multiElement.textContent = count === 0 ? '0 multi-attaques' : `${count} multi-attaque${count > 1 ? 's' : ''}`;
+            
+            if (count > 0) {
+                multiElement.style.fontWeight = 'bold';
+                multiElement.style.color = '#2196f3';
+            } else {
+                multiElement.style.fontWeight = 'normal';
+                multiElement.style.color = '';
+            }
+        }
+    } catch (error) {
+        console.debug('Erreur compteur multi-attaques:', error);
+    }
+}
+
+// Mise à jour du temps de réponse
+let lastRequestTime = 0;
+async function updateFooterResponseTime() {
+    const responseElement = document.getElementById('footer-response-time');
+    if (!responseElement) return;
+    
+    const startTime = performance.now();
+    try {
+        await fetch('/api/ping', { method: 'HEAD', cache: 'no-cache' });
+        const endTime = performance.now();
+        const responseTime = Math.round(endTime - startTime);
+        responseElement.textContent = `${responseTime}ms`;
+        
+        if (responseTime > 500) {
+            responseElement.style.color = '#ff9800';
+        } else if (responseTime > 1000) {
+            responseElement.style.color = '#f44336';
+        } else {
+            responseElement.style.color = '#4caf50';
+        }
+    } catch (error) {
+        responseElement.textContent = '--ms';
+    }
+}
+
+// Barre de progression globale
+let globalProgressInterval = null;
+let currentGlobalProgress = 0;
+
+function updateGlobalProgress(progress, message) {
+    const progressContainer = document.getElementById('global-progress');
+    const progressBar = progressContainer?.querySelector('.progress-bar');
+    const progressText = progressContainer?.querySelector('.progress-text');
+    
+    if (!progressContainer) return;
+    
+    if (progress > 0 && progress < 100) {
+        progressContainer.style.display = 'block';
+        if (progressBar) progressBar.style.width = `${progress}%`;
+        if (progressText && message) progressText.textContent = message;
+        currentGlobalProgress = progress;
+    } else if (progress >= 100) {
+        progressBar.style.width = '100%';
+        setTimeout(() => {
+            progressContainer.style.display = 'none';
+            if (progressBar) progressBar.style.width = '0%';
+            currentGlobalProgress = 0;
+        }, 1000);
+    } else {
+        progressContainer.style.display = 'none';
+    }
+}
+
+// Écouter les événements WebSocket pour les mises à jour en temps réel
+function initFooterWebSocketListeners() {
+    if (typeof window.redforgeWebSocket !== 'undefined') {
+        window.redforgeWebSocket.on('multi_attack_progress', (data) => {
+            updateGlobalProgress(data.progress, `Multi-attaque: ${data.currentAttack || 'En cours'}`);
+            updateFooterMultiCount();
+        });
+        
+        window.redforgeWebSocket.on('apt_phase_progress', (data) => {
+            updateGlobalProgress(data.progress, `APT: Phase ${data.phase}`);
+            updateFooterAPTCount();
+        });
+        
+        window.redforgeWebSocket.on('scan_progress', (data) => {
+            updateGlobalProgress(data.progress, `Scan: ${data.message || 'En cours'}`);
+        });
+        
+        window.redforgeWebSocket.on('stealth_status', (data) => {
+            updateFooterStealthStatus();
+        });
+        
+        window.redforgeWebSocket.on('connection_status', (data) => {
+            updateFooterConnectionStatus();
+        });
+    }
+}
+
+// Afficher les informations sur les fonctionnalités
+function showFeatureInfo(feature) {
+    const titles = {
+        'multi-attacks': '📚 Attaques Multiples',
+        'stealth': '🕵️ Mode Furtif',
+        'apt': '🎯 Opérations APT',
+        'reports': '📊 Rapports Avancés',
+        'realtime': '⚡ Temps Réel',
+        'api': '🔌 API REST'
+    };
+    
+    const descriptions = {
+        'multi-attacks': 'Lancez plusieurs attaques simultanément ou séquentiellement avec suivi de progression en temps réel.',
+        'stealth': 'Mode furtif avec délais aléatoires, rotation de proxies, support TOR et mimétisme humain.',
+        'apt': 'Opérations APT complètes avec phases de reconnaissance, persistance, mouvement latéral et exfiltration.',
+        'reports': 'Générez des rapports détaillés en HTML, JSON ou PDF avec graphiques et métriques.',
+        'realtime': 'Mises à jour en temps réel via WebSocket avec notifications instantanées.',
+        'api': 'API REST complète pour intégration avec d\'autres outils et automatisation.'
+    };
+    
+    if (typeof showNotification === 'function') {
+        showNotification(`${titles[feature]}: ${descriptions[feature]}`, 'info', 5000);
+    } else {
+        alert(`${titles[feature]}\n\n${descriptions[feature]}`);
+    }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    updateFooterTime();
+    updateFooterConnectionStatus();
+    updateFooterStealthStatus();
+    updateFooterAPTCount();
+    updateFooterMultiCount();
+    updateFooterResponseTime();
+    
+    // Mettre à jour l'horloge chaque seconde
+    setInterval(updateFooterTime, 1000);
+    
+    // Mettre à jour les stats périodiquement
+    setInterval(() => {
+        updateFooterStealthStatus();
+        updateFooterAPTCount();
+        updateFooterMultiCount();
+    }, 10000);
+    
+    // Mettre à jour le temps de réponse toutes les 30 secondes
+    setInterval(updateFooterResponseTime, 30000);
+    
+    // Initialiser les listeners WebSocket
+    setTimeout(initFooterWebSocketListeners, 1000);
+});
+
+// Exposer les fonctions globalement
+window.updateGlobalProgress = updateGlobalProgress;
+window.showFeatureInfo = showFeatureInfo;
+</script>
