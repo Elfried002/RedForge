@@ -98,11 +98,22 @@ Support Multi-Attacks, Mode Furtif et Opérations APT
 import sys
 import os
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Déterminer le chemin d'installation
+if os.path.exists("/opt/RedForge"):
+    PROJECT_ROOT = "/opt/RedForge"
+else:
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 sys.path.insert(0, PROJECT_ROOT)
 
 def main():
     try:
+        # Activer l'environnement virtuel si présent
+        venv_python = os.path.join(PROJECT_ROOT, ".venv", "bin", "python")
+        if os.path.exists(venv_python) and sys.executable != venv_python:
+            os.execv(venv_python, [venv_python] + sys.argv)
+            return
+        
         # Vérifier si on lance l'interface web ou CLI
         if len(sys.argv) > 1 and sys.argv[1] in ['-g', '--gui']:
             from src.web_interface.app import create_app, socketio
@@ -133,11 +144,9 @@ EOF
 create_init_files() {
     log_info "Création des fichiers __init__.py..."
     
-    # Créer la structure des dossiers
     mkdir -p "${SCRIPT_DIR}/src"/{core,attacks,web_interface,utils,modules,stealth,multi_attack,apt}
     mkdir -p "${SCRIPT_DIR}/src/web_interface"/{templates,static/{css,js,images}}
     
-    # Fichier principal __init__.py
     cat > "${SCRIPT_DIR}/src/__init__.py" << 'EOF'
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
@@ -147,7 +156,6 @@ __author__ = 'RedForge Team'
 __license__ = 'GPLv3'
 EOF
 
-    # Créer tous les __init__.py
     find "${SCRIPT_DIR}/src" -type d 2>/dev/null | while read dir; do
         if [ ! -f "${dir}/__init__.py" ]; then
             echo "# Module ${dir##*/}" > "${dir}/__init__.py"
@@ -157,19 +165,16 @@ EOF
     log "Fichiers __init__.py créés"
 }
 
-# Installation des dépendances système complètes
+# Installation des dépendances système
 install_system_deps() {
     log_info "Installation des dépendances système..."
     
     apt update
     
     local packages=(
-        # Python et outils de base
         python3 python3-pip python3-venv python3-dev
         build-essential libssl-dev libffi-dev
         curl wget git unzip zip
-        
-        # Outils de pentest
         nmap sqlmap whatweb dirb wfuzz
         hydra john medusa
         metasploit-framework
@@ -178,8 +183,6 @@ install_system_deps() {
         xsstrike dalfox
         wafw00f
         dnsrecon theharvester
-        
-        # Utilitaires
         jq vim-tiny htop
         netcat-openbsd dnsutils
         tcpdump wireshark
@@ -203,69 +206,46 @@ create_venv() {
     
     cd "$SCRIPT_DIR"
     
-    if [ ! -d "venv" ]; then
-        python3 -m venv venv
+    if [ ! -d ".venv" ]; then
+        python3 -m venv .venv
         log "Environnement virtuel créé"
     else
         log "Environnement virtuel existant"
     fi
     
-    source venv/bin/activate
+    source .venv/bin/activate
     pip install --upgrade pip
 }
 
-# Installation des dépendances Python complètes
+# Installation des dépendances Python
 install_python_deps() {
     log_info "Installation des dépendances Python..."
     
-    source venv/bin/activate
+    source .venv/bin/activate
     
-    # Framework web
     pip install flask flask-socketio flask-cors flask-login
     pip install gunicorn gevent gevent-websocket
-    
-    # Requêtes HTTP
     pip install requests httpx aiohttp
     pip install beautifulsoup4 lxml html5lib
     pip install selenium playwright
-    
-    # Sécurité
     pip install cryptography pyjwt bcrypt passlib
     pip install pycryptodome
-    
-    # Analyse
-    pip install nmap python-nmap
-    pip install sqlmap
-    pip install paramiko
-    pip install dnspython netaddr ipaddress
-    
-    # Base de données
+    pip install python-nmap paramiko dnspython netaddr ipaddress
     pip install sqlalchemy redis pymongo
-    
-    # Reporting
     pip install reportlab markdown tabulate
     pip install matplotlib pandas seaborn
     pip install jinja2 weasyprint
     pip install openpyxl xlsxwriter
-    
-    # CLI et UI
     pip install rich colorama pyyaml click tqdm
     pip install python-dateutil pytz
     pip install prompt-toolkit pygments
-    
-    # Utilitaires
     pip install psutil python-magic
     pip install pydantic loguru
     pip install websockets pysocks
     pip install schedule
-    
-    # Mode furtif
     pip install stem requests-tor
     pip install proxy-py
-    
-    # Multi-attaques
-    pip install concurrent-futures
-    pip install celery redis
+    pip install celery
     
     log "Dépendances Python installées"
 }
@@ -274,25 +254,18 @@ install_python_deps() {
 copy_files() {
     log_info "Copie des fichiers vers $REDFORGE_HOME..."
     
-    mkdir -p "$REDFORGE_HOME"/{src,bin,config,logs,data,venv,wordlists,stealth,multi_attack,apt_operations,persistence,uploads}
+    mkdir -p "$REDFORGE_HOME"/{src,bin,config,logs,data,.venv,wordlists,stealth,multi_attack,apt_operations,persistence,uploads}
     mkdir -p "$REDFORGE_USER_HOME"/{workspace,logs,reports,sessions,wordlists,stealth,apt_operations}
     
-    # Copier le code source
     cp -r "$SCRIPT_DIR/src"/* "$REDFORGE_HOME/src/" 2>/dev/null || true
     cp -r "$SCRIPT_DIR/config"/* "$REDFORGE_HOME/config/" 2>/dev/null || true
     cp -r "$SCRIPT_DIR/data"/* "$REDFORGE_HOME/data/" 2>/dev/null || true
-    cp -r "$SCRIPT_DIR/wordlists"/* "$REDFORGE_HOME/wordlists/" 2>/dev/null || true
     cp "$SCRIPT_DIR/bin/RedForge" "$REDFORGE_HOME/bin/"
-    
-    # Copier l'environnement virtuel
-    cp -r "$SCRIPT_DIR/venv" "$REDFORGE_HOME/"
-    
-    # Copier les fichiers web
+    cp -r "$SCRIPT_DIR/.venv" "$REDFORGE_HOME/"
     cp -r "$SCRIPT_DIR/src/web_interface/templates" "$REDFORGE_HOME/src/web_interface/" 2>/dev/null || true
     cp -r "$SCRIPT_DIR/src/web_interface/static" "$REDFORGE_HOME/src/web_interface/" 2>/dev/null || true
     
     chmod +x "$REDFORGE_HOME/bin/RedForge"
-    chmod +x "$REDFORGE_HOME/venv/bin/activate"
     
     log "Fichiers copiés"
 }
@@ -301,7 +274,6 @@ copy_files() {
 install_wordlists() {
     log_info "Installation des wordlists..."
     
-    # RockYou
     if [ ! -f "/usr/share/wordlists/rockyou.txt" ]; then
         if [ -f "/usr/share/wordlists/rockyou.txt.gz" ]; then
             gunzip /usr/share/wordlists/rockyou.txt.gz
@@ -314,16 +286,13 @@ install_wordlists() {
         fi
     fi
     
-    # SecLists (version allégée)
     if [ ! -d "/usr/share/seclists" ]; then
         git clone --depth 1 https://github.com/danielmiessler/SecLists.git /usr/share/seclists
         log "SecLists installé"
     fi
     
-    # Wordlists spécifiques RedForge
     mkdir -p "$REDFORGE_HOME/wordlists"/{passwords,usernames,directories,subdomains}
     
-    # Créer une wordlist de base pour les tests
     cat > "$REDFORGE_HOME/wordlists/passwords/common.txt" << EOF
 admin
 password
@@ -394,30 +363,6 @@ EOF
 configure_environment() {
     log_info "Configuration de l'environnement..."
     
-    # Lien symbolique global
-    ln -sf "$REDFORGE_HOME/venv/bin/python" /usr/local/bin/redforge-python
-    ln -sf "$REDFORGE_HOME/bin/RedForge" /usr/local/bin/redforge
-    ln -sf "$REDFORGE_HOME/bin/RedForge" /usr/local/bin/RedForge
-    
-    # Script de lancement
-    cat > "$REDFORGE_HOME/run.sh" << EOF
-#!/bin/bash
-cd $REDFORGE_HOME
-source venv/bin/activate
-python bin/RedForge "\$@"
-EOF
-    chmod +x "$REDFORGE_HOME/run.sh"
-    
-    # Script de lancement web
-    cat > "$REDFORGE_HOME/run-web.sh" << EOF
-#!/bin/bash
-cd $REDFORGE_HOME
-source venv/bin/activate
-python bin/RedForge -g
-EOF
-    chmod +x "$REDFORGE_HOME/run-web.sh"
-    
-    # Configuration par défaut v2.0
     cat > "$REDFORGE_USER_HOME/config.json" << EOF
 {
     "version": "2.0.0",
@@ -467,10 +412,70 @@ EOF
 }
 EOF
     
-    # Créer les dossiers supplémentaires
     mkdir -p "$REDFORGE_USER_HOME"/{stealth,apt_operations,persistence,multi_attack}
     
     log "Environnement configuré"
+}
+
+# ============================================
+# FONCTION PRINCIPALE : CRÉATION DES LIENS SYMBOLIQUES GLOBAUX
+# ============================================
+create_global_symlinks() {
+    log_info "Création des liens symboliques globaux..."
+    
+    # S'assurer que le répertoire /usr/local/bin existe
+    mkdir -p /usr/local/bin
+    
+    # Supprimer les anciens liens s'ils existent
+    rm -f /usr/local/bin/redforge
+    rm -f /usr/local/bin/RedForge
+    rm -f /usr/local/bin/redforge-python
+    
+    # Créer le script wrapper
+    cat > /usr/local/bin/redforge << 'WRAPPER'
+#!/bin/bash
+# RedForge - Wrapper global
+# Permet d'exécuter RedForge depuis n'importe quel dossier
+
+REDFORGE_HOME="/opt/RedForge"
+
+# Vérifier que RedForge est installé
+if [ ! -d "$REDFORGE_HOME" ]; then
+    echo "❌ RedForge n'est pas installé dans $REDFORGE_HOME"
+    echo "Veuillez exécuter: sudo ./install.sh depuis le dossier source"
+    exit 1
+fi
+
+# Activer l'environnement virtuel
+source "$REDFORGE_HOME/.venv/bin/activate"
+
+# Exécuter RedForge
+python "$REDFORGE_HOME/bin/RedForge" "$@"
+
+# Désactiver l'environnement
+deactivate
+WRAPPER
+
+    # Rendre le wrapper exécutable
+    chmod +x /usr/local/bin/redforge
+    
+    # Créer un alias avec la première lettre en majuscule
+    ln -sf /usr/local/bin/redforge /usr/local/bin/RedForge
+    
+    # Vérifier que les liens fonctionnent
+    if [ -L "/usr/local/bin/redforge" ] || [ -f "/usr/local/bin/redforge" ]; then
+        log "✅ Lien symbolique créé: /usr/local/bin/redforge"
+        log "✅ Lien symbolique créé: /usr/local/bin/RedForge"
+    else
+        log_error "❌ Échec de création des liens symboliques"
+    fi
+    
+    # Ajouter au PATH si nécessaire (pour les shells non standards)
+    if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
+        echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
+        echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc 2>/dev/null || true
+        log "/usr/local/bin ajouté au PATH"
+    fi
 }
 
 # Création du service systemd
@@ -487,7 +492,7 @@ Wants=tor.service
 Type=simple
 User=root
 WorkingDirectory=$REDFORGE_HOME
-ExecStart=$REDFORGE_HOME/venv/bin/python $REDFORGE_HOME/bin/RedForge -g
+ExecStart=$REDFORGE_HOME/.venv/bin/python $REDFORGE_HOME/bin/RedForge -g
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
@@ -511,14 +516,13 @@ uninstall() {
         exit 0
     fi
     
-    # Arrêter le service
     systemctl stop redforge.service 2>/dev/null || true
     systemctl disable redforge.service 2>/dev/null || true
     
-    # Supprimer les liens symboliques
-    rm -f /usr/local/bin/redforge /usr/local/bin/RedForge /usr/local/bin/redforge-python
+    rm -f /usr/local/bin/redforge
+    rm -f /usr/local/bin/RedForge
+    rm -f /usr/local/bin/redforge-python
     
-    # Supprimer l'application
     rm -rf "$REDFORGE_HOME"
     
     read -p "Supprimer la configuration utilisateur ? (o/N): " del_config
@@ -552,12 +556,13 @@ full_install() {
     install_wordlists
     configure_tor
     configure_environment
+    create_global_symlinks
     create_systemd_service
     
     show_completion
 }
 
-# Installation minimal (sans outils externes)
+# Installation minimale
 minimal_install() {
     log_info "Démarrage de l'installation minimale..."
     
@@ -570,6 +575,7 @@ minimal_install() {
     install_python_deps
     copy_files
     configure_environment
+    create_global_symlinks
     
     show_completion
 }
@@ -592,7 +598,7 @@ show_menu() {
     case $choice in
         1) full_install ;;
         2) minimal_install ;;
-        3) full_install && create_systemd_service && log "Service systemd activé" ;;
+        3) full_install ;;
         4) uninstall ;;
         5) echo "Au revoir!"; exit 0 ;;
         *) log_error "Choix invalide"; exit 1 ;;
@@ -620,12 +626,13 @@ show_completion() {
     echo -e "${CYAN}📂 Dossiers créés :${NC}"
     echo -e "  • Application : ${GREEN}$REDFORGE_HOME${NC}"
     echo -e "  • Configuration : ${GREEN}$REDFORGE_USER_HOME${NC}"
-    echo -e "  • Wordlists : ${GREEN}$REDFORGE_HOME/wordlists${NC}"
     echo ""
-    echo -e "${CYAN}🔧 Commandes utiles :${NC}"
+    echo -e "${CYAN}🔧 Commandes disponibles :${NC}"
     echo -e "  ${GREEN}redforge --version${NC}                 - Version"
     echo -e "  ${GREEN}redforge --check-deps${NC}              - Vérifier les dépendances"
     echo -e "  ${GREEN}systemctl start redforge${NC}           - Démarrer le service"
+    echo ""
+    echo -e "${GREEN}💡 Vous pouvez maintenant lancer redforge depuis n'importe quel dossier !${NC}"
     echo ""
     echo -e "${YELLOW}⚠️  Note : RedForge nécessite les droits sudo pour les fonctionnalités avancées${NC}"
     echo ""
