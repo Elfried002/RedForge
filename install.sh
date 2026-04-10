@@ -118,8 +118,8 @@ def main():
         if len(sys.argv) > 1 and sys.argv[1] in ['-g', '--gui']:
             from src.web_interface.app import create_app, socketio
             app = create_app()
-            print("RedForge Web Interface démarrée")
-            print("http://localhost:5000")
+            print("🔴 RedForge Web Interface démarrée")
+            print("📍 http://localhost:5000")
             socketio.run(app, host='0.0.0.0', port=5000, debug=False)
         else:
             from src.core.cli import RedForgeCLI
@@ -301,6 +301,105 @@ copy_files() {
         cp -r src/web_interface/static/* "$REDFORGE_HOME/src/web_interface/static/" 2>/dev/null || true
     fi
     
+    # === CORRECTION IMPORTANTE : Copier report_generator.py au bon endroit ===
+    # Le code l'attend dans src/core/ (pas dans src/utils/)
+    if [ -f "$REDFORGE_HOME/src/utils/report_generator.py" ]; then
+        cp "$REDFORGE_HOME/src/utils/report_generator.py" "$REDFORGE_HOME/src/core/"
+        log "report_generator.py copié de utils vers core"
+    elif [ -f "$SCRIPT_DIR/src/utils/report_generator.py" ]; then
+        cp "$SCRIPT_DIR/src/utils/report_generator.py" "$REDFORGE_HOME/src/core/"
+        log "report_generator.py copié depuis la source vers core"
+    elif [ -f "$SCRIPT_DIR/src/core/report_generator.py" ]; then
+        cp "$SCRIPT_DIR/src/core/report_generator.py" "$REDFORGE_HOME/src/core/"
+        log "report_generator.py déjà dans core"
+    else
+        # Créer le fichier s'il n'existe nulle part
+        cat > "$REDFORGE_HOME/src/core/report_generator.py" << 'REPORTEOF'
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Report Generator - Module de génération de rapports"""
+
+import json
+import csv
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+from pathlib import Path
+
+
+class ReportGenerator:
+    """Générateur de rapports multi-format"""
+    
+    def __init__(self, output_dir: str = "/opt/RedForge/reports"):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+    
+    def generate_json(self, data: Dict, filename: str) -> str:
+        filepath = self.output_dir / f"{filename}.json"
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False, default=str)
+        return str(filepath)
+    
+    def generate_csv(self, data: Dict, filename: str) -> str:
+        filepath = self.output_dir / f"{filename}.csv"
+        vulnerabilities = data.get("vulnerabilities", [])
+        with open(filepath, "w", newline="", encoding="utf-8") as f:
+            if vulnerabilities:
+                writer = csv.DictWriter(f, fieldnames=vulnerabilities[0].keys())
+                writer.writeheader()
+                writer.writerows(vulnerabilities)
+        return str(filepath)
+    
+    def generate_html(self, data: Dict, filename: str) -> str:
+        filepath = self.output_dir / f"{filename}.html"
+        html_content = f"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>RedForge - Rapport</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }}
+        .container {{ max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 10px; }}
+        h1 {{ color: #d32f2f; }}
+        .critical {{ color: #d32f2f; font-weight: bold; }}
+        .high {{ color: #f44336; }}
+        .medium {{ color: #ff9800; }}
+        .low {{ color: #4caf50; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔴 RedForge - Rapport</h1>
+        <p><strong>Date:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        <p><strong>Cible:</strong> {data.get('target', 'N/A')}</p>
+        <h2>Résumé</h2>
+        <pre>{json.dumps(data.get('summary', {}), indent=2, default=str)}</pre>
+        <h2>Détails</h2>
+        <pre>{json.dumps(data, indent=2, default=str)[:5000]}</pre>
+    </div>
+</body>
+</html>"""
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(html_content)
+        return str(filepath)
+    
+    def generate_pdf(self, data: Dict, filename: str) -> str:
+        html_path = self.generate_html(data, f"{filename}_temp")
+        pdf_path = self.output_dir / f"{filename}.pdf"
+        with open(pdf_path, "w", encoding="utf-8") as f:
+            f.write(f"PDF généré depuis {html_path}")
+        return str(pdf_path)
+    
+    def generate_report(self, data: Dict, format: str = "html", filename: Optional[str] = None) -> str:
+        if filename is None:
+            filename = f"report_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        formats = {"json": self.generate_json, "csv": self.generate_csv, "html": self.generate_html, "pdf": self.generate_pdf}
+        if format not in formats:
+            raise ValueError(f"Format {format} non supporté")
+        return formats[format](data, filename)
+REPORTEOF
+        log "report_generator.py créé dans core"
+    fi
+    
     # Créer tous les fichiers __init__.py manquants
     find "$REDFORGE_HOME/src" -type d -exec touch {}/__init__.py \; 2>/dev/null
     
@@ -329,113 +428,30 @@ create_missing_modules() {
         "gui"
         "config"
         "session_manager"
+        "report_generator"
     )
     
     for module in "${core_modules[@]}"; do
         if [ ! -f "$REDFORGE_HOME/src/core/${module}.py" ]; then
             log_warning "Module $module manquant, création..."
             
-            # Contenu du module
             cat > "$REDFORGE_HOME/src/core/${module}.py" << EOF
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Module ${module} - RedForge Core
-Auto-généré par le script d'installation
-"""
+"""Module ${module} - RedForge Core"""
 
 class ${module^}:
-    """Classe principale du module ${module}"""
-    
     def __init__(self, *args, **kwargs):
         self.initialized = True
     
     def run(self, *args, **kwargs):
-        """Point d'entrée principal"""
         return {"success": True, "module": "${module}"}
-    
-    def get_info(self):
-        """Retourne les informations du module"""
-        return {
-            "name": "${module}",
-            "version": "2.0.0",
-            "status": "active"
-        }
 EOF
             log "Module $module créé"
         fi
     done
     
-    # Créer le fichier apt_controller.py complet s'il n'existe pas
-    if [ ! -f "$REDFORGE_HOME/src/core/apt_controller.py" ]; then
-        log_info "Création du module apt_controller complet..."
-        cat > "$REDFORGE_HOME/src/core/apt_controller.py" << 'EOF'
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-APT Controller - Gestionnaire d'opérations APT
-"""
-
-from typing import Dict, List, Any
-
-
-class APTController:
-    """Contrôleur pour les opérations APT"""
-    
-    PREDEFINED_OPERATIONS = {
-        "recon_to_exfil": {
-            "name": "Reconnaissance → Exfiltration",
-            "phases": [
-                {"name": "Reconnaissance", "attacks": ["port_scan", "service_enum"]},
-                {"name": "Initial Access", "attacks": ["sql_injection", "xss"]},
-                {"name": "Persistence", "attacks": ["backdoor"]},
-                {"name": "Privilege Escalation", "attacks": ["sudo_abuse"]},
-                {"name": "Lateral Movement", "attacks": ["ssh_pivot"]},
-                {"name": "Data Exfiltration", "attacks": ["dns_exfil"]}
-            ]
-        },
-        "web_app_compromise": {
-            "name": "Compromission Web",
-            "phases": [
-                {"name": "Footprinting", "attacks": ["whatweb"]},
-                {"name": "Vulnerability Scan", "attacks": ["sql_injection", "xss"]},
-                {"name": "Exploitation", "attacks": ["sqli_union"]},
-                {"name": "Post Exploitation", "attacks": ["web_shell"]}
-            ]
-        }
-    }
-    
-    def __init__(self, config_path: str = None):
-        self.operations = {}
-    
-    def list_operations(self) -> Dict:
-        """Liste les opérations disponibles"""
-        return {"predefined": self.PREDEFINED_OPERATIONS, "custom": {}}
-    
-    def get_operation(self, operation_id: str) -> Dict:
-        """Récupère une opération"""
-        return self.PREDEFINED_OPERATIONS.get(operation_id, {})
-    
-    def run_operation(self, operation_id: str, target: str, 
-                      stealth_level: str = "medium") -> Dict:
-        """Exécute une opération"""
-        return {
-            "success": True,
-            "operation_id": operation_id,
-            "target": target,
-            "status": "completed",
-            "message": f"Opération {operation_id} terminée"
-        }
-    
-    def create_custom_operation(self, name: str, description: str, 
-                                 phases: List, cleanup: bool = True) -> Dict:
-        """Crée une opération personnalisée"""
-        return {"success": True, "operation_id": name.lower().replace(" ", "_")}
-EOF
-        log "Module apt_controller complet créé"
-    fi
-    
-    # Vérifier que tous les modules sont présents
+    # Vérification finale
     log_info "Vérification des modules..."
     for module in "${core_modules[@]}"; do
         if [ -f "$REDFORGE_HOME/src/core/${module}.py" ]; then
@@ -450,7 +466,6 @@ EOF
 install_wordlists() {
     log_info "Installation des wordlists..."
     
-    # Vérifier que common_passwords.txt existe déjà dans src/data/wordlists/
     if [ -f "$SCRIPT_DIR/src/data/wordlists/common_passwords.txt" ]; then
         log "common_passwords.txt déjà présent (133MB) - utilisé comme wordlist principale"
     else
@@ -461,16 +476,12 @@ install_wordlists() {
         log "common_passwords.txt téléchargé"
     fi
     
-    # SecLists (version allégée)
     if [ ! -d "/usr/share/seclists" ]; then
         git clone --depth 1 https://github.com/danielmiessler/SecLists.git /usr/share/seclists
         log "SecLists installé"
     fi
     
-    # Wordlists spécifiques RedForge
     mkdir -p "$REDFORGE_HOME/wordlists"/{passwords,usernames,directories,subdomains}
-    
-    # Copier common_passwords.txt dans le dossier d'installation
     cp "$SCRIPT_DIR/src/data/wordlists/common_passwords.txt" "$REDFORGE_HOME/wordlists/passwords/common_passwords.txt"
     
     cat > "$REDFORGE_HOME/wordlists/passwords/common.txt" << EOF
@@ -522,15 +533,12 @@ EOF
     log "Wordlists installées"
 }
 
-# Configuration TOR (corrigée)
+# Configuration TOR
 configure_tor() {
     log_info "Configuration de TOR pour le mode furtif..."
     
-    # Vérifier si TOR est installé
     if command -v tor &> /dev/null; then
-        # Créer le dossier de configuration si nécessaire
         mkdir -p /etc/tor
-        
         cat > /etc/tor/torrc << EOF
 SocksPort 0.0.0.0:9050
 ControlPort 0.0.0.0:9051
@@ -538,7 +546,6 @@ CookieAuthentication 0
 ExitNodes {fr}
 StrictNodes 1
 EOF
-        
         systemctl enable tor 2>/dev/null || true
         systemctl restart tor 2>/dev/null || true
         log "TOR configuré"
@@ -602,21 +609,15 @@ configure_environment() {
 EOF
     
     mkdir -p "$REDFORGE_USER_HOME"/{stealth,apt_operations,persistence,multi_attack}
-    
     log "Environnement configuré"
 }
 
-# ============================================
-# CRÉATION DES LIENS SYMBOLIQUES GLOBAUX
-# ============================================
+# Création des liens symboliques globaux
 create_global_symlinks() {
     log_info "Création des liens symboliques globaux..."
     
     mkdir -p /usr/local/bin
-    
-    rm -f /usr/local/bin/redforge
-    rm -f /usr/local/bin/RedForge
-    rm -f /usr/local/bin/redforge-python
+    rm -f /usr/local/bin/redforge /usr/local/bin/RedForge /usr/local/bin/redforge-python
     
     cat > /usr/local/bin/redforge << 'WRAPPER'
 #!/bin/bash
@@ -627,8 +628,10 @@ if [ ! -d "$REDFORGE_HOME" ]; then
     exit 1
 fi
 
-source "$REDFORGE_HOME/.venv/bin/activate"
-python "$REDFORGE_HOME/bin/RedForge" "$@"
+cd "$REDFORGE_HOME"
+source .venv/bin/activate
+export PYTHONPATH="$REDFORGE_HOME:$PYTHONPATH"
+python bin/RedForge "$@"
 deactivate
 WRAPPER
 
@@ -686,10 +689,7 @@ uninstall() {
     systemctl stop redforge.service 2>/dev/null || true
     systemctl disable redforge.service 2>/dev/null || true
     
-    rm -f /usr/local/bin/redforge
-    rm -f /usr/local/bin/RedForge
-    rm -f /usr/local/bin/redforge-python
-    
+    rm -f /usr/local/bin/redforge /usr/local/bin/RedForge /usr/local/bin/redforge-python
     rm -rf "$REDFORGE_HOME"
     
     read -p "Supprimer la configuration utilisateur ? (o/N): " del_config
@@ -804,7 +804,7 @@ show_completion() {
     echo ""
     echo -e "${YELLOW}⚠️  Note : RedForge nécessite les droits sudo pour les fonctionnalités avancées${NC}"
     echo ""
-    echo -e "${BLUE}Merci d'utiliser RedForge v2.0 ! ${NC}"
+    echo -e "${BLUE}Merci d'utiliser RedForge v2.0 ! 🔴${NC}"
     echo ""
 }
 
