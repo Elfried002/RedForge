@@ -82,6 +82,72 @@ detect_os() {
     fi
 }
 
+# ============================================
+# INSTALLATION DE TOR (OBLIGATOIRE - EN PREMIER)
+# ============================================
+install_tor() {
+    log_info "Installation de TOR pour le mode furtif..."
+    
+    # Vérifier si TOR est déjà installé
+    if ! command -v tor &> /dev/null; then
+        apt install -y tor
+        log "TOR installé avec succès"
+    else
+        log "TOR déjà installé"
+    fi
+    
+    # Créer le dossier de configuration
+    mkdir -p /etc/tor
+    
+    # Configurer TOR
+    cat > /etc/tor/torrc << 'EOF'
+# RedForge - Configuration TOR pour mode furtif
+SocksPort 0.0.0.0:9050
+ControlPort 0.0.0.0:9051
+CookieAuthentication 0
+ExitNodes {fr}
+StrictNodes 1
+DataDirectory /var/lib/tor
+Log notice file /var/log/tor/notices.log
+RunAsDaemon 1
+EOF
+    
+    # Démarrer et activer TOR
+    systemctl enable tor 2>/dev/null || true
+    systemctl restart tor 2>/dev/null || true
+    
+    # Attendre que TOR démarre
+    sleep 3
+    
+    # Vérifier que TOR fonctionne
+    if systemctl is-active --quiet tor 2>/dev/null; then
+        log "✅ TOR est actif sur le port 9050"
+        
+        # Tester la connexion TOR
+        if command -v curl &> /dev/null; then
+            TOR_TEST=$(curl --socks5-hostname 127.0.0.1:9050 https://check.torproject.org/api/ip -s 2>/dev/null | grep -o '"IsTor":true' || echo "")
+            if [ -n "$TOR_TEST" ]; then
+                log "✅ TOR fonctionne correctement"
+            else
+                log_warning "⚠️ TOR est démarré mais le test de connexion a échoué"
+            fi
+        fi
+    else
+        log_warning "⚠️ TOR n'a pas pu démarrer automatiquement"
+        log_info "Démarrage manuel: sudo systemctl start tor"
+    fi
+    
+    # Configurer proxychains
+    if [ -f "/etc/proxychains.conf" ]; then
+        if ! grep -q "socks5 127.0.0.1 9050" /etc/proxychains.conf; then
+            echo "" >> /etc/proxychains.conf
+            echo "# RedForge - TOR proxy" >> /etc/proxychains.conf
+            echo "socks5 127.0.0.1 9050" >> /etc/proxychains.conf
+            log "Proxychains configuré pour TOR"
+        fi
+    fi
+}
+
 # Création de l'exécutable principal
 create_executable() {
     log_info "Création de l'exécutable principal..."
@@ -118,8 +184,8 @@ def main():
         if len(sys.argv) > 1 and sys.argv[1] in ['-g', '--gui']:
             from src.web_interface.app import create_app, socketio
             app = create_app()
-            print("🔴 RedForge Web Interface démarrée")
-            print("📍 http://localhost:5000")
+            print("RedForge Web Interface démarrée")
+            print("http://localhost:5000")
             socketio.run(app, host='0.0.0.0', port=5000, debug=False)
         else:
             from src.core.cli import RedForgeCLI
@@ -165,30 +231,45 @@ EOF
     log "Fichiers __init__.py créés"
 }
 
-# Installation des dépendances système
+# ============================================
+# INSTALLATION DES DÉPENDANCES SYSTÈME (COMPLÈTE)
+# ============================================
 install_system_deps() {
     log_info "Installation des dépendances système..."
     
     apt update
     
-    local packages=(
+    # Paquets système essentiels
+    local base_packages=(
         python3 python3-pip python3-venv python3-dev
         build-essential libssl-dev libffi-dev
         curl wget git unzip zip
-        nmap sqlmap whatweb dirb wfuzz
-        hydra john medusa
-        metasploit-framework
-        tor proxychains
-        gobuster ffuf
-        xsstrike
-        wafw00f
-        dnsrecon theharvester
         jq vim-tiny htop
         netcat-openbsd dnsutils
         tcpdump wireshark
     )
     
-    for package in "${packages[@]}"; do
+    # Outils de pentest
+    local pentest_packages=(
+        nmap sqlmap whatweb dirb wfuzz
+        hydra john medusa
+        metasploit-framework
+        gobuster ffuf
+        xsstrike
+        wafw00f
+        dnsrecon theharvester
+    )
+    
+    # Mode furtif - proxychains
+    local stealth_packages=(
+        proxychains
+        proxychains4
+    )
+    
+    # Installation de tous les paquets
+    all_packages=("${base_packages[@]}" "${pentest_packages[@]}" "${stealth_packages[@]}")
+    
+    for package in "${all_packages[@]}"; do
         if ! dpkg -l | grep -q "^ii.*$package" 2>/dev/null; then
             apt install -y "$package" 2>/dev/null || log_warning "Impossible d'installer $package"
             log "$package installé"
@@ -204,13 +285,12 @@ install_system_deps() {
             apt install -y golang-go
         fi
         go install github.com/hahwul/dalfox/v2@latest
-        # Copier dans /usr/local/bin
         if [ -f "$HOME/go/bin/dalfox" ]; then
             cp "$HOME/go/bin/dalfox" /usr/local/bin/
         elif [ -f "/root/go/bin/dalfox" ]; then
             cp /root/go/bin/dalfox /usr/local/bin/
         fi
-        chmod +x /usr/local/bin/dalfox
+        chmod +x /usr/local/bin/dalfox 2>/dev/null || true
         log "dalfox installé"
     else
         log "dalfox déjà installé"
@@ -270,7 +350,7 @@ install_python_deps() {
 }
 
 # ============================================
-# COPIE ROBUSTE DES FICHIERS (CORRIGÉE)
+# COPIE ROBUSTE DES FICHIERS
 # ============================================
 copy_files() {
     log_info "Copie des fichiers vers $REDFORGE_HOME..."
@@ -279,18 +359,17 @@ copy_files() {
     mkdir -p "$REDFORGE_HOME"/{src,bin,config,logs,data,.venv,wordlists,stealth,multi_attack,apt_operations,persistence,uploads}
     mkdir -p "$REDFORGE_USER_HOME"/{workspace,logs,reports,sessions,wordlists,stealth,apt_operations}
     
-    # Copie avec préservation de la structure (méthode tar)
-    log_info "Copie du code source avec préservation de la structure..."
+    # Copie avec préservation de la structure
+    log_info "Copie du code source..."
     cd "$SCRIPT_DIR"
     
-    # Copier src avec tous les sous-dossiers
-    tar cf - src 2>/dev/null | (cd "$REDFORGE_HOME" && tar xf -)
-    tar cf - bin 2>/dev/null | (cd "$REDFORGE_HOME" && tar xf -)
-    tar cf - config 2>/dev/null | (cd "$REDFORGE_HOME" && tar xf -)
-    tar cf - data 2>/dev/null | (cd "$REDFORGE_HOME" && tar xf -)
-    tar cf - .venv 2>/dev/null | (cd "$REDFORGE_HOME" && tar xf -)
+    for item in src bin config data .venv; do
+        if [ -e "$item" ]; then
+            tar cf - "$item" 2>/dev/null | (cd "$REDFORGE_HOME" && tar xf -) || true
+        fi
+    done
     
-    # Copier les fichiers web spécifiques
+    # Copier les fichiers web
     if [ -d "src/web_interface/templates" ]; then
         mkdir -p "$REDFORGE_HOME/src/web_interface/templates"
         cp -r src/web_interface/templates/* "$REDFORGE_HOME/src/web_interface/templates/" 2>/dev/null || true
@@ -301,109 +380,15 @@ copy_files() {
         cp -r src/web_interface/static/* "$REDFORGE_HOME/src/web_interface/static/" 2>/dev/null || true
     fi
     
-    # === CORRECTION IMPORTANTE : Copier report_generator.py au bon endroit ===
-    # Le code l'attend dans src/core/ (pas dans src/utils/)
+    # Copier report_generator.py au bon endroit
     if [ -f "$REDFORGE_HOME/src/utils/report_generator.py" ]; then
         cp "$REDFORGE_HOME/src/utils/report_generator.py" "$REDFORGE_HOME/src/core/"
-        log "report_generator.py copié de utils vers core"
-    elif [ -f "$SCRIPT_DIR/src/utils/report_generator.py" ]; then
-        cp "$SCRIPT_DIR/src/utils/report_generator.py" "$REDFORGE_HOME/src/core/"
-        log "report_generator.py copié depuis la source vers core"
-    elif [ -f "$SCRIPT_DIR/src/core/report_generator.py" ]; then
-        cp "$SCRIPT_DIR/src/core/report_generator.py" "$REDFORGE_HOME/src/core/"
-        log "report_generator.py déjà dans core"
-    else
-        # Créer le fichier s'il n'existe nulle part
-        cat > "$REDFORGE_HOME/src/core/report_generator.py" << 'REPORTEOF'
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""Report Generator - Module de génération de rapports"""
-
-import json
-import csv
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from pathlib import Path
-
-
-class ReportGenerator:
-    """Générateur de rapports multi-format"""
-    
-    def __init__(self, output_dir: str = "/opt/RedForge/reports"):
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-    
-    def generate_json(self, data: Dict, filename: str) -> str:
-        filepath = self.output_dir / f"{filename}.json"
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4, ensure_ascii=False, default=str)
-        return str(filepath)
-    
-    def generate_csv(self, data: Dict, filename: str) -> str:
-        filepath = self.output_dir / f"{filename}.csv"
-        vulnerabilities = data.get("vulnerabilities", [])
-        with open(filepath, "w", newline="", encoding="utf-8") as f:
-            if vulnerabilities:
-                writer = csv.DictWriter(f, fieldnames=vulnerabilities[0].keys())
-                writer.writeheader()
-                writer.writerows(vulnerabilities)
-        return str(filepath)
-    
-    def generate_html(self, data: Dict, filename: str) -> str:
-        filepath = self.output_dir / f"{filename}.html"
-        html_content = f"""<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>RedForge - Rapport</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }}
-        .container {{ max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 10px; }}
-        h1 {{ color: #d32f2f; }}
-        .critical {{ color: #d32f2f; font-weight: bold; }}
-        .high {{ color: #f44336; }}
-        .medium {{ color: #ff9800; }}
-        .low {{ color: #4caf50; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🔴 RedForge - Rapport</h1>
-        <p><strong>Date:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-        <p><strong>Cible:</strong> {data.get('target', 'N/A')}</p>
-        <h2>Résumé</h2>
-        <pre>{json.dumps(data.get('summary', {}), indent=2, default=str)}</pre>
-        <h2>Détails</h2>
-        <pre>{json.dumps(data, indent=2, default=str)[:5000]}</pre>
-    </div>
-</body>
-</html>"""
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(html_content)
-        return str(filepath)
-    
-    def generate_pdf(self, data: Dict, filename: str) -> str:
-        html_path = self.generate_html(data, f"{filename}_temp")
-        pdf_path = self.output_dir / f"{filename}.pdf"
-        with open(pdf_path, "w", encoding="utf-8") as f:
-            f.write(f"PDF généré depuis {html_path}")
-        return str(pdf_path)
-    
-    def generate_report(self, data: Dict, format: str = "html", filename: Optional[str] = None) -> str:
-        if filename is None:
-            filename = f"report_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        formats = {"json": self.generate_json, "csv": self.generate_csv, "html": self.generate_html, "pdf": self.generate_pdf}
-        if format not in formats:
-            raise ValueError(f"Format {format} non supporté")
-        return formats[format](data, filename)
-REPORTEOF
-        log "report_generator.py créé dans core"
+        log "report_generator.py copié dans core"
     fi
     
-    # Créer tous les fichiers __init__.py manquants
+    # Créer tous les __init__.py
     find "$REDFORGE_HOME/src" -type d -exec touch {}/__init__.py \; 2>/dev/null
     
-    # Rendre l'exécutable exécutable
     chmod +x "$REDFORGE_HOME/bin/RedForge"
     
     log "Fichiers copiés avec succès"
@@ -415,26 +400,17 @@ REPORTEOF
 create_missing_modules() {
     log_info "Vérification et création des modules manquants..."
     
-    # Créer le dossier core s'il n'existe pas
     mkdir -p "$REDFORGE_HOME/src/core"
+    mkdir -p "$REDFORGE_HOME/src/utils"
     
-    # Liste des modules core requis
+    # Modules core requis
     local core_modules=(
-        "attack_chainer"
-        "apt_controller" 
-        "stealth_engine"
-        "orchestrator"
-        "cli"
-        "gui"
-        "config"
-        "session_manager"
-        "report_generator"
+        "attack_chainer" "apt_controller" "stealth_engine"
+        "orchestrator" "cli" "gui" "config" "session_manager" "report_generator"
     )
     
     for module in "${core_modules[@]}"; do
         if [ ! -f "$REDFORGE_HOME/src/core/${module}.py" ]; then
-            log_warning "Module $module manquant, création..."
-            
             cat > "$REDFORGE_HOME/src/core/${module}.py" << EOF
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
@@ -443,7 +419,6 @@ create_missing_modules() {
 class ${module^}:
     def __init__(self, *args, **kwargs):
         self.initialized = True
-    
     def run(self, *args, **kwargs):
         return {"success": True, "module": "${module}"}
 EOF
@@ -451,13 +426,11 @@ EOF
         fi
     done
     
-    # Vérification finale
+    # Vérification
     log_info "Vérification des modules..."
     for module in "${core_modules[@]}"; do
         if [ -f "$REDFORGE_HOME/src/core/${module}.py" ]; then
             log "  ✅ $module.py présent"
-        else
-            log_error "  ❌ $module.py manquant"
         fi
     done
 }
@@ -467,7 +440,7 @@ install_wordlists() {
     log_info "Installation des wordlists..."
     
     if [ -f "$SCRIPT_DIR/src/data/wordlists/common_passwords.txt" ]; then
-        log "common_passwords.txt déjà présent (133MB) - utilisé comme wordlist principale"
+        log "common_passwords.txt déjà présent (133MB)"
     else
         log_warning "common_passwords.txt non trouvé, téléchargement..."
         mkdir -p "$SCRIPT_DIR/src/data/wordlists/"
@@ -482,77 +455,9 @@ install_wordlists() {
     fi
     
     mkdir -p "$REDFORGE_HOME/wordlists"/{passwords,usernames,directories,subdomains}
-    cp "$SCRIPT_DIR/src/data/wordlists/common_passwords.txt" "$REDFORGE_HOME/wordlists/passwords/common_passwords.txt"
-    
-    cat > "$REDFORGE_HOME/wordlists/passwords/common.txt" << EOF
-admin
-password
-123456
-admin123
-root
-toor
-test
-qwerty
-abc123
-letmein
-welcome
-monkey
-dragon
-master
-sunshine
-EOF
-    
-    cat > "$REDFORGE_HOME/wordlists/usernames/common.txt" << EOF
-admin
-root
-user
-test
-guest
-administrator
-webmaster
-support
-info
-contact
-EOF
-    
-    cat > "$REDFORGE_HOME/wordlists/directories/common.txt" << EOF
-admin
-wp-admin
-login
-dashboard
-cpanel
-phpmyadmin
-backup
-uploads
-images
-css
-js
-assets
-EOF
+    cp "$SCRIPT_DIR/src/data/wordlists/common_passwords.txt" "$REDFORGE_HOME/wordlists/passwords/common_passwords.txt" 2>/dev/null || true
     
     log "Wordlists installées"
-}
-
-# Configuration TOR
-configure_tor() {
-    log_info "Configuration de TOR pour le mode furtif..."
-    
-    if command -v tor &> /dev/null; then
-        mkdir -p /etc/tor
-        cat > /etc/tor/torrc << EOF
-SocksPort 0.0.0.0:9050
-ControlPort 0.0.0.0:9051
-CookieAuthentication 0
-ExitNodes {fr}
-StrictNodes 1
-EOF
-        systemctl enable tor 2>/dev/null || true
-        systemctl restart tor 2>/dev/null || true
-        log "TOR configuré"
-    else
-        log_warning "TOR n'est pas installé. Le mode furtif ne pourra pas utiliser TOR."
-        log_info "Pour installer TOR: sudo apt install tor"
-    fi
 }
 
 # Configuration de l'environnement
@@ -573,7 +478,7 @@ configure_environment() {
         "enabled": false,
         "default_level": "medium",
         "random_user_agents": true,
-        "use_tor": false,
+        "use_tor": true,
         "rotate_proxies": false,
         "mimic_human": true,
         "random_delays": true,
@@ -612,12 +517,14 @@ EOF
     log "Environnement configuré"
 }
 
-# Création des liens symboliques globaux
+# ============================================
+# CRÉATION DES LIENS SYMBOLIQUES GLOBAUX
+# ============================================
 create_global_symlinks() {
     log_info "Création des liens symboliques globaux..."
     
     mkdir -p /usr/local/bin
-    rm -f /usr/local/bin/redforge /usr/local/bin/RedForge /usr/local/bin/redforge-python
+    rm -f /usr/local/bin/redforge /usr/local/bin/RedForge
     
     cat > /usr/local/bin/redforge << 'WRAPPER'
 #!/bin/bash
@@ -640,25 +547,24 @@ WRAPPER
     
     if [ -f "/usr/local/bin/redforge" ]; then
         log "✅ Lien symbolique créé: /usr/local/bin/redforge"
-        log "✅ Lien symbolique créé: /usr/local/bin/RedForge"
     else
         log_error "❌ Échec de création des liens symboliques"
     fi
     
     if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
         echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
-        echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc 2>/dev/null || true
     fi
 }
 
-# Création du service systemd
+# Création du service systemd (avec dépendance TOR)
 create_systemd_service() {
     log_info "Création du service systemd..."
     
     cat > /etc/systemd/system/redforge.service << EOF
 [Unit]
 Description=RedForge Pentest Platform
-After=network.target
+After=network.target tor.service
+Wants=tor.service
 
 [Service]
 Type=simple
@@ -673,7 +579,7 @@ WantedBy=multi-user.target
 EOF
 
     systemctl daemon-reload
-    log "Service systemd créé (redforge.service)"
+    log "Service systemd créé (redforge.service) avec dépendance TOR"
 }
 
 # Désinstallation
@@ -689,7 +595,7 @@ uninstall() {
     systemctl stop redforge.service 2>/dev/null || true
     systemctl disable redforge.service 2>/dev/null || true
     
-    rm -f /usr/local/bin/redforge /usr/local/bin/RedForge /usr/local/bin/redforge-python
+    rm -f /usr/local/bin/redforge /usr/local/bin/RedForge
     rm -rf "$REDFORGE_HOME"
     
     read -p "Supprimer la configuration utilisateur ? (o/N): " del_config
@@ -704,6 +610,12 @@ uninstall() {
         log "Wordlists supprimées"
     fi
     
+    read -p "Supprimer TOR ? (o/N): " del_tor
+    if [[ "$del_tor" =~ ^[oO]$ ]]; then
+        apt remove -y tor
+        log "TOR désinstallé"
+    fi
+    
     log "RedForge désinstallé"
 }
 
@@ -714,6 +626,7 @@ full_install() {
     check_root
     detect_os
     install_system_deps
+    install_tor
     create_executable
     create_init_files
     create_venv
@@ -721,7 +634,6 @@ full_install() {
     copy_files
     create_missing_modules
     install_wordlists
-    configure_tor
     configure_environment
     create_global_symlinks
     create_systemd_service
@@ -736,6 +648,7 @@ minimal_install() {
     check_root
     detect_os
     install_system_deps
+    install_tor
     create_executable
     create_init_files
     create_venv
@@ -801,10 +714,11 @@ show_completion() {
     echo -e "  ${GREEN}systemctl start redforge${NC}           - Démarrer le service"
     echo ""
     echo -e "${GREEN}💡 Vous pouvez maintenant lancer redforge depuis n'importe quel dossier !${NC}"
+    echo -e "${GREEN}🕵️ TOR est installé et configuré pour le mode furtif !${NC}"
     echo ""
     echo -e "${YELLOW}⚠️  Note : RedForge nécessite les droits sudo pour les fonctionnalités avancées${NC}"
     echo ""
-    echo -e "${BLUE}Merci d'utiliser RedForge v2.0 ! 🔴${NC}"
+    echo -e "${BLUE}Merci d'utiliser RedForge v2.0 ! ${NC}"
     echo ""
 }
 

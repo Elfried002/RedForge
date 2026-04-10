@@ -1,6 +1,3 @@
-Voici le `README.md` mis à jour avec toutes les instructions nécessaires pour une installation sans problème :
-
-  
 # RedForge v2.0
 
 ## Plateforme de Pentest Web pour Red Team
@@ -36,7 +33,7 @@ Voici le `README.md` mis à jour avec toutes les instructions nécessaires pour 
 
 ## 🎯 Présentation
 
-**RedForge v2.0** est une plateforme d'orchestration de pentest web spécialement conçue pour les équipes **Red Team**. Cette version majeure introduit des fonctionnalités avancées pour les tests d'intrusion professionnels.
+**RedForge v2.0** est un outil de pentest web spécialement conçue pour les équipes **Red Team**. Cette version majeure introduit des fonctionnalités avancées pour les tests d'intrusion professionnels.
 
 ### Philosophie
 
