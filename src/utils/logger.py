@@ -14,11 +14,60 @@ import shutil
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Union
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from enum import Enum
 
-from src.utils.color_output import console
+
+# ============================================
+# Classes utilitaires pour la console (fallback)
+# ============================================
+
+class ConsoleColors:
+    """Couleurs pour la console"""
+    RED = '\033[0;31m'
+    GREEN = '\033[0;32m'
+    YELLOW = '\033[1;33m'
+    BLUE = '\033[0;34m'
+    MAGENTA = '\033[0;35m'
+    CYAN = '\033[0;36m'
+    WHITE = '\033[1;37m'
+    RESET = '\033[0m'
+
+
+class SimpleConsole:
+    """Console simple pour le logging (fallback si color_output n'existe pas)"""
+    
+    @staticmethod
+    def print_info(message: str):
+        print(f"{ConsoleColors.CYAN}[i]{ConsoleColors.RESET} {message}")
+    
+    @staticmethod
+    def print_warning(message: str):
+        print(f"{ConsoleColors.YELLOW}[!]{ConsoleColors.RESET} {message}")
+    
+    @staticmethod
+    def print_error(message: str):
+        print(f"{ConsoleColors.RED}[-]{ConsoleColors.RESET} {message}")
+    
+    @staticmethod
+    def print_success(message: str):
+        print(f"{ConsoleColors.GREEN}[+]{ConsoleColors.RESET} {message}")
+    
+    @staticmethod
+    def apt(message: str):
+        print(f"{ConsoleColors.MAGENTA}[APT]{ConsoleColors.RESET} {message}")
+    
+    @staticmethod
+    def stealth(message: str):
+        print(f"{ConsoleColors.BLUE}[🕵️]{ConsoleColors.RESET} {message}")
+
+
+# Tentative d'import du vrai module color_output
+try:
+    from src.utils.color_output import console
+except ImportError:
+    console = SimpleConsole()
 
 
 class LogLevel(Enum):
@@ -55,6 +104,7 @@ class Logger:
         self.log_file = self.log_dir / f"redforge_{datetime.now().strftime('%Y%m%d')}.log"
         self.json_log_file = self.log_dir / f"redforge_{datetime.now().strftime('%Y%m%d')}.json"
         self.apt_log_file = self.log_dir / f"apt_{datetime.now().strftime('%Y%m%d')}.log"
+        self.error_log_file = self.log_dir / f"error_{datetime.now().strftime('%Y%m%d')}.log"
         
         self.stealth_mode = False
         self.apt_mode = False
@@ -81,6 +131,10 @@ class Logger:
         self.logger = logging.getLogger('RedForge')
         self.logger.setLevel(logging.DEBUG)
         
+        # Éviter les doublons de handlers
+        if self.logger.handlers:
+            return
+        
         # Format pour les logs texte
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -98,12 +152,16 @@ class Logger:
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         
-        # Handler pour console (optionnel, désactivé en mode APT)
-        if not self.apt_mode:
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.INFO)
-            console_handler.setFormatter(formatter)
-            self.logger.addHandler(console_handler)
+        # Handler pour erreurs séparé
+        error_handler = RotatingFileHandler(
+            self.error_log_file,
+            maxBytes=self.max_log_size_mb * 1024 * 1024,
+            backupCount=3,
+            encoding='utf-8'
+        )
+        error_handler.setLevel(logging.ERROR)
+        error_handler.setFormatter(formatter)
+        self.logger.addHandler(error_handler)
     
     def _log(self, level: str, message: str, console_output: bool = True, **kwargs):
         """
@@ -120,7 +178,10 @@ class Logger:
             console_output = False
         
         if not self.stealth_mode or level in ['ERROR', 'CRITICAL']:
-            getattr(self.logger, level.lower() if level != 'SUCCESS' else 'info')(message)
+            log_level = level.lower()
+            if log_level == 'success':
+                log_level = 'info'
+            getattr(self.logger, log_level)(message)
         
         # Log JSON pour analyse
         log_entry = {
@@ -222,7 +283,7 @@ class Logger:
             level = 'INFO'
         
         getattr(self, level.lower())(
-            f"Vulnérabilité: {vulnerability.get('type', 'unknown')} - {vulnerability.get('severity', 'unknown')}",
+            f"Vulnérabilité: {vulnerability.get('type', 'unknown')} - {severity}",
             event_type='vulnerability',
             vulnerability=vulnerability
         )
@@ -388,7 +449,7 @@ class Logger:
                 if json_file.stat().st_mtime < cutoff.timestamp():
                     json_file.unlink()
             
-            self.info(f"Logs antérieurs à {days_old} jours nettoyés")
+            print(f"[i] Logs antérieurs à {days_old} jours nettoyés")
         except Exception as e:
             self.error(f"Erreur nettoyage logs: {e}")
     
@@ -415,12 +476,15 @@ class Logger:
             if start_date or end_date:
                 filtered_logs = []
                 for log in logs:
-                    log_date = datetime.fromisoformat(log['timestamp'])
-                    if start_date and log_date < start_date:
+                    try:
+                        log_date = datetime.fromisoformat(log['timestamp'])
+                        if start_date and log_date < start_date:
+                            continue
+                        if end_date and log_date > end_date:
+                            continue
+                        filtered_logs.append(log)
+                    except:
                         continue
-                    if end_date and log_date > end_date:
-                        continue
-                    filtered_logs.append(log)
                 logs = filtered_logs
             
             if format == "json":
@@ -459,6 +523,7 @@ class Logger:
             'log_file_size': self.log_file.stat().st_size if self.log_file.exists() else 0,
             'json_log_file_size': self.json_log_file.stat().st_size if self.json_log_file.exists() else 0,
             'apt_log_file_size': self.apt_log_file.stat().st_size if self.apt_log_file.exists() else 0,
+            'error_log_file_size': self.error_log_file.stat().st_size if self.error_log_file.exists() else 0,
             'stealth_mode': self.stealth_mode,
             'apt_mode': self.apt_mode,
             'log_rotation_days': self.log_rotation_days,
@@ -466,7 +531,7 @@ class Logger:
         }
         
         # Compter les logs par niveau
-        log_counts = {'DEBUG': 0, 'INFO': 0, 'SUCCESS': 0, 'WARNING': 0, 'ERROR': 0, 'CRITICAL': 0, 'APT': 0}
+        log_counts = {'DEBUG': 0, 'INFO': 0, 'SUCCESS': 0, 'WARNING': 0, 'ERROR': 0, 'CRITICAL': 0, 'APT': 0, 'STEALTH': 0}
         
         try:
             with open(self.json_log_file, 'r', encoding='utf-8') as f:
@@ -487,16 +552,60 @@ class Logger:
         return stats
 
 
+# ============================================
+# FONCTIONS D'EXPORT POUR COMPATIBILITÉ
+# ============================================
+
+def get_logger(name: str = "RedForge") -> logging.Logger:
+    """
+    Récupère un logger standard (compatible avec l'ancien code).
+    
+    Args:
+        name: Nom du logger
+    
+    Returns:
+        Instance du logger logging.Logger
+    """
+    logger = logging.getLogger(name)
+    
+    if not logger.handlers:
+        logger.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    
+    return logger
+
+
+def get_redforge_logger() -> Logger:
+    """
+    Récupère l'instance du logger RedForge avancé.
+    
+    Returns:
+        Instance du logger RedForge
+    """
+    return logger
+
+
 # Instance globale
 logger = Logger()
 
 
-# Point d'entrée pour tests
+# ============================================
+# TESTS
+# ============================================
+
 if __name__ == "__main__":
     print("=" * 60)
-    print("Test du logger")
+    print("Test du logger RedForge v2.0")
     print("=" * 60)
     
+    # Test du logger standard
+    std_logger = get_logger("Test")
+    std_logger.info("Test logger standard")
+    
+    # Test du logger avancé
     logger.info("Test d'information")
     logger.warning("Test d'avertissement")
     logger.error("Test d'erreur")
@@ -511,12 +620,13 @@ if __name__ == "__main__":
     logger.set_apt_mode(True)
     logger.apt("Message APT discret")
     logger.log_apt_operation("op_123", "Target Recon", "started")
+    logger.set_apt_mode(False)
     
     # Statistiques
     stats = logger.get_statistics()
     print(f"\n📊 Statistiques: {stats['total_logs']} logs, mode APT: {stats['apt_mode']}")
     
     # Export
-    logger.export_logs("logs_export.json", format="json")
+    logger.export_logs("/tmp/logs_export.json", format="json")
     
     print("\n✅ Tests terminés")
