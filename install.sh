@@ -289,7 +289,7 @@ copy_files() {
     log "Fichiers copiés"
 }
 
-# Installation des wordlists (utilisation de common_passwords.txt déjà présent)
+# Installation des wordlists
 install_wordlists() {
     log_info "Installation des wordlists..."
     
@@ -365,21 +365,30 @@ EOF
     log "Wordlists installées"
 }
 
-# Configuration TOR
+# Configuration TOR (corrigée)
 configure_tor() {
     log_info "Configuration de TOR pour le mode furtif..."
     
-    cat > /etc/tor/torrc << EOF
+    # Vérifier si TOR est installé
+    if command -v tor &> /dev/null; then
+        # Créer le dossier de configuration si nécessaire
+        mkdir -p /etc/tor
+        
+        cat > /etc/tor/torrc << EOF
 SocksPort 0.0.0.0:9050
 ControlPort 0.0.0.0:9051
 CookieAuthentication 0
 ExitNodes {fr}
 StrictNodes 1
 EOF
-    
-    systemctl enable tor 2>/dev/null || true
-    systemctl restart tor 2>/dev/null || true
-    log "TOR configuré"
+        
+        systemctl enable tor 2>/dev/null || true
+        systemctl restart tor 2>/dev/null || true
+        log "TOR configuré"
+    else
+        log_warning "TOR n'est pas installé. Le mode furtif ne pourra pas utiliser TOR."
+        log_info "Pour installer TOR: sudo apt install tor"
+    fi
 }
 
 # Configuration de l'environnement
@@ -470,7 +479,15 @@ if [ ! -d "$REDFORGE_HOME" ]; then
 fi
 
 # Activer l'environnement virtuel
-source "$REDFORGE_HOME/.venv/bin/activate"
+if [ -f "$REDFORGE_HOME/.venv/bin/activate" ]; then
+    source "$REDFORGE_HOME/.venv/bin/activate"
+else
+    echo "⚠️ Environnement virtuel non trouvé, création..."
+    cd "$REDFORGE_HOME"
+    python3 -m venv .venv
+    source "$REDFORGE_HOME/.venv/bin/activate"
+    pip install -r requirements.txt
+fi
 
 # Exécuter RedForge
 python "$REDFORGE_HOME/bin/RedForge" "$@"
@@ -491,6 +508,11 @@ WRAPPER
         log "✅ Lien symbolique créé: /usr/local/bin/RedForge"
     else
         log_error "❌ Échec de création des liens symboliques"
+        log_info "Création manuelle..."
+        echo '#!/bin/bash' | sudo tee /usr/local/bin/redforge
+        echo 'cd /opt/RedForge && source .venv/bin/activate && python bin/RedForge "$@"' | sudo tee -a /usr/local/bin/redforge
+        sudo chmod +x /usr/local/bin/redforge
+        sudo ln -sf /usr/local/bin/redforge /usr/local/bin/RedForge
     fi
     
     # Ajouter au PATH si nécessaire (pour les shells non standards)
