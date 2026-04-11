@@ -657,6 +657,120 @@ class DependencyChecker:
 
 
 # ============================================
+# FONCTIONS D'INSTALLATION (AJOUTÉES)
+# ============================================
+
+def install_dependency(dependency_name: str, auto_confirm: bool = False) -> bool:
+    """
+    Installe une dépendance manquante.
+    
+    Args:
+        dependency_name: Nom de la dépendance à installer
+        auto_confirm: Auto-confirmation sans demande utilisateur
+    
+    Returns:
+        True si l'installation a réussi, False sinon
+    """
+    # Mapping des dépendances vers leurs commandes d'installation
+    install_commands = {
+        # Outils système
+        "nmap": "sudo apt install -y nmap",
+        "sqlmap": "sudo apt install -y sqlmap",
+        "whatweb": "sudo apt install -y whatweb",
+        "dirb": "sudo apt install -y dirb",
+        "wfuzz": "sudo apt install -y wfuzz",
+        "hydra": "sudo apt install -y hydra",
+        "john": "sudo apt install -y john",
+        "metasploit-framework": "sudo apt install -y metasploit-framework",
+        "tor": "sudo apt install -y tor",
+        "proxychains": "sudo apt install -y proxychains",
+        "gobuster": "sudo apt install -y gobuster",
+        "ffuf": "sudo apt install -y ffuf",
+        "xsstrike": "sudo apt install -y xsstrike",
+        "wafw00f": "pip3 install wafw00f",
+        "dnsrecon": "sudo apt install -y dnsrecon",
+        "theharvester": "sudo apt install -y theharvester",
+        
+        # Packages Python
+        "flask": "pip install flask",
+        "flask-socketio": "pip install flask-socketio",
+        "flask-cors": "pip install flask-cors",
+        "requests": "pip install requests",
+        "beautifulsoup4": "pip install beautifulsoup4",
+        "lxml": "pip install lxml",
+        "cryptography": "pip install cryptography",
+        "paramiko": "pip install paramiko",
+        "dnspython": "pip install dnspython",
+        "rich": "pip install rich",
+        "click": "pip install click",
+        "tqdm": "pip install tqdm",
+        "pyyaml": "pip install pyyaml",
+        "colorama": "pip install colorama",
+        "python-nmap": "pip install python-nmap",
+        "pymetasploit3": "pip install pymetasploit3"
+    }
+    
+    if dependency_name not in install_commands:
+        print(f"❌ Aucune commande d'installation trouvée pour {dependency_name}")
+        return False
+    
+    cmd = install_commands[dependency_name]
+    
+    if not auto_confirm:
+        response = input(f"📦 Installer {dependency_name} ? (o/N): ")
+        if response.lower() not in ['o', 'oui', 'y', 'yes']:
+            print(f"⏭️ Installation de {dependency_name} ignorée")
+            return False
+    
+    print(f"📦 Installation de {dependency_name}...")
+    
+    try:
+        if cmd.startswith("pip"):
+            subprocess.run(cmd.split(), check=True)
+        else:
+            subprocess.run(cmd.split(), check=True)
+        
+        print(f"✅ {dependency_name} installé avec succès")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Erreur lors de l'installation de {dependency_name}: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ Erreur inattendue: {e}")
+        return False
+
+
+def install_missing_dependencies(auto_confirm: bool = False) -> Dict[str, bool]:
+    """
+    Installe toutes les dépendances manquantes.
+    
+    Args:
+        auto_confirm: Auto-confirmation sans demande utilisateur
+    
+    Returns:
+        Dictionnaire des résultats d'installation
+    """
+    results = check_dependencies(verbose=False)
+    missing = results.get('missing', [])
+    
+    install_results = {}
+    
+    if not missing:
+        print("✅ Aucune dépendance manquante")
+        return install_results
+    
+    print(f"📦 {len(missing)} dépendance(s) manquante(s) à installer")
+    
+    for dep in missing:
+        dep_name = dep.get('name', '') if isinstance(dep, dict) else dep
+        if dep_name:
+            success = install_dependency(dep_name, auto_confirm)
+            install_results[dep_name] = success
+    
+    return install_results
+
+
+# ============================================
 # FONCTIONS DE COMPATIBILITÉ (CRITIQUES)
 # ============================================
 
@@ -742,5 +856,9 @@ if __name__ == "__main__":
     for tool in test_tools:
         installed = is_dependency_installed(tool)
         print(f"  {tool}: {'✅' if installed else '❌'}")
+    
+    # Test de la fonction install_dependency
+    print("\nTest install_dependency():")
+    print("  (installation non testée automatiquement)")
     
     print("\n✅ Vérificateur de dépendances fonctionnel")
