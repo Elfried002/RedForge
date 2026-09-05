@@ -593,7 +593,26 @@ class MITMAttacks:
                 
                 # Forward la requête
                 try:
-                    target_url = f"https://{self.headers.get('Host', '')}{self.path}"
+                    # Validation stricte de la destination pour éviter SSRF
+                    raw_host = (self.headers.get('Host', '') or '').strip()
+                    host_only = raw_host.split(':', 1)[0].strip().lower()
+                    request_path = self.path if self.path.startswith('/') else f"/{self.path.lstrip('/')}"
+
+                    allowed_hosts: Set[str] = set()
+                    target_domain = str(self.target_info.get('domain', '') or '').strip().lower()
+                    target_hostname = str(self.target_info.get('hostname', '') or '').strip().lower()
+                    if target_domain:
+                        allowed_hosts.add(target_domain)
+                    if target_hostname:
+                        allowed_hosts.add(target_hostname)
+
+                    if not host_only or (allowed_hosts and host_only not in allowed_hosts):
+                        self.send_response(403)
+                        self.end_headers()
+                        print(f"      ✗ Host non autorisé pour le forwarding: {raw_host}")
+                        return
+
+                    target_url = f"https://{host_only}{request_path}"
                     
                     forward_headers = {k: v for k, v in self.headers.items() 
                                       if k.lower() not in ['host', 'content-length']}
