@@ -344,18 +344,14 @@ function getAPTHTML() {
                         <option value="paranoid">Paranoid</option>
                     </select>
                 </div>
-                <button id="run-apt-operation" class="btn btn-danger" disabled>
+                <button id="run-apt-operation" class="btn btn-primary" disabled>
                     🎯 Lancer l'opération APT
                 </button>
             </div>
             
-            <div class="apt-operations-list" id="apt-operations-list">
-                <div class="loading-spinner"></div>
-            </div>
-            
-            <div class="apt-timeline" id="apt-timeline" style="display: none;">
-                <h3>📅 Timeline de l'opération</h3>
-                <div class="timeline-container"></div>
+            <div class="apt-operation-details">
+                <h3>Phases de l'Opération</h3>
+                <div id="apt-phases-list"></div>
             </div>
         </div>
     `;
@@ -363,642 +359,496 @@ function getAPTHTML() {
 
 function getStealthHTML() {
     return `
-        <div class="stealth-config-panel">
-            <h3>🕵️ Configuration du mode furtif</h3>
-            
-            <div class="stealth-level-selector">
-                <div class="stealth-level-btn stealth-level-low" data-level="low">
-                    🟢 Low
-                    <small>Détection facile</small>
+        <div class="stealth-panel">
+            <h2>Paramètres du Mode Furtif</h2>
+            <div class="stealth-controls">
+                <div class="form-group">
+                    <label>Profil furtif:</label>
+                    <select id="stealth-profile" class="form-select">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="paranoid">Paranoid</option>
+                        <option value="custom">Personnalisé</option>
+                    </select>
                 </div>
-                <div class="stealth-level-btn stealth-level-medium selected" data-level="medium">
-                    🟡 Medium
-                    <small>Équilibre</small>
+                <div class="form-group">
+                    <label>Délai entre les requêtes (ms):</label>
+                    <input type="number" id="request-delay" class="form-control" value="100">
                 </div>
-                <div class="stealth-level-btn stealth-level-high" data-level="high">
-                    🔴 High
-                    <small>Difficile à détecter</small>
+                <div class="form-group">
+                    <label>Variation du délai (%):</label>
+                    <input type="number" id="delay-variation" class="form-control" value="20">
                 </div>
-                <div class="stealth-level-btn stealth-level-paranoid" data-level="paranoid">
-                    🟣 Paranoid
-                    <small>Maximum</small>
+                <div class="form-group">
+                    <label>User-Agent:</label>
+                    <select id="user-agent" class="form-select">
+                        <option value="default">Défaut</option>
+                        <option value="random">Aléatoire</option>
+                        <option value="custom">Personnalisé</option>
+                    </select>
                 </div>
+                <div class="form-group">
+                    <input type="text" id="custom-user-agent" class="form-control" placeholder="Votre User-Agent personnalisé" style="display:none;">
+                </div>
+                <button id="save-stealth-settings" class="btn btn-primary">Enregistrer les paramètres</button>
             </div>
-            
-            <div class="stealth-options">
-                <div class="form-group">
-                    <label>Délai entre les requêtes (secondes)</label>
-                    <input type="range" id="delay-range" min="0.1" max="10" step="0.1" value="1.5">
-                    <span id="delay-value" class="delay-value">1.5s</span>
-                </div>
-                
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="random-user-agents" checked>
-                        User-Agents aléatoires
-                    </label>
-                </div>
-                
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="use-tor">
-                        Utiliser TOR
-                    </label>
-                </div>
-                
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="rotate-proxies">
-                        Rotation de proxies
-                    </label>
-                </div>
-                
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="mimic-human" checked>
-                        Mimétisme humain
-                    </label>
-                </div>
-            </div>
-            
-            <button id="test-stealth-config" class="btn btn-secondary">
-                🧪 Tester la configuration
-            </button>
-            
-            <div id="stealth-test-results" class="stealth-test-results" style="display: none;"></div>
         </div>
     `;
 }
 
-function bindTabEvents() {
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            const tabId = this.dataset.tab;
-            
-            // Update active tab
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Update active content
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            
-            // Load specific data
-            if (tabId === 'multi') {
-                loadMultiAttacksGrid();
-                loadTargetsForSelect('multi-target');
-            } else if (tabId === 'apt') {
-                loadAPTOperationsList();
-                loadTargetsForSelect('apt-target');
-            } else if (tabId === 'simple') {
-                loadTargets();
-            }
-        });
-    });
-}
+// ========================================
+// CHARGEMENT DES DONNÉES
+// ========================================
 
-function loadMultiAttacksGrid() {
-    const grid = document.getElementById('multi-attacks-grid');
-    if (!grid) return;
+function loadAttackCategories() {
+    const grid = document.getElementById('attacks-grid');
+    const multiGrid = document.getElementById('multi-attacks-grid');
+    if (!grid || !multiGrid) return;
     
     grid.innerHTML = '';
-    
+    multiGrid.innerHTML = '';
+
     for (const [key, category] of Object.entries(ATTACK_CATEGORIES)) {
-        const categoryDiv = createMultiCategoryDiv(key, category);
-        grid.appendChild(categoryDiv);
+        const categoryCard = createCategoryCard(key, category, false);
+        const multiCategoryCard = createCategoryCard(key, category, true);
+        grid.appendChild(categoryCard);
+        multiGrid.appendChild(multiCategoryCard);
     }
-    
-    bindMultiAttackEvents();
 }
 
-function createMultiCategoryDiv(categoryKey, category) {
-    const div = document.createElement('div');
-    div.className = 'attack-category-card';
-    div.innerHTML = `
-        <div class="card-header">
-            <span class="attack-icon">${category.icon}</span>
-            <h4>${category.name}</h4>
-            <label class="select-all">
-                <input type="checkbox" class="select-all-category-multi" data-category="${categoryKey}">
-                <span>Tout</span>
-            </label>
+function createCategoryCard(key, category, isMulti) {
+    const card = document.createElement('div');
+    card.className = 'attack-category-card';
+    card.innerHTML = `
+        <div class="category-header">
+            <h3>${category.icon} ${category.name}</h3>
+            <p>${category.description}</p>
         </div>
-        <div class="card-body">
-            ${category.attacks.map(attack => `
-                <label class="attack-item">
-                    <input type="checkbox" class="multi-attack-checkbox" 
-                           data-category="${categoryKey}" 
-                           data-attack="${attack}">
-                    <span>${ATTACK_NAMES[attack] || attack}</span>
-                </label>
-            `).join('')}
-        </div>
+        <div class="attacks-list"></div>
     `;
-    
-    return div;
-}
 
-function bindMultiAttackEvents() {
-    // Select all by category
-    document.querySelectorAll('.select-all-category-multi').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const category = this.dataset.category;
-            const checkboxes = document.querySelectorAll(`.multi-attack-checkbox[data-category="${category}"]`);
-            checkboxes.forEach(cb => cb.checked = this.checked);
-            updateMultiRunButton();
-        });
-    });
-    
-    // Individual selection
-    document.addEventListener('change', function(e) {
-        if (e.target.classList && e.target.classList.contains('multi-attack-checkbox')) {
-            updateMultiRunButton();
-        }
-    });
-    
-    // Select all / deselect all
-    const selectAllBtn = document.getElementById('select-all-attacks');
-    const deselectAllBtn = document.getElementById('deselect-all-attacks');
-    
-    if (selectAllBtn) {
-        selectAllBtn.addEventListener('click', () => {
-            document.querySelectorAll('.multi-attack-checkbox').forEach(cb => cb.checked = true);
-            updateMultiRunButton();
-        });
-    }
-    
-    if (deselectAllBtn) {
-        deselectAllBtn.addEventListener('click', () => {
-            document.querySelectorAll('.multi-attack-checkbox').forEach(cb => cb.checked = false);
-            updateMultiRunButton();
-        });
-    }
-    
-    // Run multi attacks
-    const runBtn = document.getElementById('run-multi-attacks');
-    if (runBtn) {
-        runBtn.addEventListener('click', runMultiAttacks);
-    }
-}
-
-function updateMultiRunButton() {
-    const runBtn = document.getElementById('run-multi-attacks');
-    const targetSelect = document.getElementById('multi-target');
-    const selectedAttacks = document.querySelectorAll('.multi-attack-checkbox:checked');
-    
-    if (runBtn) {
-        runBtn.disabled = !(targetSelect && targetSelect.value && selectedAttacks.length > 0);
-    }
-}
-
-async function runMultiAttacks() {
-    const target = document.getElementById('multi-target').value;
-    const executionMode = document.getElementById('execution-mode').value;
-    const stealthLevel = document.getElementById('multi-stealth-level').value;
-    const selectedAttacks = Array.from(document.querySelectorAll('.multi-attack-checkbox:checked')).map(cb => ({
-        category: cb.dataset.category,
-        type: cb.dataset.attack,
-        options: {}
-    }));
-    
-    if (!target || selectedAttacks.length === 0) return;
-    
-    const runBtn = document.getElementById('run-multi-attacks');
-    runBtn.disabled = true;
-    runBtn.textContent = '⏳ Lancement...';
-    
-    try {
-        const response = await fetch('/api/multi-attack', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                target: target,
-                attacks: selectedAttacks,
-                execution_mode: executionMode,
-                stealth_level: stealthLevel
-            })
-        });
+    const list = card.querySelector('.attacks-list');
+    category.attacks.forEach(attackId => {
+        const attackName = ATTACK_NAMES[attackId] || attackId;
+        const attackEl = document.createElement('div');
+        attackEl.className = 'attack-item';
+        attackEl.dataset.attackId = attackId;
         
-        const result = await response.json();
-        
-        if (result.task_id) {
-            showNotification(`Attaques multiples lancées (${selectedAttacks.length} attaques)`, 'success');
-            addMultiAttackToActive(result.task_id, target, selectedAttacks.length);
-        } else {
-            showNotification('Erreur lors du lancement', 'error');
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        showNotification('Erreur réseau', 'error');
-    } finally {
-        runBtn.disabled = false;
-        runBtn.textContent = '🚀 Lancer les attaques multiples';
-    }
-}
-
-function addMultiAttackToActive(taskId, target, attackCount) {
-    const container = document.getElementById('active-attacks-list');
-    if (!container) return;
-    
-    const attackElement = document.createElement('div');
-    attackElement.id = taskId;
-    attackElement.className = 'active-attack-item multi-attack';
-    attackElement.innerHTML = `
-        <div class="attack-info">
-            <span class="attack-status running">⏳</span>
-            <span>Multi-Attack: ${target} (${attackCount} attaques)</span>
-        </div>
-        <div class="attack-progress">
-            <div class="progress">
-                <div class="progress-bar" style="width: 0%"></div>
-            </div>
-        </div>
-        <div class="current-attack"></div>
-    `;
-    
-    container.appendChild(attackElement);
-    activeMultiAttacks[taskId] = { attackElement };
-}
-
-async function runAPTOperation() {
-    const target = document.getElementById('apt-target').value;
-    const operationId = document.getElementById('apt-operation').value;
-    const stealthLevel = document.getElementById('apt-stealth-level').value;
-    
-    if (!target || !operationId) return;
-    
-    const runBtn = document.getElementById('run-apt-operation');
-    runBtn.disabled = true;
-    runBtn.textContent = '⏳ Démarrage de l\'opération APT...';
-    
-    try {
-        const response = await fetch('/api/apt/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                target: target,
-                operation_id: operationId,
-                stealth_level: stealthLevel
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.task_id) {
-            showNotification(`Opération APT lancée: ${operationId}`, 'warning');
-            showAPTTimeline(result.task_id);
-        } else {
-            showNotification('Erreur lors du lancement', 'error');
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        showNotification('Erreur réseau', 'error');
-    } finally {
-        runBtn.disabled = false;
-        runBtn.textContent = '🎯 Lancer l\'opération APT';
-    }
-}
-
-function showAPTTimeline(taskId) {
-    const timeline = document.getElementById('apt-timeline');
-    if (timeline) {
-        timeline.style.display = 'block';
-        timeline.dataset.taskId = taskId;
-    }
-}
-
-function updateAttackProgress(taskId, currentAttack, progress) {
-    const element = document.getElementById(taskId);
-    if (element) {
-        const progressBar = element.querySelector('.progress-bar');
-        if (progressBar) progressBar.style.width = `${progress}%`;
-        
-        const currentAttackDiv = element.querySelector('.current-attack');
-        if (currentAttackDiv && currentAttack) {
-            currentAttackDiv.textContent = `En cours: ${currentAttack}`;
-        }
-    }
-}
-
-function onMultiAttackCompleted(taskId, data) {
-    const element = document.getElementById(taskId);
-    if (element) {
-        const statusSpan = element.querySelector('.attack-status');
-        if (statusSpan) {
-            statusSpan.textContent = '✅';
-            statusSpan.classList.remove('running');
-        }
-        
-        setTimeout(() => {
-            element.remove();
-            delete activeMultiAttacks[taskId];
-        }, 3000);
-    }
-    
-    showNotification(`Multi-attaque terminée: ${data.successful}/${data.total_attacks} réussies`, 'info');
-}
-
-function onAPTStarted(data) {
-    showNotification(`Opération APT démarrée: ${data.operation_name}`, 'warning');
-}
-
-function onAPTPhaseStart(data) {
-    console.log(`Phase APT démarrée: ${data.phase}`);
-    updateAPTTimeline(data.phase, 'running');
-}
-
-function onAPTPhaseComplete(data) {
-    updateAPTTimeline(data.phase, 'completed', data.success_rate);
-    showNotification(`Phase APT terminée: ${data.phase} (${data.success_rate}% succès)`, 'info');
-}
-
-function onAPTCompleted(data) {
-    showNotification(`Opération APT complétée! Succès global: ${data.overall_success}%`, 'success');
-    
-    const timeline = document.getElementById('apt-timeline');
-    if (timeline) {
-        setTimeout(() => {
-            timeline.style.display = 'none';
-        }, 5000);
-    }
-}
-
-function updateAPTTimeline(phase, status, successRate = null) {
-    const timelineContainer = document.querySelector('.timeline-container');
-    if (!timelineContainer) return;
-    
-    let phaseElement = document.querySelector(`.timeline-item[data-phase="${phase}"]`);
-    if (!phaseElement) {
-        phaseElement = document.createElement('div');
-        phaseElement.className = 'timeline-item';
-        phaseElement.setAttribute('data-phase', phase);
-        phaseElement.innerHTML = `
-            <div class="timeline-marker"></div>
-            <div class="timeline-content">
-                <strong>${phase}</strong>
-                <div class="timeline-status"></div>
-            </div>
+        const inputId = `${isMulti ? 'multi-' : ''}attack-${attackId}`;
+        attackEl.innerHTML = `
+            <input type="checkbox" id="${inputId}" data-attack-id="${attackId}">
+            <label for="${inputId}">${attackName}</label>
         `;
-        timelineContainer.appendChild(phaseElement);
-    }
-    
-    const statusDiv = phaseElement.querySelector('.timeline-status');
-    if (status === 'running') {
-        statusDiv.innerHTML = '<span class="badge badge-info">En cours...</span>';
-    } else if (status === 'completed') {
-        statusDiv.innerHTML = `<span class="badge badge-${successRate > 70 ? 'success' : 'warning'}">Terminé (${successRate}%)</span>`;
+        list.appendChild(attackEl);
+    });
+
+    return card;
+}
+
+async function loadTargets() {
+    try {
+        const response = await fetch('/api/targets');
+        const targets = await response.json();
+        
+        ['attack-target', 'multi-target', 'apt-target'].forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Sélectionner une cible</option>';
+            targets.forEach(target => {
+                const option = document.createElement('option');
+                option.value = target.id;
+                option.textContent = target.name;
+                select.appendChild(option);
+            });
+            if (currentValue) {
+                select.value = currentValue;
+            }
+        });
+    } catch (error) {
+        console.error('Erreur lors du chargement des cibles:', error);
+        showNotification('Erreur de chargement des cibles', 'error');
     }
 }
 
 function loadStealthProfiles() {
-    // Stealth level selection
-    document.querySelectorAll('.stealth-level-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const level = this.dataset.level;
-            currentStealthLevel = level;
-            
-            // Update UI
-            document.querySelectorAll('.stealth-level-btn').forEach(b => b.classList.remove('selected'));
-            this.classList.add('selected');
-            
-            // Update config based on level
-            updateStealthConfig(level);
-        });
-    });
-    
-    // Delay slider
-    const delayRange = document.getElementById('delay-range');
-    const delayValue = document.getElementById('delay-value');
-    
-    if (delayRange && delayValue) {
-        delayRange.addEventListener('input', function() {
-            delayValue.textContent = `${this.value}s`;
-        });
-    }
-    
-    // Test button
-    const testBtn = document.getElementById('test-stealth-config');
-    if (testBtn) {
-        testBtn.addEventListener('click', testStealthConfig);
-    }
-}
-
-function updateStealthConfig(level) {
-    const configs = {
-        low: { delay: 0.5, jitter: 0.1, tor: false, proxies: false },
-        medium: { delay: 1.5, jitter: 0.3, tor: false, proxies: false },
-        high: { delay: 3.0, jitter: 0.5, tor: true, proxies: false },
-        paranoid: { delay: 5.0, jitter: 0.7, tor: true, proxies: true }
-    };
-    
-    const config = configs[level];
-    if (config) {
-        const delayRange = document.getElementById('delay-range');
-        const torCheckbox = document.getElementById('use-tor');
-        const proxiesCheckbox = document.getElementById('rotate-proxies');
-        
-        if (delayRange) delayRange.value = config.delay;
-        if (torCheckbox) torCheckbox.checked = config.tor;
-        if (proxiesCheckbox) proxiesCheckbox.checked = config.proxies;
-        
-        const delayValue = document.getElementById('delay-value');
-        if (delayValue) delayValue.textContent = `${config.delay}s`;
-    }
-}
-
-async function testStealthConfig() {
-    const target = document.getElementById('attack-target')?.value;
-    if (!target) {
-        showNotification('Veuillez sélectionner une cible d\'abord', 'warning');
-        return;
-    }
-    
-    const config = {
-        delay_between_requests: parseFloat(document.getElementById('delay-range')?.value || 1.5),
-        random_user_agents: document.getElementById('random-user-agents')?.checked || false,
-        use_tor: document.getElementById('use-tor')?.checked || false,
-        rotate_proxies: document.getElementById('rotate-proxies')?.checked || false,
-        mimic_human_behavior: document.getElementById('mimic-human')?.checked || false
-    };
-    
-    const testBtn = document.getElementById('test-stealth-config');
-    testBtn.disabled = true;
-    testBtn.textContent = '⏳ Test en cours...';
-    
-    try {
-        const response = await fetch('/api/stealth/test', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ target: target, config: config })
-        });
-        
-        const results = await response.json();
-        displayStealthTestResults(results);
-    } catch (error) {
-        console.error('Erreur:', error);
-        showNotification('Erreur lors du test', 'error');
-    } finally {
-        testBtn.disabled = false;
-        testBtn.textContent = '🧪 Tester la configuration';
-    }
-}
-
-function displayStealthTestResults(results) {
-    const container = document.getElementById('stealth-test-results');
-    if (!container) return;
-    
-    const riskColors = {
-        low: '#4caf50',
-        medium: '#ff9800',
-        high: '#f44336'
-    };
-    
-    container.style.display = 'block';
-    container.innerHTML = `
-        <h4>Résultats du test</h4>
-        <div class="test-result">
-            <p><strong>Risque de détection:</strong> 
-                <span style="color: ${riskColors[results.detection_risk]}">${results.detection_risk.toUpperCase()}</span>
-            </p>
-            <p><strong>Taux de succès estimé:</strong> ${results.success_rate}%</p>
-            <p><strong>Délais testés:</strong> ${results.delays_tested.map(d => d.toFixed(2) + 's').join(', ')}</p>
-            ${results.recommendations.length > 0 ? `
-                <div class="recommendations">
-                    <strong>Recommandations:</strong>
-                    <ul>
-                        ${results.recommendations.map(rec => `<li>${rec}</li>`).join('')}
-                    </ul>
-                </div>
-            ` : ''}
-        </div>
-    `;
-    
-    setTimeout(() => {
-        container.style.opacity = '0';
-        setTimeout(() => {
-            container.style.display = 'none';
-            container.style.opacity = '1';
-        }, 3000);
-    }, 10000);
+    // Logique pour charger les profils de furtivité
 }
 
 function loadAPTOperations() {
-    const select = document.getElementById('apt-operation');
-    if (!select) return;
-    
-    fetch('/api/apt/operations')
-        .then(res => res.json())
-        .then(data => {
-            const predefined = data.predefined || [];
-            const custom = data.custom || [];
-            
-            select.innerHTML = '<option value="">Sélectionner une opération</option>';
-            
-            if (predefined.length > 0) {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = 'Prédéfinies';
-                predefined.forEach(op => {
-                    const option = document.createElement('option');
-                    option.value = op;
-                    option.textContent = op.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    optgroup.appendChild(option);
-                });
-                select.appendChild(optgroup);
-            }
-            
-            if (custom.length > 0) {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = 'Personnalisées';
-                custom.forEach(op => {
-                    const option = document.createElement('option');
-                    option.value = op;
-                    option.textContent = op;
-                    optgroup.appendChild(option);
-                });
-                select.appendChild(optgroup);
-            }
-            
-            const runBtn = document.getElementById('run-apt-operation');
-            if (runBtn) {
-                select.addEventListener('change', () => {
-                    runBtn.disabled = !select.value;
-                });
-            }
-        })
-        .catch(error => console.error('Erreur chargement APT:', error));
+    // Logique pour charger les opérations APT
 }
 
-function loadAPTOperationsList() {
-    const container = document.getElementById('apt-operations-list');
-    if (!container) return;
+// ========================================
+// GESTION DES ÉVÉNEMENTS
+// ========================================
+
+function bindTabEvents() {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
     
-    fetch('/api/apt/operations')
-        .then(res => res.json())
-        .then(data => {
-            const allOps = [...(data.predefined || []), ...(data.custom || [])];
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
             
-            if (allOps.length === 0) {
-                container.innerHTML = '<p>Aucune opération APT disponible</p>';
-                return;
-            }
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
             
-            container.innerHTML = allOps.map(op => `
-                <div class="apt-operation-card" data-operation="${op}">
-                    <div class="apt-operation-header">
-                        <div class="apt-operation-title">${op.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
-                        <div class="apt-operation-description">Opération APT ${data.predefined?.includes(op) ? 'prédéfinie' : 'personnalisée'}</div>
-                    </div>
-                </div>
-            `).join('');
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            container.innerHTML = '<p>Erreur lors du chargement des opérations APT</p>';
+            document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
         });
+    });
 }
 
-// Helper functions
-function loadTargetsForSelect(selectId) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
+function bindAttackEvents() {
+    // Sélection d'attaques
+    document.body.addEventListener('change', event => {
+        if (event.target.matches('#attacks-grid input[type="checkbox"], #multi-attacks-grid input[type="checkbox"]')) {
+            updateRunButtonsState();
+        }
+    });
     
-    fetch('/api/targets')
-        .then(res => res.json())
-        .then(data => {
-            const targets = data.targets || [];
-            select.innerHTML = '<option value="">Sélectionner une cible</option>' +
-                targets.map(t => `<option value="${t}">${t}</option>`).join('');
-        })
-        .catch(error => console.error('Erreur chargement cibles:', error));
+    // Lancement d'attaques simples
+    const runSimpleBtn = document.getElementById('run-selected-attacks');
+    if (runSimpleBtn) {
+        runSimpleBtn.addEventListener('click', runSelectedAttacks);
+    }
+    
+    // Lancement d'attaques multiples
+    const runMultiBtn = document.getElementById('run-multi-attacks');
+    if (runMultiBtn) {
+        runMultiBtn.addEventListener('click', runMultiAttacks);
+    }
+    
+    // Sélection/Désélection de toutes les attaques
+    const selectAllBtn = document.getElementById('select-all-attacks');
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', () => toggleAllMultiAttacks(true));
+    }
+    const deselectAllBtn = document.getElementById('deselect-all-attacks');
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', () => toggleAllMultiAttacks(false));
+    }
+    
+    // Lancement d'opérations APT
+    const runAPTBtn = document.getElementById('run-apt-operation');
+    if (runAPTBtn) {
+        runAPTBtn.addEventListener('click', runAPTOperation);
+    }
 }
 
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type} fade-in`;
-    notification.innerHTML = `
-        <div class="notification-title">${type === 'success' ? '✅ Succès' : type === 'error' ? '❌ Erreur' : type === 'warning' ? '⚠️ Attention' : 'ℹ️ Info'}</div>
-        <div class="notification-message">${message}</div>
-    `;
+function updateRunButtonsState() {
+    const selectedSimple = document.querySelectorAll('#attacks-grid input:checked').length > 0;
+    document.getElementById('run-selected-attacks').disabled = !selectedSimple;
+
+    const selectedMulti = document.querySelectorAll('#multi-attacks-grid input:checked').length > 0;
+    document.getElementById('run-multi-attacks').disabled = !selectedMulti;
+}
+
+function toggleAllMultiAttacks(select) {
+    const checkboxes = document.querySelectorAll('#multi-attacks-grid input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = select);
+    updateRunButtonsState();
+}
+
+// ========================================
+// EXÉCUTION DES ATTAQUES
+// ========================================
+
+function runSelectedAttacks() {
+    const target = document.getElementById('attack-target').value;
+    if (!target) {
+        showNotification('Veuillez sélectionner une cible', 'warning');
+        return;
+    }
     
-    document.body.appendChild(notification);
+    const selectedAttacks = Array.from(document.querySelectorAll('#attacks-grid input:checked'))
+        .map(cb => cb.dataset.attackId);
     
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        setTimeout(() => notification.remove(), 300);
-    }, 5000);
+    if (selectedAttacks.length === 0) {
+        showNotification('Veuillez sélectionner au moins une attaque', 'warning');
+        return;
+    }
+    
+    const attackLevel = document.getElementById('attack-level').value;
+    
+    selectedAttacks.forEach(attackType => {
+        const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const attackData = {
+            task_id: taskId,
+            attack_type: attackType,
+            target_id: target,
+            attack_level: attackLevel
+        };
+        
+        socket.emit('start_attack', attackData);
+        addActiveAttack(taskId, `Attaque ${ATTACK_NAMES[attackType]} sur ${target}`);
+    });
+}
+
+function runMultiAttacks() {
+    const target = document.getElementById('multi-target').value;
+    if (!target) {
+        showNotification('Veuillez sélectionner une cible', 'warning');
+        return;
+    }
+    
+    const selectedAttacks = Array.from(document.querySelectorAll('#multi-attacks-grid input:checked'))
+        .map(cb => cb.dataset.attackId);
+        
+    if (selectedAttacks.length === 0) {
+        showNotification('Veuillez sélectionner au moins une attaque', 'warning');
+        return;
+    }
+    
+    const executionMode = document.getElementById('execution-mode').value;
+    const stealthLevel = document.getElementById('multi-stealth-level').value;
+    const taskId = `multi_${Date.now()}`;
+    
+    const multiAttackData = {
+        task_id: taskId,
+        target_id: target,
+        attacks: selectedAttacks,
+        mode: executionMode,
+        stealth: stealthLevel
+    };
+    
+    socket.emit('start_multi_attack', multiAttackData);
+    addActiveMultiAttack(taskId, `Attaques multiples sur ${target} (${selectedAttacks.length})`);
+}
+
+function runAPTOperation() {
+    const target = document.getElementById('apt-target').value;
+    if (!target) {
+        showNotification('Veuillez sélectionner une cible', 'warning');
+        return;
+    }
+    
+    const operation = document.getElementById('apt-operation').value;
+    if (!operation) {
+        showNotification('Veuillez sélectionner une opération APT', 'warning');
+        return;
+    }
+    
+    const stealthLevel = document.getElementById('apt-stealth-level').value;
+    const taskId = `apt_${Date.now()}`;
+    
+    const aptData = {
+        task_id: taskId,
+        target_id: target,
+        operation: operation,
+        stealth: stealthLevel
+    };
+    
+    socket.emit('start_apt', aptData);
+    addActiveAPTOperation(taskId, `Opération APT sur ${target}`);
+}
+
+// ========================================
+// AFFICHAGE DE L'ÉTAT
+// ========================================
+
+function addActiveAttack(taskId, description) {
+    activeAttacks[taskId] = { description, progress: 0 };
+    renderActiveAttacks();
+}
+
+function addActiveMultiAttack(taskId, description) {
+    activeMultiAttacks[taskId] = { description, progress: 0, current_attack: 'Initialisation' };
+    renderActiveAttacks();
+}
+
+function addActiveAPTOperation(taskId, description) {
+    activeAPTOperations[taskId] = { description, phases: {} };
+    renderActiveAttacks();
+}
+
+function renderActiveAttacks() {
+    const list = document.getElementById('active-attacks-list');
+    list.innerHTML = '';
+    
+    // Attaques simples
+    for (const [id, attack] of Object.entries(activeAttacks)) {
+        const item = document.createElement('div');
+        item.className = 'active-attack-item';
+        item.innerHTML = `
+            <span>${attack.description}</span>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: ${attack.progress}%;"></div>
+            </div>
+            <span>${attack.progress}%</span>
+        `;
+        list.appendChild(item);
+    }
+    
+    // Attaques multiples
+    for (const [id, attack] of Object.entries(activeMultiAttacks)) {
+        const item = document.createElement('div');
+        item.className = 'active-attack-item multi-attack';
+        item.innerHTML = `
+            <span>${attack.description}</span>
+            <small>Actuellement: ${attack.current_attack}</small>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: ${attack.progress}%;"></div>
+            </div>
+            <span>${attack.progress}%</span>
+        `;
+        list.appendChild(item);
+    }
+    
+    // Opérations APT
+    for (const [id, operation] of Object.entries(activeAPTOperations)) {
+        const item = document.createElement('div');
+        item.className = 'active-attack-item apt-operation';
+        let phasesHTML = '<ul>';
+        for (const [phase, status] of Object.entries(operation.phases)) {
+            phasesHTML += `<li class="${status.toLowerCase()}">${phase}: ${status}</li>`;
+        }
+        phasesHTML += '</ul>';
+        item.innerHTML = `
+            <span>${operation.description}</span>
+            <div class="apt-phases">${phasesHTML}</div>
+        `;
+        list.appendChild(item);
+    }
+}
+
+function updateAttackProgress(taskId, currentAttack, progress) {
+    if (activeMultiAttacks[taskId]) {
+        activeMultiAttacks[taskId].progress = progress;
+        activeMultiAttacks[taskId].current_attack = ATTACK_NAMES[currentAttack] || currentAttack;
+        renderActiveAttacks();
+    }
+}
+
+function onMultiAttackCompleted(taskId, data) {
+    delete activeMultiAttacks[taskId];
+    renderActiveAttacks();
+    addAttackResult('Attaques multiples', data);
+    showNotification(`Attaques multiples terminées (ID: ${taskId})`, 'success');
+}
+
+function onAPTStarted(data) {
+    const taskId = data.task_id;
+    if (activeAPTOperations[taskId]) {
+        activeAPTOperations[taskId].phases = {};
+        data.phases.forEach(phase => {
+            activeAPTOperations[taskId].phases[phase] = 'En attente';
+        });
+        renderActiveAttacks();
+    }
+}
+
+function onAPTPhaseStart(data) {
+    const taskId = data.task_id;
+    if (activeAPTOperations[taskId]) {
+        activeAPTOperations[taskId].phases[data.phase] = 'En cours';
+        renderActiveAttacks();
+    }
+}
+
+function onAPTPhaseComplete(data) {
+    const taskId = data.task_id;
+    if (activeAPTOperations[taskId]) {
+        activeAPTOperations[taskId].phases[data.phase] = 'Terminé';
+        renderActiveAttacks();
+    }
+}
+
+function onAPTCompleted(data) {
+    const taskId = data.task_id;
+    delete activeAPTOperations[taskId];
+    renderActiveAttacks();
+    addAttackResult('Opération APT', data);
+    showNotification(`Opération APT terminée (ID: ${taskId})`, 'success');
 }
 
 function onScanCompleted(data) {
-    showNotification(`Scan terminé pour ${data.target}`, 'success');
-    displayAttackResult('scan', data.results_summary);
+    const taskId = data.task_id;
+    const resultDivId = `scan-result-${taskId}`;
+    let resultDiv = document.getElementById(resultDivId);
+
+    if (!resultDiv) {
+        // Create result area if it doesn't exist
+        const resultsContainer = document.getElementById('attack-results');
+        const resultCard = document.createElement('div');
+        resultCard.className = 'result-card';
+        resultCard.innerHTML = `
+            <div class="result-header">
+                <h3>Résultat du Scan (ID: ${taskId})</h3>
+                <span class="timestamp">${new Date().toLocaleString()}</span>
+            </div>
+            <div id="${resultDivId}" class="result-content"></div>
+        `;
+        resultsContainer.prepend(resultCard);
+        resultDiv = document.getElementById(resultDivId);
+    }
+    
+    const pre = document.createElement('pre');
+    pre.textContent = data.output;
+    resultDiv.replaceChildren(pre);
+    
+    showNotification(`Scan terminé (ID: ${taskId})`, 'info');
+    
+    // Mettre à jour la liste des cibles si un scan a été effectué
+    if(data.targets_updated) {
+        loadTargets();
+    }
 }
 
-// Export functions for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        runAttack,
-        getAttackResults: () => attackResults,
-        runMultiAttacks,
-        runAPTOperation
-    };
+function addAttackResult(title, data) {
+    const resultsContainer = document.getElementById('attack-results');
+    const resultCard = document.createElement('div');
+    resultCard.className = 'result-card';
+    
+    let contentHTML = '<dl>';
+    for (const [key, value] of Object.entries(data.results)) {
+        contentHTML += `<dt>${key}</dt><dd><pre>${JSON.stringify(value, null, 2)}</pre></dd>`;
+    }
+    contentHTML += '</dl>';
+    
+    resultCard.innerHTML = `
+        <div class="result-header">
+            <h3>${title} (ID: ${data.task_id})</h3>
+            <span class="timestamp">${new Date().toLocaleString()}</span>
+        </div>
+        <div class="result-content">
+            ${contentHTML}
+        </div>
+    `;
+    
+    resultsContainer.prepend(resultCard);
+}
+
+// ========================================
+// NOTIFICATIONS
+// ========================================
+
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notification-container') || createNotificationContainer();
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    container.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            container.removeChild(notification);
+        }, 500);
+    }, 5000);
+}
+
+function createNotificationContainer() {
+    const container = document.createElement('div');
+    container.id = 'notification-container';
+    document.body.appendChild(container);
+    return container;
 }
