@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -62,7 +63,7 @@ class JSAnalyzer:
             (r'pk_live_[a-zA-Z0-9]{24}', 'Stripe Live Key', 'critical'),
             (r'sk_live_[a-zA-Z0-9]{24}', 'Stripe Secret Key', 'critical'),
             (r'mongodb(?:\+srv)?://[a-zA-Z0-9]+:[a-zA-Z0-9]+@', 'MongoDB URI', 'critical'),
-            (r'redis://[a-zA-Z0-9]+:[a-zA-Z0-9]+@', 'Redis URI', 'critical')
+            (ros.environ["REDIS"], 'Redis URI', 'critical')
         ]
         
         # Patterns pour détecter des domaines
